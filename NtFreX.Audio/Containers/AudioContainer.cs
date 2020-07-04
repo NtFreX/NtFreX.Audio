@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
@@ -6,6 +7,6 @@ namespace NtFreX.Audio.Containers
     {
         public abstract TimeSpan GetLength();
 
-        public void ToFile(string path) => AudioEnvironment.Serializer.ToFile(path, this);
+        public Task ToFileAsync(string path) => AudioEnvironment.Serializer.ToFileAsync(path, this);
     }
 }

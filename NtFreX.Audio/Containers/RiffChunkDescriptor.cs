@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace NtFreX.Audio.Containers
 {
     public class RiffChunkDescriptor
     {
-        public const string RIFF = "52-49-46-46";
+        public const string RIFF = nameof(RIFF);
+        public const string WAVE = nameof(WAVE);
 
         /// <summary>
         /// Contains the letters "RIFF" in ASCII form (0x52494646 big-endian form).
@@ -42,12 +45,13 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException("The value has to contain the letters 'RIFF' (0x52494646 big-endian form)", nameof(ChunkId));
             }
 
-            if (BitConverter.ToString(BitConverter.GetBytes(Format)) != "57-41-56-45")
+            if (GetFormat() != WAVE)
             {
                 throw new ArgumentException("The value has to contain the letters 'WAVE' (0x57415645 big-endian form)", nameof(ChunkId));
             }
         }
 
-        public string GetChunkId() => BitConverter.ToString(BitConverter.GetBytes(ChunkId));
+        public string GetFormat() => Encoding.ASCII.GetString(BitConverter.GetBytes(Format).Reverse().ToArray());
+        public string GetChunkId() => Encoding.ASCII.GetString(BitConverter.GetBytes(ChunkId).Reverse().ToArray());
     }
 }

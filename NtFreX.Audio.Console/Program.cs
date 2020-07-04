@@ -22,57 +22,92 @@ namespace NtFreX.Audio.Sampler.Console
         static async Task Main(string[] args)
         {
             var serializer = AudioEnvironment.Serializer;
-            var audio = serializer.FromFile(testWav);
+            var audio = await serializer.FromFileAsync(testWav2).ConfigureAwait(false);
 
             System.Console.WriteLine($"Length = {audio.GetLength()}");
-
+            
             if (audio is WaveAudioContainer waveAudioContainer)
             {
-                AudioEnvironment.Serializer.ToFile("mono.wav", waveAudioContainer.SampleToMono());
+                await AudioEnvironment.Serializer.ToFileAsync("mono.wav", await waveAudioContainer.SampleToMonoAsync().ConfigureAwait(false));
 
-                var channels = waveAudioContainer.GetAudioSamplesPerChannel().ToInt(waveAudioContainer.IsDataLittleEndian());
-                var interleavedChannelData = MonoAudioSampler.InterleaveChannelData(channels);
-
-                var spectrum = new StringBuilder();
-                var count = waveAudioContainer.FmtSubChunk.SampleRate;
-                for (var c = 0; c < interleavedChannelData.Length / count - 1; c++)
-                {
-                    var computed = FourierTransform
-                        .Fast(interleavedChannelData.Skip(c * count).Take(count).Select(x => new CartesianCordinate(x)).ToArray())
-                        .Where(x => x != null)
-                        .ToArray();
-                    var width = computed.Max(x => x.X);
-                    var height = computed.Max(x => x.Y);
-                    var max = System.Math.Max(width, height);
-                    var halfX = width / 2.0f;
-                    var halfY = height / 2.0f;
-
-                    var skip = 50;
-                    spectrum.AppendLine($"<svg viewBox=\"0 0 {width} {height}\" height=\"40%\" width=\"40%\">"); // viewBox=\"0 0 {width} {height}\" height=\"100%\" width=\"100%\" style=\"position:absolute;z-index:1;\" 
-                    spectrum.AppendLine($"<path stroke=\"black\" stroke-width=\"{max / 400f}\" stroke-opacity=\"1\" fill-opacity=\"0\" d=\"M{halfX} {halfY}"); // height=\"{height}\" width=\"{width}\" 
-                    for (int i = 0; i < computed.Length; i += skip)
-                    {
-                        var current = computed.Skip(i).Take(skip).ToArray();
-                        var averageX = current.Average(x => x.X);
-                        var averageY = current.Average(x => x.Y);
-                        spectrum.AppendLine($"L{averageX + halfX} {averageY + halfY} ");
-                    }
-                    spectrum.AppendLine("Z\" />");
-                    spectrum.AppendLine("</svg>");
-                }
-
-                var data = new List<int[]>(channels);
-                data.Add(interleavedChannelData);
-                File.WriteAllText("waves.html", Html(string.Join(Environment.NewLine, DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.4f, 0.4f, 1 })) + spectrum.ToString()));
+                File.WriteAllText("waves.html", Html(
+                    await DrawSampleWavesAsync(waveAudioContainer).ConfigureAwait(false)/*,
+                    spectrum.ToString()*/));
             }
 
             using (var device = AudioEnvironment.Device.Get()) 
             {
-                await device.Play(audio);
+                await await device.PlayAsync(audio);
             }
 
             System.Console.WriteLine("Audio device has been disposed");
             System.Console.ReadKey();
+        }
+
+        static void DrawSectogram()
+        {
+
+            /*
+            var spectrum = new StringBuilder();
+            var count = interleavedChannelData.Length / 2;
+            for (var c = 0; c < interleavedChannelData.Length / count - 1; c++)
+            {
+                var computed = FourierTransform
+                    .Fast(interleavedChannelData.Skip(c * count).Take(count).Select(x => new CartesianCordinate(x)).ToArray())
+                    .Where(x => x != null)
+                    .ToArray();
+                var width = computed.Max(x => x.X);
+                var height = computed.Max(x => x.Y);
+                var max = System.Math.Max(width, height);
+                var halfX = width / 2.0f;
+                var halfY = height / 2.0f;
+
+                var skip = 50;
+                spectrum.AppendLine($"<svg viewBox=\"0 0 {width} {height}\" height=\"40%\" width=\"40%\">"); // viewBox=\"0 0 {width} {height}\" height=\"100%\" width=\"100%\" style=\"position:absolute;z-index:1;\" 
+                spectrum.AppendLine($"<path stroke=\"black\" stroke-width=\"{max / 400f}\" stroke-opacity=\"1\" fill-opacity=\"0\" d=\"M{halfX} {halfY}"); // height=\"{height}\" width=\"{width}\" 
+                for (int i = 0; i < computed.Length; i += skip)
+                {
+                    var current = computed.Skip(i).Take(skip).ToArray();
+                    var averageX = current.Average(x => x.X);
+                    var averageY = current.Average(x => x.Y);
+                    spectrum.AppendLine($"L{averageX + halfX} {averageY + halfY} ");
+                }
+                spectrum.AppendLine("Z\" />");
+                spectrum.AppendLine("</svg>");
+            }
+            */
+        }
+
+        static async Task<string> DrawSampleWavesAsync(WaveAudioContainer waveAudioContainer)
+        {
+            var samples = waveAudioContainer.GetAudioSamplesAsync();
+            var interleavedChannelData = await MonoAudioSampler.InterleaveChannelDataAsync(samples, waveAudioContainer.FmtSubChunk.NumChannels).ConfigureAwait(false);
+            var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
+            
+            var data = new List<int[]>(channelSamples);
+            data.Add(interleavedChannelData);
+            return DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.4f, 0.4f, 1 });
+        }
+
+        static async Task<IEnumerable<int[]>> GetChannelAudioSamplesAsync(WaveAudioContainer waveAudioContainer)
+        {
+            var channels = new List<int>[waveAudioContainer.FmtSubChunk.NumChannels];
+            var currentChannel = 0;
+            await foreach (var value in waveAudioContainer.GetAudioSamplesAsync().ConfigureAwait(false))
+            {
+                if (channels[currentChannel] == null)
+                {
+                    channels[currentChannel] = new List<int>();
+                }
+
+                channels[currentChannel].Add(value.ToInt32());
+
+                if (++currentChannel >= waveAudioContainer.FmtSubChunk.NumChannels)
+                {
+                    currentChannel = 0;
+                }
+            }
+            return channels.Select(x => x.ToArray());
         }
 
         static string Html(params string[] elements)
@@ -90,7 +125,7 @@ namespace NtFreX.Audio.Sampler.Console
         const float xModifier = 0.01f;
         const float yModifier = 0.05f;
 
-        static string DrawSvg(int[][] data, string[] colors, float[] opacities, int skip = 50)
+        static string DrawSvg(int[][] data, string[] colors, float[] opacities, int skip = 100)
         {
             var width = data[0].Length * xModifier; // TODO: replace with file length
             var height = data[0].Max() * yModifier; // TODO: replace max with waveAudioContainer.FmtSubChunk.BitsPerSample

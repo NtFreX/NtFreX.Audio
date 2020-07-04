@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace NtFreX.Audio.Containers
 {
     public class FmtSubChunk
     {
+        public const string FMT = "fmt ";
+
         /// <summary>
         /// Contains the letters "fmt" (0x666d7420 big-endian form).
         /// </summary>
@@ -32,44 +36,52 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// == SampleRate * NumChannels * BitsPerSample/8
         /// </summary>
-        public uint ByteRate { get; }
+        public uint ByteRate => (uint) (SampleRate * NumChannels * BitsPerSample / 8);
 
         /// <summary>
         /// == NumChannels * BitsPerSample/8
         /// </summary>
-        public ushort BlockAlign { get; }
+        public ushort BlockAlign => (ushort) (NumChannels * BitsPerSample / 8);
 
         /// <summary>
         /// 8 bits = 8, 16 bits = 16, etc.
         /// </summary>
         public ushort BitsPerSample { get; }
 
-        public FmtSubChunk WithSubchunk1Id(int subchunk1Id) => new FmtSubChunk(subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithSubchunk1Size(int subchunk1Size) => new FmtSubChunk(Subchunk1Id, subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithAudioFormat(ushort audioFormat) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, audioFormat, NumChannels, SampleRate, ByteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithNumChannels(ushort numChannels) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, numChannels, SampleRate, ByteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithSampleRate(int sampleRate) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, sampleRate, ByteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithByteRate(uint byteRate) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, byteRate, BlockAlign, BitsPerSample);
-        public FmtSubChunk WithBlockAlign(ushort blockAlign) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, blockAlign, BitsPerSample);
-        public FmtSubChunk WithBitsPerSample(ushort bitsPerSample) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, BlockAlign, bitsPerSample);
+        public FmtSubChunk WithSubchunk1Id(int subchunk1Id) => new FmtSubChunk(subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        public FmtSubChunk WithSubchunk1Size(int subchunk1Size) => new FmtSubChunk(Subchunk1Id, subchunk1Size, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        public FmtSubChunk WithAudioFormat(ushort audioFormat) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, audioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        public FmtSubChunk WithNumChannels(ushort numChannels) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, numChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        public FmtSubChunk WithSampleRate(int sampleRate) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, sampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        //public FmtSubChunk WithByteRate(uint byteRate) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate/*, byteRate, BlockAlign*/, BitsPerSample);
+        // public FmtSubChunk WithBlockAlign(ushort blockAlign) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, blockAlign, BitsPerSample);
+        public FmtSubChunk WithBitsPerSample(ushort bitsPerSample) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, bitsPerSample);
 
-        public FmtSubChunk(int subchunk1Id, int subchunk1Size, ushort audioFormat, ushort numChannels, int sampleRate, uint byteRate, ushort blockAlign, ushort bitsPerSample)
+        public FmtSubChunk(int subchunk1Id, int subchunk1Size, ushort audioFormat, ushort numChannels, int sampleRate /*, uint byteRate, ushort blockAlign */, ushort bitsPerSample)
         {
             Subchunk1Id = subchunk1Id;
             Subchunk1Size = subchunk1Size;
             AudioFormat = audioFormat;
             NumChannels = numChannels;
             SampleRate = sampleRate;
-            ByteRate = byteRate;
-            BlockAlign = blockAlign;
             BitsPerSample = bitsPerSample;
 
-            ThrowIfInvalid();
+            ThrowIfInvalid(/*byteRate, blockAlign*/);
         }
 
-        private void ThrowIfInvalid()
+        private void ThrowIfInvalid(/*uint byteRate, ushort blockAlign*/)
         {
-            if (BitConverter.ToString(BitConverter.GetBytes(Subchunk1Id)) != "66-6D-74-20")
+            /*if (byteRate != ByteRate)
+            {
+                throw new ArgumentException("The given value is wrong", nameof(ByteRate));
+            }
+
+            if (blockAlign != BlockAlign)
+            {
+                throw new ArgumentException("The given value is wrong", nameof(ByteRate));
+            }*/
+
+            if (GetSubchunk1Id() != FMT)
             {
                 throw new ArgumentException("The value has to contain the letters 'fmt' (0x666d7420 big-endian form)", nameof(Subchunk1Id));
             }
@@ -84,5 +96,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException("Only pcm containers no compression are supported", nameof(AudioFormat));
             }
         }
+
+        public string GetSubchunk1Id() => Encoding.ASCII.GetString(BitConverter.GetBytes(Subchunk1Id).Reverse().ToArray());
     }
 }

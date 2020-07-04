@@ -22,11 +22,11 @@ namespace NtFreX.Audio.Devices
             }
         }
 
-        public Task Play(AudioContainer audio)
+        public async Task<Task> PlayAsync(AudioContainer audio)
         {
             var fileExtension = AudioEnvironment.Serializer.GetPreferredFileExtension(audio);
             var fileName = $"temp{_playbackContexts.Count}.{fileExtension}";
-            audio.ToFile(fileName);
+            await audio.ToFileAsync(fileName).ConfigureAwait(false);
 
             Process process = new Process
             {

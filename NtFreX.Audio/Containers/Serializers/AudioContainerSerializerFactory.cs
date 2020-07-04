@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers.Serializers
 {
@@ -13,13 +16,14 @@ namespace NtFreX.Audio.Containers.Serializers
         private AudioContainerSerializerFactory() { }
 
         // TODO: resolve by signature in file or/and by file extension
-        public AudioContainer FromFile(string path) => _audioContainerSerializers.First().FromFile(path);
-        public AudioContainer FromData(byte[] data) => _audioContainerSerializers.First().FromData(data);
+        public Task<AudioContainer> FromFileAsync(string path, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromFileAsync(path, cancellationToken);
+        public Task<AudioContainer> FromDataAsync(byte[] data, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromDataAsync(data, cancellationToken);
+        public Task<AudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromStreamAsync(stream, cancellationToken);
 
-        public void ToFile(string path, AudioContainer container) => ForContainer(container).ToFile(path, container);
-        public byte[] ToData(AudioContainer container) => ForContainer(container).ToData(container);
+        public Task ToStreamSync(AudioContainer container, Stream stream, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().ToStreamAsync(container, stream, cancellationToken);
+        public Task ToFileAsync(string path, AudioContainer container, CancellationToken cancellationToken = default) => ForContainer(container).ToFileAsync(path, container, cancellationToken);
+        public Task<byte[]> ToDataAsync(AudioContainer container, CancellationToken cancellationToken = default) => ForContainer(container).ToDataAsync(container, cancellationToken);
         public string GetPreferredFileExtension(AudioContainer container) => ForContainer(container).PreferredFileExtension;
-
 
         private IAudioContainerSerializer ForContainer(AudioContainer container) => _audioContainerSerializers.First(x => x.GetType().BaseType.GenericTypeArguments.First() == container.GetType());
     }

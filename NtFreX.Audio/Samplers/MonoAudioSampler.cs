@@ -1,18 +1,27 @@
-﻿using System.Linq;
+﻿using NtFreX.Audio.Math;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
     public class MonoAudioSampler
     {
-        public static int[] InterleaveChannelData(int[][] channels)
+        public static async Task<int[]> InterleaveChannelDataAsync(IAsyncEnumerable<byte[]> data, int channels)
         {
-            var interleavedChannelData = new int[channels.First().Length];
-            for (var i = 0; i < interleavedChannelData.Length; i += 1)
+            var interleavedChannelData = new List<int>();
+            var temp = new int[channels];
+            var counter = 0;
+            await foreach(var value in data.ConfigureAwait(false))
             {
-                interleavedChannelData[i] = (int)channels.Select(x => x[i]).Average();
+                temp[counter++] = value.ToInt32();
+                if(counter == channels)
+                {
+                    interleavedChannelData.Add((int)temp.Average());
+                    counter = 0;
+                }
             }
-
-            return interleavedChannelData;
+            return interleavedChannelData.ToArray();
         }
     }
 }
