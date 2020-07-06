@@ -1,25 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 
 namespace NtFreX.Audio.Math
 {
     public static class EndianAwareBitConverter
     {
-        public static byte[] ToByteArray(this int value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        public static byte[] ToByteArray(this uint value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        public static byte[] ToByteArray(this ushort value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+        [return: NotNull] public static byte[] ToByteArray(this long value, int targetLength, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(ParseByLength(value, targetLength), isLittleEndian);
 
-        /// <summary>
-        /// Pads or trims the given byte array to 4 bytes and converts it with the given endianes
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="isLittleEndian"></param>
-        /// <returns></returns>
-        public static int ToInt32(this byte[] value, bool isLittleEndian = true)
+        [return: NotNull] public static byte[] ToByteArray(this int value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+        [return: NotNull] public static byte[] ToByteArray(this short value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+        [return: NotNull] public static byte[] ToByteArray(this uint value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+        [return: NotNull] public static byte[] ToByteArray(this ushort value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+        [return: NotNull] public static byte[] ToByteArray([NotNull] this string value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(Encoding.ASCII.GetBytes(value), isLittleEndian);
+
+        // TODO: make this stuff work
+        [return: NotNull] private static byte[] ParseByLength(this long value, int targetLength)
+        {
+            switch (targetLength)
+            {
+                case 1: return new [] { (byte)value };
+                case 2: return BitConverter.GetBytes((short)value);
+                case 4: return BitConverter.GetBytes((int) value);
+                case 8: return BitConverter.GetBytes(value);
+                default: throw new ArgumentException();
+            }
+        }
+        private static long ParseByLength([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            switch (value.Length)
+            {
+                case 1: return value[0];
+                case 2: return BitConverter.ToInt16(switched);
+                case 4: return BitConverter.ToInt32(switched);
+                case 8: return BitConverter.ToInt64(switched);
+                default: throw new ArgumentException();
+            }
+        }
+
+        public static long ToInt64([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            return ParseByLength(value, isLittleEndian);
+        }
+        public static int ToInt32([NotNull] this byte[] value, bool isLittleEndian = true)
         {
             /*int target = 0;
             for(int i = 0; i < value.Length; i++)
@@ -28,26 +60,25 @@ namespace NtFreX.Audio.Math
                 if (i < value.Length - 1)
                     target <<= 8;
             }*/
-            var max = System.Math.Pow(256, value.Length);
-            var parsed = BitConverter.ToUInt32(ToNumberRepresentation(value, 4, isLittleEndian));
-            //TODO: find out why this code is nessesary!!!
-            return (int) (parsed >= max / 2 ? parsed - max : parsed);
+            return (int) ParseByLength(value, isLittleEndian); //BitConverter.ToInt32(TwoComplementToSingle(ToNumberRepresentation(value, 4, isLittleEndian)));
+            //return (int)Overflow(parsed, value.Length);
         }
-        public static short ToInt16(this byte[] value, bool isLittleEndian = true)
+        public static short ToInt16([NotNull] this byte[] value, bool isLittleEndian = true)
         {
-            var max = System.Math.Pow(256, value.Length);
-            var parsed = BitConverter.ToUInt16(ToNumberRepresentation(value, 2, isLittleEndian));
-            //TODO: find out why this code is nessesary and why the tests fail!!!
-            return (short)(parsed >= max ?  parsed - max : parsed);
+            return (short) ParseByLength(value, isLittleEndian);
+            //return (short) Overflow(parsed, value.Length);
         }
-        public static uint ToUInt32(this byte[] value, bool isLittleEndian = true)
-            => BitConverter.ToUInt32(ToNumberRepresentation(value, 4, isLittleEndian));
-        public static ushort ToUInt16(this byte[] value, bool isLittleEndian = true)
-            => BitConverter.ToUInt16(ToNumberRepresentation(value, 2, isLittleEndian));
+        public static uint ToUInt32([NotNull] this byte[] value, bool isLittleEndian = true)
+            => (uint) ParseByLength(value, isLittleEndian);
+        public static ushort ToUInt16([NotNull] this byte[] value, bool isLittleEndian = true)
+            => (ushort) ParseByLength(value, isLittleEndian);
 
-        public static int[] ToInt32(this IEnumerable<byte[]> value, bool isLittleEndian = true) => value.Select(x => x.ToInt32(isLittleEndian)).ToArray();
-        public static int[][] ToInt32(this IEnumerable<byte[]>[] value, bool isLittleEndian = true) => value.Select(x => x.Select(y => y.ToInt32(isLittleEndian)).ToArray()).ToArray();
+        [return:NotNull] public static string ToAscii([NotNull] this byte[] value, bool isLittleEndian = true)
+            => Encoding.ASCII.GetString(value.SwitcheEndiannessWhenNotSameAsBitConverter(isLittleEndian));
 
+        [return: NotNull] public static int[] ToInt32([NotNull] this IEnumerable<byte[]> value, bool isLittleEndian = true) => value.Select(x => x.ToInt32(isLittleEndian)).ToArray();
+        [return: NotNull] public static int[][] ToInt32([NotNull] this IEnumerable<byte[]>[] value, bool isLittleEndian = true) => value.Select(x => x.Select(y => y.ToInt32(isLittleEndian)).ToArray()).ToArray();
+        /*
         public static IEnumerable<byte> PadOrTrimLeft(this IEnumerable<byte> value, int length)
         {
             var resolvedValues = value.ToArray();
@@ -92,10 +123,32 @@ namespace NtFreX.Audio.Math
                 ? endianValue.PadOrTrimRight(length)
                 : endianValue.PadOrTrimLeft(length);
             return padded.ToArray();
-        }
-        public static byte[] SwitcheEndiannessWhenNotSameAsBitConverter(this byte[] value, bool isLittleEndian = true)
+        }*/
+
+        [return: NotNull] public static byte[] SwitcheEndiannessWhenNotSameAsBitConverter([NotNull] this byte[] value, bool isLittleEndian = true)
             => BitConverter.IsLittleEndian != isLittleEndian ? SwitchEndianness(value) : value;
-        public static byte[] SwitchEndianness(this byte[] value)
+
+        [return: NotNull] public static byte[] SwitchEndianness([NotNull] this byte[] value)
             => value.Reverse().ToArray();
+
+        //TODO: find out why this code is nessesary!!! do same when converting back
+        /*private static double Overflow(uint value, int length)
+        {
+            var max = System.Math.Pow(256, length);
+            return value >= max / 2 ? value - max : value;
+        }*/
+        /*
+
+        private static byte[] SingleToTwoComplement(byte[] value)
+            => TwoComplementToSingle(value);
+        private static byte[] TwoComplementToSingle(byte[] value)
+        {
+            var start = value.Length / 2;
+            for (var i = start; i < value.Length; i++)
+            {
+                value[i] |= value[i];
+            }
+            return value;
+        }*/
     }
 }

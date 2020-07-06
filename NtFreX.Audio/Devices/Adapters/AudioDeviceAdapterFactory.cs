@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace NtFreX.Audio.Devices.Adapters
@@ -10,11 +11,11 @@ namespace NtFreX.Audio.Devices.Adapters
             new WindowsFileSystemAudioDeviceAdapter()
         };
 
-        public static AudioDeviceAdapterFactory Instance { get; } = new AudioDeviceAdapterFactory();
+        public static AudioDeviceAdapterFactory Instance { [return:NotNull] get; } = new AudioDeviceAdapterFactory();
 
         private AudioDeviceAdapterFactory() { }
 
-        public IAudioDevice Get()
+        [return: NotNull] public IAudioDevice Get()
         {
             var audioFileResolver = _audioDeviceResolvers.FirstOrDefault(x => x.CanUse());
             if (audioFileResolver == null)

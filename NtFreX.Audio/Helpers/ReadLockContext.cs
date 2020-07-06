@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace NtFreX.Audio.Helpers
@@ -7,9 +8,9 @@ namespace NtFreX.Audio.Helpers
     {
         private readonly SemaphoreSlim semaphore;
 
-        public T Data { get; }
+        public T Data { [return:MaybeNull] get; }
 
-        public ReadLockContext(SemaphoreSlim semaphore, T data)
+        public ReadLockContext([NotNull] SemaphoreSlim semaphore, [MaybeNull] T data)
         {
             Data = data;
             this.semaphore = semaphore;

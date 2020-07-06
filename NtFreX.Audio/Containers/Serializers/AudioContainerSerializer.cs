@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NtFreX.Audio.Helpers;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,18 +10,24 @@ namespace NtFreX.Audio.Containers.Serializers
     internal abstract class AudioContainerSerializer<TContainer> : IAudioContainerSerializer
         where TContainer : AudioContainer
     {
-        public abstract string PreferredFileExtension { get; }
+        public abstract string PreferredFileExtension { [return:NotNull] get; }
 
-        public async Task ToFileAsync(string path, TContainer container, CancellationToken cancellationToken = default)
+        [return:NotNull] public async Task ToFileAsync([NotNull] string path, [NotNull] TContainer container, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+
             using var steam = File.OpenWrite(path);
             await ToStreamAsync(container, steam, cancellationToken).ConfigureAwait(false);
         }
-        public Task<TContainer> FromFileAsync(string path, CancellationToken cancellationToken = default) => FromStreamAsync(File.OpenRead(path), cancellationToken);
+        [return:NotNull] public Task<TContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default) 
+            => FromStreamAsync(File.OpenRead(path), cancellationToken);
 
-        public async Task<byte[]> ToDataAsync(TContainer container, CancellationToken cancellationToken = default) 
+        [return:NotNull] public async Task<byte[]> ToDataAsync([NotNull] TContainer container, [MaybeNull] CancellationToken cancellationToken = default) 
         {
-            using var stream = new MemoryStream();
+            using var stream = StreamFactory.Instance.ResolveNewStreamForInMemory();
             await ToStreamAsync(container, stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             stream.Seek(0, SeekOrigin.Begin);
@@ -27,20 +35,20 @@ namespace NtFreX.Audio.Containers.Serializers
             await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
             return buffer;
         }
-        public Task<TContainer> FromDataAsync(byte[] data, CancellationToken cancellationToken = default)
+        [return:NotNull] public async Task<TContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            using var stream = new MemoryStream(data);
-            return FromStreamAsync(stream, cancellationToken);
+            using var stream = await StreamFactory.Instance.WriteToNewStreamAsync(data).ConfigureAwait(false);
+            return await FromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
         }
 
-        public abstract Task ToStreamAsync(TContainer container, Stream stream, CancellationToken cancellationToken = default);
-        public abstract Task<TContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default);
+        [return:NotNull] public abstract Task ToStreamAsync([NotNull] TContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
+        [return:NotNull] public abstract Task<TContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
 
-        async Task<AudioContainer> IAudioContainerSerializer.FromFileAsync(string path, CancellationToken cancellationToken = default) => await FromFileAsync(path, cancellationToken).ConfigureAwait(false);
-        async Task<AudioContainer> IAudioContainerSerializer.FromDataAsync(byte[] data, CancellationToken cancellationToken = default) => await FromDataAsync(data, cancellationToken).ConfigureAwait(false);
-        async Task<AudioContainer> IAudioContainerSerializer.FromStreamAsync(Stream stream, CancellationToken cancellationToken) => await FromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
+        [return:NotNull] async Task<AudioContainer> IAudioContainerSerializer.FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken) => await FromFileAsync(path, cancellationToken).ConfigureAwait(false);
+        [return:NotNull] async Task<AudioContainer> IAudioContainerSerializer.FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken) => await FromDataAsync(data, cancellationToken).ConfigureAwait(false);
+        [return:NotNull] async Task<AudioContainer> IAudioContainerSerializer.FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken) => await FromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
 
-        public Task ToFileAsync(string path, AudioContainer container, CancellationToken cancellationToken = default)
+        [return:NotNull] public Task ToFileAsync([NotNull] string path, [NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default)
         {
             if (container is TContainer genericContainer)
             {
@@ -49,7 +57,7 @@ namespace NtFreX.Audio.Containers.Serializers
 
             throw new ArgumentException($"The container has to be of type {typeof(TContainer)}.", nameof(container));
         }
-        public Task<byte[]> ToDataAsync(AudioContainer container, CancellationToken cancellationToken = default)
+        [return:NotNull] public Task<byte[]> ToDataAsync([NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default)
         {
             if (container is TContainer genericContainer)
             {
@@ -58,7 +66,7 @@ namespace NtFreX.Audio.Containers.Serializers
 
             throw new ArgumentException($"The container has to be of type {typeof(TContainer)}.", nameof(container));
         }
-        public Task ToStreamAsync(AudioContainer container, Stream stream, CancellationToken cancellationToken = default)
+        [return:NotNull] public Task ToStreamAsync([NotNull] AudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
             if (container is TContainer genericContainer)
             {

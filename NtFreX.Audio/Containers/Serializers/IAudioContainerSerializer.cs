@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,15 +7,15 @@ namespace NtFreX.Audio.Containers.Serializers
 {
     internal interface IAudioContainerSerializer
     {
-        string PreferredFileExtension { get; }
+        string PreferredFileExtension { [return: NotNull] get; }
 
-        Task ToFileAsync(string path, AudioContainer container, CancellationToken cancellationToken = default);
-        Task<AudioContainer> FromFileAsync(string path, CancellationToken cancellationToken = default);
+        [return: NotNull] Task ToFileAsync([NotNull] string path, [NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default);
+        [return: NotNull] Task<AudioContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default);
 
-        Task<byte[]> ToDataAsync(AudioContainer container, CancellationToken cancellationToken = default);
-        Task<AudioContainer> FromDataAsync(byte[] data, CancellationToken cancellationToken = default);
+        [return: NotNull] Task<byte[]> ToDataAsync([NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default);
+        [return: NotNull] Task<AudioContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default);
 
-        Task ToStreamAsync(AudioContainer container, Stream stream, CancellationToken cancellationToken = default);
-        Task<AudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default);
+        [return: NotNull] Task ToStreamAsync([NotNull] AudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
+        [return: NotNull] Task<AudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
     }
 }

@@ -1,11 +1,12 @@
 ﻿using NtFreX.Audio.Containers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Devices
 {
     public interface IAudioDevice : IDisposable
     {
-        Task<Task> PlayAsync(AudioContainer audio);
+         [return:NotNull] Task<Task> PlayAsync([NotNull] AudioContainer audio);
     }
 }

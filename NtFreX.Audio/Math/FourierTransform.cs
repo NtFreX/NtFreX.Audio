@@ -1,11 +1,14 @@
-﻿namespace NtFreX.Audio.Math
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NtFreX.Audio.Math
 {
     /// <summary>
     /// https://www.egr.msu.edu/classes/ece480/capstone/fall11/group06/style/Application_Note_ChrisOakley.pdf
     /// </summary>
     public class FourierTransform
     {
-        public static CartesianCordinate[] Discrete(CartesianCordinate[] input)
+        [return:NotNull]
+        public static CartesianCordinate[] Discrete([NotNull] CartesianCordinate[] input)
         {
             int n = input.Length;
             var output = new CartesianCordinate[n];
@@ -23,7 +26,8 @@
             return output;
         }
 
-        public static CartesianCordinate[] Fast(CartesianCordinate[] input)
+        [return: NotNull]
+        public static CartesianCordinate[] Fast([NotNull] CartesianCordinate[] input)
         {
             int n = input.Length;
             CartesianCordinate[] output = new CartesianCordinate[n];

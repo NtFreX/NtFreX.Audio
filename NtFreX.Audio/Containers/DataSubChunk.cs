@@ -1,23 +1,21 @@
 ﻿using NtFreX.Audio.Helpers;
+using NtFreX.Audio.Resources;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
-    public class DataSubChunk : IDisposable
+    public sealed class DataSubChunk : IDisposable
     {
         public const string DATA = "data";
 
-        public int StartIndex { get; }
+        public long StartIndex { get; }
 
         /// <summary>
         /// Contains the letters "data" (0x64617461 big-endian form).
         /// </summary>
-        public int Subchunk2Id { get; }
+        public string Subchunk2Id { [return:NotNull] get; }
 
         /// <summary>
         /// == NumSamples * NumChannels * BitsPerSample/8
@@ -27,31 +25,31 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// The actual sound data.
         /// </summary>
-        public ReadLock<Stream> Data { get; }
+        public ReadLock<Stream> Data { [return: NotNull] get; }
 
-        public DataSubChunk WithSubchunk2Id(int subchunk2Id) => new DataSubChunk(StartIndex, subchunk2Id, Subchunk2Size, Data.AquireAndDisposeOrThrow());
-        public DataSubChunk WithSubchunk2Size(uint subchunk2Size) => new DataSubChunk(StartIndex, Subchunk2Id, subchunk2Size, Data.AquireAndDisposeOrThrow());
-        public DataSubChunk WithData(Stream data) => new DataSubChunk(StartIndex, Subchunk2Id, Subchunk2Size, data);
+        [return: NotNull] public DataSubChunk WithSubchunk2Id([NotNull] string subchunk2Id) => new DataSubChunk(StartIndex, subchunk2Id, Subchunk2Size, Data.AquireAndDisposeOrThrow());
+        [return: NotNull] public DataSubChunk WithSubchunk2Size(uint subchunk2Size) => new DataSubChunk(StartIndex, Subchunk2Id, subchunk2Size, Data.AquireAndDisposeOrThrow());
+        [return: NotNull] public DataSubChunk WithData([NotNull] Stream data) => new DataSubChunk(StartIndex, Subchunk2Id, Subchunk2Size, data);
 
-        public DataSubChunk(int startIndex, int subchunk2Id, uint subchunk2Size, Stream data)
+        public DataSubChunk(long startIndex, [NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] Stream data)
         {
             StartIndex = startIndex;
             Subchunk2Id = subchunk2Id;
             Subchunk2Size = subchunk2Size;
-            Data = new ReadLock<Stream>(data, data => data.Seek(this.StartIndex + 8, SeekOrigin.Begin));
+            Data = new ReadLock<Stream>(data, data => data.Seek(StartIndex + 8, SeekOrigin.Begin));
 
             ThrowIfInvalid();
         }
 
         private void ThrowIfInvalid()
         {
-            if (GetSubchunk2Id() != DATA)
+#pragma warning disable CA2208 // Instantiate argument exceptions correctly
+            if (Subchunk2Id != DATA)
             {
-                throw new ArgumentException("The value has to contain the letters 'data' (0x64617461 big-endian form)", nameof(Subchunk2Id));
+                throw new ArgumentException(ExceptionMessages.DataSubChunkIdMissmatch, nameof(Subchunk2Id));
             }
+#pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }
-
-        public string GetSubchunk2Id() => Encoding.ASCII.GetString(BitConverter.GetBytes(Subchunk2Id).Reverse().ToArray());
 
         public void Dispose()
         {

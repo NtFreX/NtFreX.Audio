@@ -1,12 +1,14 @@
-﻿using NtFreX.Audio.Containers;
+﻿using Microsoft.VisualBasic.CompilerServices;
+using NtFreX.Audio.Containers;
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using NtFreX.Audio.Samplers;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
@@ -21,27 +23,61 @@ namespace NtFreX.Audio.Sampler.Console
 
         static async Task Main(string[] args)
         {
-            var serializer = AudioEnvironment.Serializer;
-            var audio = await serializer.FromFileAsync(testWav2).ConfigureAwait(false);
+            var cancelationTokenSource = new CancellationTokenSource();
 
-            System.Console.WriteLine($"Length = {audio.GetLength()}");
+            System.Console.WriteLine($"Reading...");
+            var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav2, cancelationTokenSource.Token).ConfigureAwait(false);
+            System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
             if (audio is WaveAudioContainer waveAudioContainer)
             {
-                await AudioEnvironment.Serializer.ToFileAsync("mono.wav", await waveAudioContainer.SampleToMonoAsync().ConfigureAwait(false));
+                System.Console.WriteLine($"Converting...");
+                audio = await new AudioSamplerPipe()
+                    .Add(x => x.MonoAudioSampler())
+                    //.Add(x => x.BitsPerSampleAudioSampler(64))
+                    .Add(x => x.BitsPerSampleAudioSampler(32))
+                    .Add(x => x.BitsPerSampleAudioSampler(16))
+                    .Add(x => x.BitsPerSampleAudioSampler(8))
+                    //.Add(x => x.SampleRateAudioSampler(44100))
+                    .RunAsync(waveAudioContainer, LogProgress, cancelationTokenSource.Token)
+                    .ToFileAsync("mono8bit.wav", cancelationTokenSource.Token)
+                    .ConfigureAwait(false);
 
-                File.WriteAllText("waves.html", Html(
-                    await DrawSampleWavesAsync(waveAudioContainer).ConfigureAwait(false)/*,
-                    spectrum.ToString()*/));
+
+                System.Console.WriteLine($"Drawing...");
+                File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer).ConfigureAwait(false)/*,spectrum.ToString()*/));
             }
 
+            System.Console.WriteLine($"Playing...");
             using (var device = AudioEnvironment.Device.Get()) 
             {
                 await await device.PlayAsync(audio);
             }
+            System.Console.WriteLine("  Audio device has been disposed");
 
-            System.Console.WriteLine("Audio device has been disposed");
             System.Console.ReadKey();
+        }
+
+        static double lastProgress = 0;
+        const int length = 40;
+        const int left = 2;
+        static void LogProgress(double progress)
+        {
+            var diff = System.Math.Abs(progress - lastProgress);
+            if (diff > 0.01 || progress == 0 || progress == 1) 
+            {
+                System.Console.CursorLeft = left;
+                System.Console.Write("<" + string.Join(string.Empty, Enumerable.Repeat("█", (int) (length * progress))));
+                System.Console.CursorLeft = length + 1 + left;
+                System.Console.Write(">");
+
+                if(progress == 1)
+                {
+                    System.Console.WriteLine();
+                }
+
+                lastProgress = progress;
+            }
         }
 
         static void DrawSectogram()
@@ -80,12 +116,15 @@ namespace NtFreX.Audio.Sampler.Console
 
         static async Task<string> DrawSampleWavesAsync(WaveAudioContainer waveAudioContainer)
         {
-            var samples = waveAudioContainer.GetAudioSamplesAsync();
-            var interleavedChannelData = await MonoAudioSampler.InterleaveChannelDataAsync(samples, waveAudioContainer.FmtSubChunk.NumChannels).ConfigureAwait(false);
+            var monoAudio = await AudioEnvironment.Sampler.MonoAudioSampler().SampleAsync(waveAudioContainer).ConfigureAwait(false);
+           //var downAudio = await AudioEnvironment.Sampler.BitsPerSampleAudioSampler(8).SampleAsync(monoAudio).ConfigureAwait(false);
+            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.ToInt32()).ToArrayAsync().ConfigureAwait(false);
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
-            
-            var data = new List<int[]>(channelSamples);
-            data.Add(interleavedChannelData);
+
+            var data = new List<int[]>(channelSamples)
+            {
+                monoData
+            };
             return DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.4f, 0.4f, 1 });
         }
 

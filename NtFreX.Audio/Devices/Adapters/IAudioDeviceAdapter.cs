@@ -1,8 +1,10 @@
-﻿namespace NtFreX.Audio.Devices.Adapters
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NtFreX.Audio.Devices.Adapters
 {
     internal interface IAudioDeviceAdapter
     {
         bool CanUse();
-        IAudioDevice Initialize();
+         [return:NotNull] IAudioDevice Initialize();
     }
 }

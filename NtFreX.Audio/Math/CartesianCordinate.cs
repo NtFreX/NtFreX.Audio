@@ -1,9 +1,11 @@
-﻿namespace NtFreX.Audio.Math
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace NtFreX.Audio.Math
 {
     public class CartesianCordinate
     {
-        public double X { get; }
-        public double Y { get; }
+        public double X { [return:MaybeNull] get; }
+        public double Y { [return: MaybeNull] get; }
 
         public CartesianCordinate()
         {
@@ -23,19 +25,19 @@
             Y = y;
         }
 
-        public static CartesianCordinate FromPolarCordinate(double r, double radians)
+        [return:NotNull] public static CartesianCordinate FromPolarCordinate(double r, double radians)
             => new CartesianCordinate(r * System.Math.Cos(radians), r * System.Math.Sin(radians));
 
-        public static CartesianCordinate operator +(CartesianCordinate a, CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator +([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
             => new CartesianCordinate((a?.X ?? 0d) + (b?.X ?? 0d), (a?.Y ?? 0d) + (b?.Y ?? 0d));
 
-        public static CartesianCordinate operator -(CartesianCordinate a, CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator -([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
             => new CartesianCordinate((a?.X ?? 0d) - (b?.X ?? 0d), (a?.Y ?? 0d) - (b?.Y ?? 0d));
 
-        public static CartesianCordinate operator *(CartesianCordinate a, CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator *([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
             => new CartesianCordinate(((a?.X ?? 0d) * (b?.X ?? 0d)) - ((a?.Y ?? 0d) * (b?.Y ?? 0d)), ((a?.X ?? 0d) * (b?.Y ?? 0d)) + ((a?.Y ?? 0d) * (b?.X ?? 0d)));
 
-        public override string ToString()
+        [return: NotNull] public override string ToString()
         {
             return $"x{X}:y{Y}";
         }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,20 +12,20 @@ namespace NtFreX.Audio.Containers.Serializers
             new WaveAudioContainerSerializer()
         };
 
-        public static AudioContainerSerializerFactory Instance { get; } = new AudioContainerSerializerFactory();
+        public static AudioContainerSerializerFactory Instance { [return:NotNull] get; } = new AudioContainerSerializerFactory();
 
         private AudioContainerSerializerFactory() { }
 
         // TODO: resolve by signature in file or/and by file extension
-        public Task<AudioContainer> FromFileAsync(string path, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromFileAsync(path, cancellationToken);
-        public Task<AudioContainer> FromDataAsync(byte[] data, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromDataAsync(data, cancellationToken);
-        public Task<AudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromStreamAsync(stream, cancellationToken);
+        [return:NotNull] public Task<AudioContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromFileAsync(path, cancellationToken);
+        [return:NotNull] public Task<AudioContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromDataAsync(data, cancellationToken);
+        [return:NotNull] public Task<AudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default) => _audioContainerSerializers.First().FromStreamAsync(stream, cancellationToken);
 
-        public Task ToStreamSync(AudioContainer container, Stream stream, CancellationToken cancellationToken = default) => _audioContainerSerializers.First().ToStreamAsync(container, stream, cancellationToken);
-        public Task ToFileAsync(string path, AudioContainer container, CancellationToken cancellationToken = default) => ForContainer(container).ToFileAsync(path, container, cancellationToken);
-        public Task<byte[]> ToDataAsync(AudioContainer container, CancellationToken cancellationToken = default) => ForContainer(container).ToDataAsync(container, cancellationToken);
-        public string GetPreferredFileExtension(AudioContainer container) => ForContainer(container).PreferredFileExtension;
+        [return: NotNull] public Task ToStreamSync([NotNull] AudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default) => _audioContainerSerializers.First().ToStreamAsync(container, stream, cancellationToken);
+        [return: NotNull] public Task ToFileAsync([NotNull] string path, [NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default) => ForContainer(container).ToFileAsync(path, container, cancellationToken);
+        [return: NotNull] public Task<byte[]> ToDataAsync([NotNull] AudioContainer container, [MaybeNull] CancellationToken cancellationToken = default) => ForContainer(container).ToDataAsync(container, cancellationToken);
+        [return: NotNull] public string GetPreferredFileExtension([NotNull] AudioContainer container) => ForContainer(container).PreferredFileExtension;
 
-        private IAudioContainerSerializer ForContainer(AudioContainer container) => _audioContainerSerializers.First(x => x.GetType().BaseType.GenericTypeArguments.First() == container.GetType());
+        [return: NotNull] private IAudioContainerSerializer ForContainer([NotNull] AudioContainer container) => _audioContainerSerializers.First(x => x.GetType().BaseType?.GenericTypeArguments.First() == container.GetType());
     }
 }

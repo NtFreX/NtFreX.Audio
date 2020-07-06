@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace NtFreX.Audio.Devices
             }
         }
 
-        public async Task<Task> PlayAsync(AudioContainer audio)
+        [return:NotNull] public async Task<Task> PlayAsync([NotNull] AudioContainer audio)
         {
             var fileExtension = AudioEnvironment.Serializer.GetPreferredFileExtension(audio);
             var fileName = $"temp{_playbackContexts.Count}.{fileExtension}";

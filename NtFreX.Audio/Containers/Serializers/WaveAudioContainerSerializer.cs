@@ -3,9 +3,9 @@ using NtFreX.Audio.Math;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,15 +13,15 @@ namespace NtFreX.Audio.Containers.Serializers
 {
     internal class WaveAudioContainerSerializer : AudioContainerSerializer<WaveAudioContainer>
     {
-        public override string PreferredFileExtension => "wav";
+        public override string PreferredFileExtension { [return: NotNull] get; } = "wav";
 
-        public override async Task ToStreamAsync(WaveAudioContainer container, Stream stream, CancellationToken cancellationToken = default)
+        [return: NotNull] public override async Task ToStreamAsync([NotNull] WaveAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var headers = new List<byte>()
-                .Concat(container.RiffChunkDescriptor.ChunkId.ToByteArray(isLittleEndian: false))
+                .Concat(container.RiffChunkDescriptor.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(container.RiffChunkDescriptor.ChunkSize.ToByteArray())
-                .Concat(container.RiffChunkDescriptor.Format.ToByteArray(isLittleEndian: false))
-                .Concat(container.FmtSubChunk.Subchunk1Id.ToByteArray(isLittleEndian: false))
+                .Concat(container.RiffChunkDescriptor.Format.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
+                .Concat(container.FmtSubChunk.Subchunk1Id.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(container.FmtSubChunk.Subchunk1Size.ToByteArray())
                 .Concat(container.FmtSubChunk.AudioFormat.ToByteArray())
                 .Concat(container.FmtSubChunk.NumChannels.ToByteArray())
@@ -29,13 +29,13 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(container.FmtSubChunk.ByteRate.ToByteArray())
                 .Concat(container.FmtSubChunk.BlockAlign.ToByteArray())
                 .Concat(container.FmtSubChunk.BitsPerSample.ToByteArray())
-                .Concat(container.RiffSubChuncks.Select(subChunck =>
+                .Concat(container.UnknownSubChuncks.Select(subChunck =>
                 {
-                    return new List<byte>(subChunck.SubchunkId.ToByteArray(isLittleEndian: false))
+                    return new List<byte>(subChunck.SubchunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                         .Concat(subChunck.SubchunkSize.ToByteArray())
                         .Concat(subChunck.SubchunkData);
                 }).SelectMany(x => x))
-                .Concat(container.DataSubChunk.Subchunk2Id.ToByteArray(isLittleEndian: false))
+                .Concat(container.DataSubChunk.Subchunk2Id.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(container.DataSubChunk.Subchunk2Size.ToByteArray())
                 .ToArray();
 
@@ -45,49 +45,48 @@ namespace NtFreX.Audio.Containers.Serializers
             await readContext.Data.CopyToAsync(stream, cancellationToken).ConfigureAwait(false); // TODO: stop at data end!
         }
 
-        public override async Task<WaveAudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default)
+        [return: NotNull] public override async Task<WaveAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var riff = new RiffChunkDescriptor(
-                   chunkId: await stream.ReadInt32Async(isLittleEndian: false, cancellationToken).ConfigureAwait(false),
-                   chunkSize: await stream.ReadInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                   format: await stream.ReadInt32Async(isLittleEndian: false, cancellationToken).ConfigureAwait(false));
+                   chunkId: await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false),
+                   chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                   format: await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false));;
             var fmt = new FmtSubChunk(
-                   subchunk1Id: await stream.ReadInt32Async(isLittleEndian: false, cancellationToken).ConfigureAwait(false),
-                   subchunk1Size: await stream.ReadInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                   subchunk1Id: await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false),
+                   subchunk1Size: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                    audioFormat: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                    numChannels: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                   sampleRate: await stream.ReadInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                   sampleRate: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                    /*, byteRate: data.TakeUInt(28),
                    blockAlign: data.TakeUShort(32)*/
                    bitsPerSample: await (await stream.SkipAsync(6, cancellationToken).ConfigureAwait(false)).ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false));
 
             //TODO: support non seekable streams?
             //TODO: fix all the casting
-            DataSubChunk data = null;
-            var subChunks = new List<RiffSubChunk>();
+            var subChunks = new List<UnknownSubChunk>();
             while (stream.Position < stream.Length)
             {
-                var chunckId = await stream.ReadInt32Async(isLittleEndian: false, cancellationToken).ConfigureAwait(false);
-                if (Encoding.ASCII.GetString(BitConverter.GetBytes(chunckId).Reverse().ToArray()) == DataSubChunk.DATA)
+                var chunckId = await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false);
+                if (chunckId == DataSubChunk.DATA)
                 {
-                    data = new DataSubChunk(
-                       startIndex: (int) stream.Position - 4,
-                       subchunk2Id: chunckId,
-                       subchunk2Size: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                       data: stream);
+                    var data = new DataSubChunk(
+                          startIndex: stream.Position - 4,
+                          subchunk2Id: chunckId,
+                          subchunk2Size: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                          data: stream);
 
                     //TODO: packages after data?
-                    break;
+                    return new WaveAudioContainer(riff, fmt, data, subChunks.ToArray());
                 } 
                 else
                 {
                     var size = await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false);
                     var subChunckData = await stream.ReadBytesAsync((int)size, cancellationToken).ConfigureAwait(false);
-                    subChunks.Add(new RiffSubChunk(subchunkId: chunckId, subchunkSize: size, subchunkData: subChunckData));
+                    subChunks.Add(new UnknownSubChunk(subchunkId: chunckId, subchunkSize: size, subchunkData: subChunckData));
                 }
             }
 
-            return new WaveAudioContainer(riff, fmt, data, subChunks.ToArray());
+            throw new ArgumentException("No data sub chunk has been found", nameof(stream));
         }
     }
 }

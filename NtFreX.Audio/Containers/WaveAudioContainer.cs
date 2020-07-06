@@ -7,6 +7,8 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
+using NtFreX.Audio.Helpers;
 
 namespace NtFreX.Audio.Containers
 {
@@ -15,24 +17,25 @@ namespace NtFreX.Audio.Containers
     /// </summary>
     public class WaveAudioContainer : AudioContainer
     {
-        public RiffSubChunk[] RiffSubChuncks { get; }
-        public RiffChunkDescriptor RiffChunkDescriptor { get; }
-        public FmtSubChunk FmtSubChunk { get; }
-        public DataSubChunk DataSubChunk { get; }
+        public IReadOnlyList<UnknownSubChunk> UnknownSubChuncks { [return:NotNull] get; private set; }
+        public RiffChunkDescriptor RiffChunkDescriptor { [return: NotNull] get; private set; }
+        public FmtSubChunk FmtSubChunk { [return: NotNull] get; private set; }
+        public DataSubChunk DataSubChunk { [return: NotNull] get; private set; }
 
-        public WaveAudioContainer WithRiffChunkDescriptor(Func<RiffChunkDescriptor, RiffChunkDescriptor> riffChunkDescriptor) => new WaveAudioContainer(riffChunkDescriptor(RiffChunkDescriptor), FmtSubChunk, DataSubChunk, RiffSubChuncks);
-        public WaveAudioContainer WithFmtSubChunk(Func<FmtSubChunk, FmtSubChunk> fmtSubChunk) => new WaveAudioContainer(RiffChunkDescriptor, fmtSubChunk(FmtSubChunk), DataSubChunk, RiffSubChuncks);
-        public WaveAudioContainer WithDataSubChunk(Func<DataSubChunk, DataSubChunk> dataSubChunk) => new WaveAudioContainer(RiffChunkDescriptor, FmtSubChunk, dataSubChunk(DataSubChunk), RiffSubChuncks);
-        public WaveAudioContainer WithRiffSubChunks(RiffSubChunk[] riffSubChunks) => new WaveAudioContainer(RiffChunkDescriptor, FmtSubChunk, DataSubChunk, riffSubChunks);
+        [return: NotNull] public WaveAudioContainer WithRiffChunkDescriptor([NotNull] Func<RiffChunkDescriptor, RiffChunkDescriptor> riffChunkDescriptor) => new WaveAudioContainer(riffChunkDescriptor(RiffChunkDescriptor), FmtSubChunk, DataSubChunk, UnknownSubChuncks);
+        [return: NotNull] public WaveAudioContainer WithFmtSubChunk([NotNull] Func<FmtSubChunk, FmtSubChunk> fmtSubChunk) => new WaveAudioContainer(RiffChunkDescriptor, fmtSubChunk(FmtSubChunk), DataSubChunk, UnknownSubChuncks);
+        [return: NotNull] public WaveAudioContainer WithDataSubChunk([NotNull] Func<DataSubChunk, DataSubChunk> dataSubChunk) => new WaveAudioContainer(RiffChunkDescriptor, FmtSubChunk, dataSubChunk(DataSubChunk), UnknownSubChuncks);
+        [return: NotNull] public WaveAudioContainer WithRiffSubChunks([NotNull] UnknownSubChunk[] riffSubChunks) => new WaveAudioContainer(RiffChunkDescriptor, FmtSubChunk, DataSubChunk, riffSubChunks);
 
-        public WaveAudioContainer(RiffChunkDescriptor riffChunkDescriptor, FmtSubChunk fmtSubChunk, DataSubChunk dataSubChunk, RiffSubChunk[] riffSubChuncks)
+        public WaveAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] DataSubChunk dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
         {
             RiffChunkDescriptor = riffChunkDescriptor;
             FmtSubChunk = fmtSubChunk;
             DataSubChunk = dataSubChunk;
-            RiffSubChuncks = riffSubChuncks;
+            UnknownSubChuncks = riffSubChuncks;
         }
 
+        [return: NotNull]
         public override TimeSpan GetLength()
             => TimeSpan.FromSeconds(DataSubChunk.Subchunk2Size / (FmtSubChunk.ByteRate * 1.0f));
 
@@ -42,25 +45,8 @@ namespace NtFreX.Audio.Containers
         private int GetChannelSize()
             => (int) (DataSubChunk.Subchunk2Size / GetSampleSize() / FmtSubChunk.NumChannels);
 
-        // TODO: make work
-        public async Task<WaveAudioContainer> SampleToMonoAsync(CancellationToken cancellationToken = default)
-        {
-            if (FmtSubChunk.NumChannels == 1)
-            {
-                throw new InvalidOperationException("The channels are already mono");
-            }
-
-            var samples = GetAudioSamplesAsync(cancellationToken: cancellationToken);
-            var interleavedData = await MonoAudioSampler.InterleaveChannelDataAsync(samples, FmtSubChunk.NumChannels).ConfigureAwait(false);
-
-            byte[] monoData = interleavedData.Select(x => BitConverter.GetBytes((short)x)).SelectMany(x => x).ToArray();
-            return WithFmtSubChunk(x => x.WithNumChannels(1))
-                  .WithDataSubChunk(x => x
-                    .WithData(new MemoryStream(monoData))
-                    .WithSubchunk2Size((uint) monoData.Length));
-        }
-
-        public async IAsyncEnumerable<byte[]> GetAudioSamplesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        [return: NotNull]
+        public async IAsyncEnumerable<byte[]> GetAudioSamplesAsync([MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var samplesSize = GetSampleSize();
             await foreach(var buffer in GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
@@ -72,13 +58,14 @@ namespace NtFreX.Audio.Containers
             }
         }
 
-        public bool IsDataLittleEndian() => RiffChunkDescriptor.GetChunkId() == RiffChunkDescriptor.RIFF;
+        public bool IsDataLittleEndian() => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.RIFF;
 
-        private async IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync(int bufferSizeInSamples = 100, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        [return: NotNull]
+        private async IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var readContext = await DataSubChunk.Data.AquireAsync(cancellationToken).ConfigureAwait(false);
 
-            var samplesSize = GetSampleSize() * bufferSizeInSamples;
+            var bufferSize = StreamFactory.Instance.GetBufferSize();
             var max = DataSubChunk.Subchunk2Size;
             var current = 0;
             while (true)
@@ -88,12 +75,12 @@ namespace NtFreX.Audio.Containers
                     throw new OperationCanceledException("A cancelation has been requested");
                 }
 
-                var bufferSize = (int)(current + samplesSize > max ? max - current : samplesSize);
-                var buffer = new byte[bufferSize];
+                var realBufferSize = (int)(current + bufferSize > max ? max - current : bufferSize);
+                var buffer = new byte[realBufferSize];
 
                 try
                 {
-                    var readLength = await readContext.Data.ReadAsync(buffer, 0, bufferSize, cancellationToken).ConfigureAwait(false);
+                    var readLength = await readContext.Data.ReadAsync(buffer, 0, realBufferSize, cancellationToken).ConfigureAwait(false);
                     if (readLength == 0)
                     {
                         break;
@@ -107,6 +94,5 @@ namespace NtFreX.Audio.Containers
                 yield return buffer;
             }
         }
-
     }
 }

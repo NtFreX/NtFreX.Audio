@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace NtFreX.Audio.Devices.Adapters
@@ -8,7 +9,7 @@ namespace NtFreX.Audio.Devices.Adapters
         public bool CanUse()
             => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(WindowsFileSystemAudioDevice.WindowsMediaPlayerPath);
 
-        public IAudioDevice Initialize()
+         [return:NotNull] public IAudioDevice Initialize()
             => new WindowsFileSystemAudioDevice();
     }
 }
