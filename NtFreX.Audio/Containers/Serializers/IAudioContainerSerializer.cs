@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers.Serializers
 {
-    internal interface IAudioContainerSerializer
+    public interface IAudioContainerSerializer
     {
         string PreferredFileExtension { [return: NotNull] get; }
 

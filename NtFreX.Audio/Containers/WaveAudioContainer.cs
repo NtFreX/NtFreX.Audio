@@ -1,9 +1,5 @@
-﻿using NtFreX.Audio.Samplers;
-using NtFreX.Audio.Math;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -15,8 +11,11 @@ namespace NtFreX.Audio.Containers
     /// <summary>
     /// http://soundfile.sapp.org/doc/WaveFormat/
     /// </summary>
+    //TODO: support seekable and non seekable cases
     public class WaveAudioContainer : AudioContainer
     {
+        private bool _disposed = false;
+
         public IReadOnlyList<UnknownSubChunk> UnknownSubChuncks { [return:NotNull] get; private set; }
         public RiffChunkDescriptor RiffChunkDescriptor { [return: NotNull] get; private set; }
         public FmtSubChunk FmtSubChunk { [return: NotNull] get; private set; }
@@ -35,15 +34,14 @@ namespace NtFreX.Audio.Containers
             UnknownSubChuncks = riffSubChuncks;
         }
 
-        [return: NotNull]
-        public override TimeSpan GetLength()
+        [return: NotNull] public override TimeSpan GetLength()
             => TimeSpan.FromSeconds(DataSubChunk.Subchunk2Size / (FmtSubChunk.ByteRate * 1.0f));
-
         private int GetSampleSize()
             => FmtSubChunk.BitsPerSample / 8;
-
         private int GetChannelSize()
             => (int) (DataSubChunk.Subchunk2Size / GetSampleSize() / FmtSubChunk.NumChannels);
+        public bool IsDataLittleEndian() 
+            => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.RIFF;
 
         [return: NotNull]
         public async IAsyncEnumerable<byte[]> GetAudioSamplesAsync([MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -57,15 +55,12 @@ namespace NtFreX.Audio.Containers
                 }
             }
         }
-
-        public bool IsDataLittleEndian() => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.RIFF;
-
         [return: NotNull]
         private async IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var readContext = await DataSubChunk.Data.AquireAsync(cancellationToken).ConfigureAwait(false);
 
-            var bufferSize = StreamFactory.Instance.GetBufferSize();
+            var bufferSize = StreamFactory.GetBufferSize();
             var max = DataSubChunk.Subchunk2Size;
             var current = 0;
             while (true)
@@ -93,6 +88,22 @@ namespace NtFreX.Audio.Containers
 
                 yield return buffer;
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                DataSubChunk.Dispose();
+            }
+
+            base.Dispose(disposing);
+            _disposed = true;
         }
     }
 }

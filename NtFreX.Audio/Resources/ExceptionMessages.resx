@@ -129,4 +129,7 @@
   <data name="FmtSubChunkIdMissmatch" xml:space="preserve">
     <value>The value has to contain the letters 'fmt' (0x666d7420 big-endian form)</value>
   </data>
+  <data name="WaveAudioContainerNoDataSubChunk" xml:space="preserve">
+    <value>No data sub chunk has been found</value>
+  </data>
 </root>

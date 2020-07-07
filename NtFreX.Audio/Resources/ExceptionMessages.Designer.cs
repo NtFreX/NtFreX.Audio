@@ -95,5 +95,14 @@ namespace NtFreX.Audio.Resources {
                 return ResourceManager.GetString("FmtSubChunkIdMissmatch", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No data sub chunk has been found.
+        /// </summary>
+        internal static string WaveAudioContainerNoDataSubChunk {
+            get {
+                return ResourceManager.GetString("WaveAudioContainerNoDataSubChunk", resourceCulture);
+            }
+        }
     }
 }

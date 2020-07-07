@@ -49,8 +49,7 @@ namespace NtFreX.Audio.Math
             E = Fast(e);
             for (k = 0; k < n / 2; k++)
             {
-                CartesianCordinate temp = CartesianCordinate.FromPolarCordinate(1, -2 * System.Math.PI * k / n);
-                D[k] *= temp;
+                D[k] *= CartesianCordinate.FromPolarCordinate(1, -2 * System.Math.PI * k / n);
             }
             for (k = 0; k < n / 2; k++)
             {

@@ -8,8 +8,10 @@ namespace NtFreX.Audio.Containers.Serializers
 {
     public sealed class AudioContainerSerializerFactory
     {
+        [return: NotNull] public static WaveAudioContainerSerializer WaveAudioContainerSerializer => new WaveAudioContainerSerializer();
+
         private readonly IAudioContainerSerializer[] _audioContainerSerializers = new IAudioContainerSerializer[] {
-            new WaveAudioContainerSerializer()
+            WaveAudioContainerSerializer
         };
 
         public static AudioContainerSerializerFactory Instance { [return:NotNull] get; } = new AudioContainerSerializerFactory();

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Helpers
 {
-    public class ReadLock<T> : IDisposable where T : class
+    public class ReadLock<T> : IDisposable where T : class, IDisposable
     {
+        private bool isDisposed = false;
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private readonly T data;
         private readonly Action<T> aquireAction;
@@ -17,20 +18,6 @@ namespace NtFreX.Audio.Helpers
             this.aquireAction = aquireAction;
         }
 
-        [return:MaybeNull] public T AquireAndDisposeOrThrow()
-        {
-            if (semaphore.Wait(TimeSpan.Zero))
-            {
-                Dispose();
-                aquireAction?.Invoke(data);
-                return data;
-            }
-            else
-            {
-                throw new Exception("The data is allready aquired elsewhere");
-            }
-        }
-
         [return:NotNull] public async Task<ReadLockContext<T>> AquireAsync([MaybeNull] CancellationToken cancellationToken = default)
         {
             await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
@@ -38,9 +25,22 @@ namespace NtFreX.Audio.Helpers
             return new ReadLockContext<T>(semaphore, data);
         }
 
-        public void Dispose()
+        public void Dispose() => Dispose(true);
+
+        public void Dispose(bool disposeData)
         {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            isDisposed = true;
             semaphore.Dispose();
+
+            if (disposeData)
+            {
+                data.Dispose();
+            }
         }
     }
 }

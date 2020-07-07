@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers.Serializers
 {
-    internal abstract class AudioContainerSerializer<TContainer> : IAudioContainerSerializer
+    public abstract class AudioContainerSerializer<TContainer> : IAudioContainerSerializer
         where TContainer : AudioContainer
     {
         public abstract string PreferredFileExtension { [return:NotNull] get; }
@@ -22,24 +22,19 @@ namespace NtFreX.Audio.Containers.Serializers
             using var steam = File.OpenWrite(path);
             await ToStreamAsync(container, steam, cancellationToken).ConfigureAwait(false);
         }
-        [return:NotNull] public Task<TContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default) 
+        [return:NotNull] public Task<TContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default)
+#pragma warning disable CA2000 // Dispose objects before losing scope
             => FromStreamAsync(File.OpenRead(path), cancellationToken);
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
         [return:NotNull] public async Task<byte[]> ToDataAsync([NotNull] TContainer container, [MaybeNull] CancellationToken cancellationToken = default) 
         {
-            using var stream = StreamFactory.Instance.ResolveNewStreamForInMemory();
+            using var stream = new MemoryStream();
             await ToStreamAsync(container, stream, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            stream.Seek(0, SeekOrigin.Begin);
-            var buffer = new byte[stream.Length];
-            await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
-            return buffer;
+            return stream.ToArray();
         }
         [return:NotNull] public async Task<TContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default)
-        {
-            using var stream = await StreamFactory.Instance.WriteToNewStreamAsync(data).ConfigureAwait(false);
-            return await FromStreamAsync(stream, cancellationToken).ConfigureAwait(false);
-        }
+            => await FromStreamAsync(new MemoryStream(data), cancellationToken).ConfigureAwait(false);
 
         [return:NotNull] public abstract Task ToStreamAsync([NotNull] TContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
         [return:NotNull] public abstract Task<TContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);

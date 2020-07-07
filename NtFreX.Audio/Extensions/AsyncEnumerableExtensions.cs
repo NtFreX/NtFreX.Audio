@@ -9,10 +9,10 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AsyncEnumerableExtensions
     {
-        [return:NotNull] public static async Task<T[]> ToArrayAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default) => (await ToListAsync(values, cancellationToken)/*.ConfigureAwait(false)*/).ToArray();
+        [return:NotNull] public static async Task<T[]> ToArrayAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default) 
+            => (await ToListAsync(values, cancellationToken).ConfigureAwait(false)).ToArray();
 
-        [return: NotNull]
-        public static async Task<List<T>> ToListAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default)
+        [return: NotNull] public static async Task<List<T>> ToListAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var list = new List<T>();
             await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -22,8 +22,7 @@ namespace NtFreX.Audio.Extensions
             return list;
         }
 
-        [return: NotNull]
-        public static async IAsyncEnumerable<TOutput> SelectManyAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, IEnumerable<TOutput>> selector, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
+        [return: NotNull] public static async IAsyncEnumerable<TOutput> SelectManyAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, IEnumerable<TOutput>> selector, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
@@ -34,8 +33,7 @@ namespace NtFreX.Audio.Extensions
             }
         }
 
-        [return: NotNull]
-        public static async IAsyncEnumerable<TOutput> SelectAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, TOutput> selector, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        [return: NotNull] public static async IAsyncEnumerable<TOutput> SelectAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, TOutput> selector, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             await foreach(var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {

@@ -1,5 +1,7 @@
 ﻿using NtFreX.Audio.Extensions;
+using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Math;
+using NtFreX.Audio.Resources;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -11,13 +13,51 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers.Serializers
 {
-    internal class WaveAudioContainerSerializer : AudioContainerSerializer<WaveAudioContainer>
+    public class WaveAudioContainerSerializer : AudioContainerSerializer<WaveAudioContainer>
     {
         public override string PreferredFileExtension { [return: NotNull] get; } = "wav";
 
-        [return: NotNull] public override async Task ToStreamAsync([NotNull] WaveAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        [return: NotNull] 
+        public override async Task ToStreamAsync([NotNull] WaveAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            var headers = new List<byte>()
+            await WriteHeadersAsync(container, stream, cancellationToken).ConfigureAwait(false);
+            await WriteDataAsync(container.GetAudioSamplesAsync(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
+        }
+
+        [return: NotNull]
+        public async Task WriteHeadersAsync([NotNull] WaveAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        {
+            var headers = GetHeaderBytes(container);
+            await stream.WriteAsync(headers, 0, headers.Length, cancellationToken).ConfigureAwait(false);
+        }
+
+        [return: NotNull]
+        public async Task WriteDataAsync([NotNull] IAsyncEnumerable<byte[]> data, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        {
+            var bufferSize = StreamFactory.GetBufferSize();
+            var bufferIndex = 0;
+            var buffer = new byte[bufferSize];
+            await foreach(var value in data.ConfigureAwait(false).WithCancellation(cancellationToken))
+            {
+                if (bufferSize < bufferIndex + value.Length) 
+                {
+                    await stream.WriteAsync(buffer, 0, bufferIndex, cancellationToken).ConfigureAwait(false);
+                    bufferIndex = 0;
+                }
+
+                value.CopyTo(buffer, bufferIndex);
+                bufferIndex += value.Length;
+            }
+
+            if(bufferIndex > 0)
+            {
+                await stream.WriteAsync(buffer, 0, bufferIndex, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        public byte[] GetHeaderBytes([NotNull] WaveAudioContainer container)
+        {
+            return new List<byte>()
                 .Concat(container.RiffChunkDescriptor.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(container.RiffChunkDescriptor.ChunkSize.ToByteArray())
                 .Concat(container.RiffChunkDescriptor.Format.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
@@ -38,11 +78,6 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(container.DataSubChunk.Subchunk2Id.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(container.DataSubChunk.Subchunk2Size.ToByteArray())
                 .ToArray();
-
-            await stream.WriteAsync(headers, 0, headers.Length, cancellationToken).ConfigureAwait(false);
-
-            using var readContext = await container.DataSubChunk.Data.AquireAsync(cancellationToken).ConfigureAwait(false);
-            await readContext.Data.CopyToAsync(stream, cancellationToken).ConfigureAwait(false); // TODO: stop at data end!
         }
 
         [return: NotNull] public override async Task<WaveAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
@@ -86,7 +121,7 @@ namespace NtFreX.Audio.Containers.Serializers
                 }
             }
 
-            throw new ArgumentException("No data sub chunk has been found", nameof(stream));
+            throw new ArgumentException(ExceptionMessages.WaveAudioContainerNoDataSubChunk, nameof(stream));
         }
     }
 }

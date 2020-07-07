@@ -18,19 +18,15 @@ namespace NtFreX.Audio.Samplers
         }
 
         [return: NotNull]
-        public Task<WaveAudioContainer> RunAsync([NotNull] WaveAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
-            => RunAsync(audio, x => { }, cancellationToken);
-
-        [return: NotNull]
-        public async Task<WaveAudioContainer> RunAsync([NotNull] WaveAudioContainer audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
+        public async Task<WaveAudioContainerStream> RunAsync([NotNull] WaveAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            WaveAudioContainer currentAudio = audio;
+            WaveAudioContainerStream currentAudio = WaveAudioContainerStream.ToStream(audio, cancellationToken);
             var count = (double)samplers.Count;
             for (var i = 0; i < count; i++)
             {
-                currentAudio = await samplers[i].SampleAsync(currentAudio, p => onProgress(p / count + 1.0 / count * i), cancellationToken).ConfigureAwait(false);
-            }
-            onProgress(1);
+                var sampler = samplers[i];
+                currentAudio = await sampler.SampleAsync(currentAudio, cancellationToken).ConfigureAwait(false);
+            }            
             return currentAudio;
         }
     }

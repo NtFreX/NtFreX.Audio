@@ -27,16 +27,19 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public ReadLock<Stream> Data { [return: NotNull] get; }
 
-        [return: NotNull] public DataSubChunk WithSubchunk2Id([NotNull] string subchunk2Id) => new DataSubChunk(StartIndex, subchunk2Id, Subchunk2Size, Data.AquireAndDisposeOrThrow());
-        [return: NotNull] public DataSubChunk WithSubchunk2Size(uint subchunk2Size) => new DataSubChunk(StartIndex, Subchunk2Id, subchunk2Size, Data.AquireAndDisposeOrThrow());
+        [return: NotNull] internal DataSubChunk WithSubchunk2Id([NotNull] string subchunk2Id) => new DataSubChunk(StartIndex, subchunk2Id, Subchunk2Size, Data);
+        [return: NotNull] internal DataSubChunk WithSubchunk2Size(uint subchunk2Size) => new DataSubChunk(StartIndex, Subchunk2Id, subchunk2Size, Data);
         [return: NotNull] public DataSubChunk WithData([NotNull] Stream data) => new DataSubChunk(StartIndex, Subchunk2Id, Subchunk2Size, data);
 
         public DataSubChunk(long startIndex, [NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] Stream data)
+            : this(startIndex, subchunk2Id, subchunk2Size, new ReadLock<Stream>(data, data => data.Seek(startIndex + 8, SeekOrigin.Begin))) { }
+
+        internal DataSubChunk(long startIndex, [NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] ReadLock<Stream> data)
         {
             StartIndex = startIndex;
             Subchunk2Id = subchunk2Id;
             Subchunk2Size = subchunk2Size;
-            Data = new ReadLock<Stream>(data, data => data.Seek(StartIndex + 8, SeekOrigin.Begin));
+            Data = data;
 
             ThrowIfInvalid();
         }

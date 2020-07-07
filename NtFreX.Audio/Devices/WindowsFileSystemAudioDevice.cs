@@ -25,6 +25,7 @@ namespace NtFreX.Audio.Devices
 
         [return:NotNull] public async Task<Task> PlayAsync([NotNull] AudioContainer audio)
         {
+            //TODO: use temp file stream factory
             var fileExtension = AudioEnvironment.Serializer.GetPreferredFileExtension(audio);
             var fileName = $"temp{_playbackContexts.Count}.{fileExtension}";
             await audio.ToFileAsync(fileName).ConfigureAwait(false);
