@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Extensions
 {
+    //TODO: where are my async extensions?
     public static class AsyncEnumerableExtensions
     {
         [return:NotNull] public static async Task<T[]> ToArrayAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default) 
@@ -38,6 +39,17 @@ namespace NtFreX.Audio.Extensions
             await foreach(var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return selector(value);
+            }
+        }
+
+        [return: NotNull]
+        public static async IAsyncEnumerable<T> ForEachAsync<T>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Action<int, T> visitor, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            var index = 0;
+            await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
+            {
+                visitor(index++, value);
+                yield return value;
             }
         }
     }

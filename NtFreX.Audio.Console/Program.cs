@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
 {
+    //TODO: dotnet core 5 and data class
     //TODO: how should dispose work? should a converter dispose old data? one could still hold on to the old data... but still cleanup would be nice! currently when changed old data is disposed or with using patter
     //TODO: see over disposing and passing of cancelation token and configure await 
 
@@ -57,9 +58,11 @@ namespace NtFreX.Audio.Sampler.Console
                     .Add(x => x.BitsPerSampleAudioSampler(8))
                     .Add(x => x.SampleRateAudioSampler(44100))
                     .RunAsync(waveAudioContainer, cancelationTokenSource.Token)
+                    .LogProgress(LogProgress, cancelationTokenSource.Token)
                     .ToFileAsync("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationTokenSource.Token)
                     .ConfigureAwait(false);
 
+                System.Console.WriteLine();
                 //System.Console.WriteLine($"Drawing...");
                 //File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
 
@@ -82,16 +85,16 @@ namespace NtFreX.Audio.Sampler.Console
         const int left = 2;
         static void LogProgress(double progress)
         {
-            //var diff = System.Math.Abs(progress - lastProgress);
-            //if (diff > 0.01 || progress == 0 || progress == 1) 
-            //{
-            //    System.Console.CursorLeft = left;
-            //    System.Console.Write("<" + string.Join(string.Empty, Enumerable.Repeat("█", (int) (length * progress))));
-            //    System.Console.CursorLeft = length + 1 + left;
-            //    System.Console.Write(">");
-
-            //    lastProgress = progress;
-            //}
+            var diff = System.Math.Abs(progress - lastProgress);
+            if (diff > 0.01 || progress == 0 || progress == 1)
+            {
+                //System.Console.WriteLine(progress);
+                System.Console.CursorLeft = left;
+                System.Console.Write("<" + string.Join(string.Empty, Enumerable.Repeat("█", (int)(length * progress))));
+                System.Console.CursorLeft = length + 1 + left;
+                System.Console.Write(">");
+                lastProgress = progress;
+            }
         }
 
         static async Task<string> DrawSectogramAsync(WaveAudioContainer waveAudioContainer)

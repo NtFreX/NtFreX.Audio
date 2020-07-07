@@ -24,6 +24,14 @@ namespace NtFreX.Audio.Extensions
             return await data.ToContainerAsync(path, fileMode, cancellationToken).ConfigureAwait(false);
         }
 
+        [return: NotNull]
+        public static async Task<WaveAudioContainerStream> LogProgress([NotNull] this Task<WaveAudioContainerStream> audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
+        {
+            var data = await audio.ConfigureAwait(false);
+            var modifier = (double)data.Container.DataSubChunk.Subchunk2Size / (data.Container.FmtSubChunk.BitsPerSample / 8);
+            return new WaveAudioContainerStream(data.Container, data.Stream.ForEachAsync((index, _) => onProgress.Invoke(index / modifier), cancellationToken));
+        }
+
         [return: MaybeNull]
         public static async Task<TOutput> CastAsync<TSource, TOutput>([NotNull] this Task<TSource> task)
         {
