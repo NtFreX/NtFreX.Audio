@@ -1,7 +1,9 @@
-﻿using NtFreX.Audio.Extensions;
+﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,37 +18,27 @@ namespace NtFreX.Audio.Samplers
             this.bitsPerSample = bitsPerSample;
         }
 
-        //TODO: make this work correctly with and from all sample rates
-        /// <summary>
-        /// 
-        /// audio will be disposed
-        /// </summary>
-        /// <param name="audio"></param>
-        /// <param name="onProgress"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        [return:NotNull] public override Task<WaveAudioContainerStream> SampleAsync([NotNull] WaveAudioContainerStream audio, [MaybeNull] CancellationToken cancellationToken = default)
+        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            //TODO: make this work correctly with and from all sample rates
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.Container.FmtSubChunk.BitsPerSample == bitsPerSample)
+            if (audio.FmtSubChunk.BitsPerSample == bitsPerSample)
             {
                 return Task.FromResult(audio);
             }
 
-            var max = System.Math.Pow(256, audio.Container.FmtSubChunk.BitsPerSample / 8) / 2;
-            var newMax = System.Math.Pow(256, bitsPerSample / 8) / 2;
-            var factor = max / newMax;
+            // HINT: doubling bits per sample and not changing data will double speed
+            var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
+            var factor = System.Math.Pow(16, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
+            var samples = audio.DataSubChunk.Data.SelectAsync(x => ((long)(isNewBigger ? x.ToInt64() * factor : x.ToInt64() / factor)).ToByteArray(bitsPerSample / 8));
 
-            var samples = audio.Stream.SelectAsync(x => ((long)(x.ToInt64() / factor)).ToByteArray(bitsPerSample / 8));
-
-#pragma warning disable CA2000 // Dispose objects before losing scope
-            return Task.FromResult(new WaveAudioContainerStream(audio.Container
+            return Task.FromResult(audio
                 .WithFmtSubChunk(x => x
                     .WithBitsPerSample(bitsPerSample))
                 .WithDataSubChunk(x => x
-                    .WithSubchunk2Size(audio.Container.DataSubChunk.Subchunk2Size / audio.Container.FmtSubChunk.BitsPerSample * bitsPerSample)), samples));
-#pragma warning restore CA2000 // Dispose objects before losing scope
+                    .WithSubchunk2Size(audio.DataSubChunk.Subchunk2Size / audio.FmtSubChunk.BitsPerSample * bitsPerSample)
+                    .WithData(samples)));
         }
 
         public override string ToString()

@@ -8,10 +8,10 @@ namespace NtFreX.Audio.Samplers
     public abstract class AudioSampler
     {
         [return: NotNull]
-        public Task<WaveAudioContainerStream> SampleAsync([NotNull] WaveAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
-            => SampleAsync(WaveAudioContainerStream.ToStream(audio, cancellationToken), cancellationToken);
+        public Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveStreamAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+            => SampleAsync(WaveEnumerableAudioContainer.ToEnumerable(audio, cancellationToken), cancellationToken);
 
         [return: NotNull]
-        public abstract Task<WaveAudioContainerStream> SampleAsync([NotNull] WaveAudioContainerStream audio, [MaybeNull] CancellationToken cancellationToken = default);
+        public abstract Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default);
     }
 }

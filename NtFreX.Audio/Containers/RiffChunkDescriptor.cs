@@ -1,17 +1,18 @@
-﻿using System;
+﻿using NtFreX.Audio.Resources;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
     public class RiffChunkDescriptor
     {
-        public const string RIFF = nameof(RIFF);
+        public const string ChunkIdentifier = "RIFF";
         public const string WAVE = nameof(WAVE);
 
         /// <summary>
         /// Contains the letters "RIFF" in ASCII form (0x52494646 big-endian form).
         /// </summary>
-        public string ChunkId { [return:NotNull] get; }
+        public string ChunkId { get; }
 
         /// <summary>
         /// This is the size of the entire file in bytes minus 8 bytes for the two fields not included in this count: ChunkID and ChunkSize.
@@ -21,7 +22,7 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// Contains the letters "WAVE" (0x57415645 big-endian form).
         /// </summary>
-        public string Format { [return: NotNull] get; }
+        public string Format { get; }
 
         [return: NotNull] public RiffChunkDescriptor WithChunkId([NotNull] string chunkId) => new RiffChunkDescriptor(chunkId, ChunkSize, Format);
         [return: NotNull] public RiffChunkDescriptor WithChunkSize(uint chunkSize) => new RiffChunkDescriptor(ChunkId, chunkSize, Format);
@@ -39,15 +40,15 @@ namespace NtFreX.Audio.Containers
         private void ThrowIfInvalid()
         {
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-            if (ChunkId != RIFF)
+            if (ChunkId != ChunkIdentifier)
             {
                 // TODO: support RIFX => The default byte ordering assumed for WAVE data files is little-endian. Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.
-                throw new ArgumentException("The value has to contain the letters 'RIFF' (0x52494646 big-endian form)", nameof(ChunkId));
+                throw new ArgumentException(ExceptionMessages.InvalidRiffChunkId, nameof(ChunkId));
             }
 
             if (Format != WAVE)
             {
-                throw new ArgumentException("The value has to contain the letters 'WAVE' (0x57415645 big-endian form)", nameof(ChunkId));
+                throw new ArgumentException(ExceptionMessages.InvalidRiffChunkFormat, nameof(ChunkId));
             }
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }

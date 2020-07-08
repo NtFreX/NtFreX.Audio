@@ -9,7 +9,7 @@ namespace NtFreX.Audio.Devices.Adapters
         public bool CanUse()
             => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(WindowsFileSystemAudioDevice.WindowsMediaPlayerPath);
 
-         [return:NotNull] public IAudioDevice Initialize()
+        [return:NotNull] public IAudioDevice Initialize()
             => new WindowsFileSystemAudioDevice();
     }
 }

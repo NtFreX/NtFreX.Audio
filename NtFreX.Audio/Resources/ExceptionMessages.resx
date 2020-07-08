@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArrayLengthNotSupported" xml:space="preserve">
+    <value>The given array is not in a supported length</value>
+  </data>
+  <data name="AudioSampleLoadingFailed" xml:space="preserve">
+    <value>Loading audio samples failed</value>
+  </data>
+  <data name="CancelationRequested" xml:space="preserve">
+    <value>A cancelation has been requested</value>
+  </data>
+  <data name="DataStreamNull" xml:space="preserve">
+    <value>The given data stream is null</value>
+  </data>
   <data name="DataSubChunkIdMissmatch" xml:space="preserve">
     <value>The value has to contain the letters 'data' (0x64617461 big-endian form)</value>
   </data>
@@ -129,7 +141,28 @@
   <data name="FmtSubChunkIdMissmatch" xml:space="preserve">
     <value>The value has to contain the letters 'fmt' (0x666d7420 big-endian form)</value>
   </data>
+  <data name="InvalidRiffChunkFormat" xml:space="preserve">
+    <value>The value has to contain the letters 'WAVE' (0x57415645 big-endian form)</value>
+  </data>
+  <data name="InvalidRiffChunkId" xml:space="preserve">
+    <value>The value has to contain the letters 'RIFF' (0x52494646 big-endian form)</value>
+  </data>
+  <data name="NoAudioDeviceForPlatform" xml:space="preserve">
+    <value>No audio device handler for the current platform has been found.</value>
+  </data>
+  <data name="StreamToShort" xml:space="preserve">
+    <value>The given stream is to short</value>
+  </data>
+  <data name="TargetLengthNotSupported" xml:space="preserve">
+    <value>The given target length is not supported</value>
+  </data>
   <data name="WaveAudioContainerNoDataSubChunk" xml:space="preserve">
     <value>No data sub chunk has been found</value>
+  </data>
+  <data name="WaveAudioContainerNoFmtSubChunk" xml:space="preserve">
+    <value>No fmt sub chunk has been found</value>
+  </data>
+  <data name="WaveAudioContainerNoRiffSubChunk" xml:space="preserve">
+    <value>No riff sub chunk has been found</value>
   </data>
 </root>

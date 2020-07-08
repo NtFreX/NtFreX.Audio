@@ -1,20 +1,15 @@
-﻿using System;
+﻿using NtFreX.Audio.Containers;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
-    //public class VolumeAudioSampler : AudioSampler { } // strech out wave (height)
-    //public class VolumeNormalizerAudioSampler : AudioSampler { }
-    //public class SpeedAudioSampler: AudioSampler { } // strech out wave (width)
-    //public class BackgroundNoiseAudioSampler: AudioSampler { } //TODO: cache fourier transform
-    //public class ShitWaveAudioSampler: AudioSampler {} // shift wave up or down
-
+    //TODO:
     //public class SplitAudio {} 
     //public class JoinAudio {} 
     //public class ConvertAudio {}
-
     public class SampleRateAudioSampler : AudioSampler
     {
         private readonly uint sampleRate;
@@ -24,9 +19,11 @@ namespace NtFreX.Audio.Samplers
             this.sampleRate = sampleRate;
         }
 
-        [return:NotNull] public override Task<WaveAudioContainerStream> SampleAsync([NotNull] WaveAudioContainerStream audio, [MaybeNull] CancellationToken cancellationToken = default)
+        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            if (audio.Container.FmtSubChunk.SampleRate == sampleRate)
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            if (audio.FmtSubChunk.SampleRate == sampleRate)
             {
                 return Task.FromResult(audio);
             }

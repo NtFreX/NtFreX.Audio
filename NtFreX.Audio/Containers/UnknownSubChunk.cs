@@ -5,11 +5,11 @@ namespace NtFreX.Audio.Containers
 {
     public class UnknownSubChunk
     {
-        public string SubchunkId { [return:NotNull] get; }
+        public string SubchunkId { get; }
 
         public uint SubchunkSize { get; }
 
-        public IReadOnlyList<byte> SubchunkData { [return: NotNull] get; }
+        public IReadOnlyList<byte> SubchunkData { get; }
 
         public UnknownSubChunk([NotNull] string subchunkId, uint subchunkSize, [NotNull] IReadOnlyList<byte> subchunkData)
         {

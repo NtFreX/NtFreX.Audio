@@ -4,14 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public class FmtSubChunk
+    public sealed class FmtSubChunk
     {
-        public const string FMT = "fmt ";
+        public const string ChunkIdentifier = "fmt ";
 
         /// <summary>
         /// Contains the letters "fmt" (0x666d7420 big-endian form).
         /// </summary>
-        public string Subchunk1Id { [return: NotNull] get; }
+        public string Subchunk1Id { get; }
 
         /// <summary>
         /// 16 for PCM.  This is the size of the rest of the Subchunk which follows this number.
@@ -82,7 +82,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException("The given value is wrong", nameof(ByteRate));
             }*/
 
-            if (Subchunk1Id != FMT)
+            if (Subchunk1Id != ChunkIdentifier)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunkIdMissmatch, nameof(Subchunk1Id));
             }

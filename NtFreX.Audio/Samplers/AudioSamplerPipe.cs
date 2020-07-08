@@ -13,14 +13,16 @@ namespace NtFreX.Audio.Samplers
 
         public AudioSamplerPipe Add([NotNull] Func<AudioSamplerFactory, AudioSampler> sampler)
         {
+            _ = sampler ?? throw new ArgumentNullException(nameof(sampler));
+
             samplers.Add(sampler(AudioSamplerFactory.Instance));
             return this;
         }
 
         [return: NotNull]
-        public async Task<WaveAudioContainerStream> RunAsync([NotNull] WaveAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public async Task<WaveEnumerableAudioContainer> RunAsync([NotNull] WaveStreamAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            WaveAudioContainerStream currentAudio = WaveAudioContainerStream.ToStream(audio, cancellationToken);
+            WaveEnumerableAudioContainer currentAudio = WaveEnumerableAudioContainer.ToEnumerable(audio, cancellationToken);
             var count = (double)samplers.Count;
             for (var i = 0; i < count; i++)
             {

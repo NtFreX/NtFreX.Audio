@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Devices
 {
-    public class WindowsFileSystemAudioDevice : IAudioDevice
+    public sealed class WindowsFileSystemAudioDevice : IAudioDevice
     {
-        private readonly List<WindowsFileSystemPlaybackContext> _playbackContexts = new List<WindowsFileSystemPlaybackContext>();
-
         public static readonly string WindowsMediaPlayerPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Windows Media Player\wmplayer.exe");
+        private readonly List<WindowsFileSystemPlaybackContext> playbackContexts = new List<WindowsFileSystemPlaybackContext>();
 
         public void Dispose()
         {
-            foreach (var playbackContext in _playbackContexts)
+            foreach (var playbackContext in playbackContexts)
             {
                 playbackContext.Dispose();
             }
         }
 
-        [return:NotNull] public async Task<Task> PlayAsync([NotNull] AudioContainer audio)
+        [return:NotNull] public async Task<Task> PlayAsync([NotNull] IStreamAudioContainer audio)
         {
-            //TODO: use temp file stream factory
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var fileExtension = AudioEnvironment.Serializer.GetPreferredFileExtension(audio);
-            var fileName = $"temp{_playbackContexts.Count}.{fileExtension}";
+            var fileName = $"temp{playbackContexts.Count}.{fileExtension}";
             await audio.ToFileAsync(fileName).ConfigureAwait(false);
 
             Process process = new Process
@@ -45,17 +45,17 @@ namespace NtFreX.Audio.Devices
 
             var completionSource = new TaskCompletionSource<int>();
 
-            _playbackContexts.Add(new WindowsFileSystemPlaybackContext(fileName, process, completionSource));
+            playbackContexts.Add(new WindowsFileSystemPlaybackContext(fileName, process, completionSource));
 
             return completionSource.Task;
         }
 
-        private void PlaybackProcess_Exited(object sender, EventArgs e)
+        private void PlaybackProcess_Exited(object? sender, EventArgs e)
         {
-            var context = _playbackContexts.First(x => x.Process == sender);
+            var context = playbackContexts.First(x => x.Process == sender);
             context.Process.Exited -= PlaybackProcess_Exited;
             context.CompletionSource.SetResult(context.Process.ExitCode);
-            _playbackContexts.Remove(context);
+            playbackContexts.Remove(context);
         }
     }
 }

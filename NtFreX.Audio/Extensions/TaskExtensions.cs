@@ -11,39 +11,47 @@ namespace NtFreX.Audio.Extensions
     public static class TaskExtensions
     {
         [return: NotNull]
-        public static async Task<WaveAudioContainer> ToInMemoryContainerAsync([NotNull] this Task<WaveAudioContainerStream> audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task<WaveStreamAudioContainer> ToInMemoryContainerAsync([NotNull] this Task<WaveEnumerableAudioContainer> audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var data = await audio.ConfigureAwait(false);
-            return await data.ToContainerAsync(new MemoryStream(), cancellationToken).ConfigureAwait(false);
+            return await data.ToStream(new MemoryStream(), cancellationToken).ConfigureAwait(false);
         }
 
         [return: NotNull]
-        public static async Task<WaveAudioContainer> ToFileAsync([NotNull] this Task<WaveAudioContainerStream> audio, [NotNull] string path, [NotNull] FileMode fileMode = FileMode.CreateNew, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task<WaveStreamAudioContainer> ToFileAsync([NotNull] this Task<WaveEnumerableAudioContainer> audio, [NotNull] string path, [NotNull] FileMode fileMode = FileMode.CreateNew, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var data = await audio.ConfigureAwait(false);
-            return await data.ToContainerAsync(path, fileMode, cancellationToken).ConfigureAwait(false);
+            return await data.ToStream(path, fileMode, cancellationToken).ConfigureAwait(false);
         }
 
         [return: NotNull]
-        public static async Task<WaveAudioContainerStream> LogProgress([NotNull] this Task<WaveAudioContainerStream> audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task<WaveEnumerableAudioContainer> LogProgress([NotNull] this Task<WaveEnumerableAudioContainer> audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var data = await audio.ConfigureAwait(false);
-            var modifier = (double)data.Container.DataSubChunk.Subchunk2Size / (data.Container.FmtSubChunk.BitsPerSample / 8);
-            return new WaveAudioContainerStream(data.Container, data.Stream.ForEachAsync((index, _) => onProgress.Invoke(index / modifier), cancellationToken));
+            var modifier = (double)data.DataSubChunk.Subchunk2Size / (data.FmtSubChunk.BitsPerSample / 8);
+            return data.WithDataSubChunk(x => x.WithData(data.DataSubChunk.Data.ForEachAsync((index, _) => onProgress.Invoke(index / modifier), cancellationToken)));
         }
 
         [return: MaybeNull]
-        public static async Task<TOutput> CastAsync<TSource, TOutput>([NotNull] this Task<TSource> task)
+        public static async Task<TOutput?> CastAsync<TSource, TOutput>([NotNull] this Task<TSource> task)
+            where TOutput: class
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
-
-            return (TOutput) (object) await task.ConfigureAwait(false);
+            return await task.ConfigureAwait(false) as TOutput;
         }
 
         [return: NotNull]
         public static async Task DisposeAsync<T>([NotNull] Task<T> task)
             where T: IDisposable
         {
+            _ = task ?? throw new ArgumentNullException(nameof(task));
+
             var value = await task.ConfigureAwait(false);
             value.Dispose();
         }

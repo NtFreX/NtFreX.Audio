@@ -5,8 +5,10 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <NullableReferenceTypes>true</NullableReferenceTypes>
     <Nullable>enable</Nullable>
-    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
-    <!--<RunCodeAnalysis>false</RunCodeAnalysis>-->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NeutralLanguage>en</NeutralLanguage>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,10 +16,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <!--<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>-->
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace NtFreX.Audio.Sampler.Console
 {
     //TODO: dotnet core 5 and data class
-    //TODO: how should dispose work? should a converter dispose old data? one could still hold on to the old data... but still cleanup would be nice! currently when changed old data is disposed or with using patter
     //TODO: see over disposing and passing of cancelation token and configure await 
 
     // audio splitting, wave visualization, spectrogram
@@ -21,50 +20,44 @@ namespace NtFreX.Audio.Sampler.Console
     class Program
     {
         const string testWav = @"E:\Programs\Steam\steamapps\common\The Beginners Guide\beginnersguide\sound\narration\VOF\VOF_machine08.wav";
-        const string testWav2 = @"C:\Users\FTR\Downloads\8-bit Detective.wav";
-
-        static async Task Main(string[] args)
+        const string testWav2 = @"..\..\..\..\8-bit Detective.wav";
+        const string testWav3 = @"..\..\..\..\Dash Runner.wav";
+        
+        static async Task Main()
         {
             var cancelationTokenSource = new CancellationTokenSource();
 
             System.Console.WriteLine($"Reading...");
-            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav2, cancelationTokenSource.Token).ConfigureAwait(false);
+            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav3, cancelationTokenSource.Token).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
-            if (audio is WaveAudioContainer waveAudioContainer)
+            if (audio is WaveStreamAudioContainer waveAudioContainer)
             {
                 System.Console.WriteLine($"Converting...");
 
                 using var convertedAudio = await new AudioSamplerPipe()
                     .Add(x => x.MonoAudioSampler())
+                    .Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
+                    .Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
+                    //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
+                    //.Add(x => x.VolumeAudioSampler(0.5))
+                    //.Add(x => x.ShiftWaveAudioSampler(8000))
                     //.Add(x => x.BitsPerSampleAudioSampler(64))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.BitsPerSampleAudioSampler(32))
-                    .Add(x => x.BitsPerSampleAudioSampler(16))
-                    .Add(x => x.BitsPerSampleAudioSampler(8))
-                    .Add(x => x.SampleRateAudioSampler(44100))
+                    //.Add(x => x.BitsPerSampleAudioSampler(32))
+                    //.Add(x => x.BitsPerSampleAudioSampler(16))
+                    //.Add(x => x.BitsPerSampleAudioSampler(8))
+                    //.Add(x => x.ShiftWaveAudioSampler(-64))
+                    //.Add(x => x.VolumeAudioSampler(2))
+                    //.Add(x => x.SampleRateAudioSampler(44100))
+                    //.Add(x => x.VolumeAudioSampler(8))
                     .RunAsync(waveAudioContainer, cancelationTokenSource.Token)
                     .LogProgress(LogProgress, cancelationTokenSource.Token)
                     .ToFileAsync("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationTokenSource.Token)
                     .ConfigureAwait(false);
 
                 System.Console.WriteLine();
-                //System.Console.WriteLine($"Drawing...");
-                //File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
+                System.Console.WriteLine($"Drawing...");
+                File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer, convertedAudio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
 
                 System.Console.WriteLine($"Playing...");
                 using (var device = AudioEnvironment.Device.Get())
@@ -75,11 +68,6 @@ namespace NtFreX.Audio.Sampler.Console
             }
         }
 
-        static void NewLine()
-        {
-            System.Console.WriteLine();
-        }
-
         static double lastProgress = 0;
         const int length = 40;
         const int left = 2;
@@ -88,7 +76,6 @@ namespace NtFreX.Audio.Sampler.Console
             var diff = System.Math.Abs(progress - lastProgress);
             if (diff > 0.01 || progress == 0 || progress == 1)
             {
-                //System.Console.WriteLine(progress);
                 System.Console.CursorLeft = left;
                 System.Console.Write("<" + string.Join(string.Empty, Enumerable.Repeat("█", (int)(length * progress))));
                 System.Console.CursorLeft = length + 1 + left;
@@ -97,11 +84,16 @@ namespace NtFreX.Audio.Sampler.Console
             }
         }
 
-        static async Task<string> DrawSectogramAsync(WaveAudioContainer waveAudioContainer)
+        static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            using var monoAudio = await AudioEnvironment.Sampler.MonoAudioSampler().SampleAsync(waveAudioContainer).ToInMemoryContainerAsync().ConfigureAwait(false);
+            using var monoAudio = await AudioEnvironment.Sampler
+                .MonoAudioSampler()
+                .SampleAsync(waveAudioContainer)
+                .ToInMemoryContainerAsync()
+                .ConfigureAwait(false);
+
             //using var downAudio = await AudioEnvironment.Sampler.BitsPerSampleAudioSampler(8).SampleAsync(monoAudio).ConfigureAwait(false);
-            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.ToInt32()).ToArrayAsync().ConfigureAwait(false);
+            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.ToInt64()).ToArrayAsync().ConfigureAwait(false);
 
             var spectrum = new StringBuilder();
             var computed = FourierTransform
@@ -127,32 +119,30 @@ namespace NtFreX.Audio.Sampler.Console
             return spectrum.ToString();
         }
 
-        static async Task<string> DrawSampleWavesAsync(WaveAudioContainer waveAudioContainer)
+        static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer, WaveStreamAudioContainer converted)
         {
-            using var monoAudio = await AudioEnvironment.Sampler.MonoAudioSampler().SampleAsync(waveAudioContainer).ToInMemoryContainerAsync().ConfigureAwait(false);
-            //using var downAudio = await AudioEnvironment.Sampler.BitsPerSampleAudioSampler(8).SampleAsync(monoAudio).ConfigureAwait(false);
-            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.ToInt32()).ToArrayAsync().ConfigureAwait(false);
+            var convertedData = await converted.GetAudioSamplesAsync().SelectAsync(x => x.ToInt64()).ToArrayAsync().ConfigureAwait(false);
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
 
-            var data = new List<int[]>(channelSamples)
+            var data = new List<long[]>(channelSamples)
             {
-                monoData
+                convertedData
             };
-            return DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.4f, 0.4f, 1 });
+            return DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 });
         }
 
-        static async Task<IEnumerable<int[]>> GetChannelAudioSamplesAsync(WaveAudioContainer waveAudioContainer)
+        static async Task<IEnumerable<long[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            var channels = new List<int>[waveAudioContainer.FmtSubChunk.NumChannels];
+            var channels = new List<long>[waveAudioContainer.FmtSubChunk.NumChannels];
             var currentChannel = 0;
             await foreach (var value in waveAudioContainer.GetAudioSamplesAsync().ConfigureAwait(false))
             {
                 if (channels[currentChannel] == null)
                 {
-                    channels[currentChannel] = new List<int>();
+                    channels[currentChannel] = new List<long>();
                 }
 
-                channels[currentChannel].Add(value.ToInt32());
+                channels[currentChannel].Add(value.ToInt64());
 
                 if (++currentChannel >= waveAudioContainer.FmtSubChunk.NumChannels)
                 {
@@ -177,7 +167,7 @@ namespace NtFreX.Audio.Sampler.Console
         const float xModifier = 0.01f;
         const float yModifier = 0.05f;
 
-        static string DrawSvg(int[][] data, string[] colors, float[] opacities, int skip = 100)
+        static string DrawSvg(long[][] data, string[] colors, float[] opacities, int skip = 100)
         {
             var width = data[0].Length * xModifier; // TODO: replace with file length
             var height = data[0].Max() * yModifier; // TODO: replace max with waveAudioContainer.FmtSubChunk.BitsPerSample
@@ -194,7 +184,7 @@ namespace NtFreX.Audio.Sampler.Console
             return image.ToString();
         }
 
-        static string DrawPath(int[] data, string color, float opacity, float height, int skip)
+        static string DrawPath(long[] data, string color, float opacity, float height, int skip)
         {
             var middle = height / 2.0f;
 

@@ -5,14 +5,15 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Helpers
 {
-    public class ReadLock<T> : IDisposable where T : class, IDisposable
+    public class ReadLock<T> : IDisposable 
+        where T : class, IDisposable
     {
-        private bool isDisposed = false;
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
-        private readonly T data;
-        private readonly Action<T> aquireAction;
+        private readonly T? data;
+        private readonly Action<T?>? aquireAction;
+        private bool isDisposed = false;
 
-        internal ReadLock([MaybeNull] T data, [MaybeNull] Action<T> aquireAction)
+        internal ReadLock([MaybeNull] T? data, [MaybeNull] Action<T?>? aquireAction)
         {
             this.data = data;
             this.aquireAction = aquireAction;
@@ -25,9 +26,13 @@ namespace NtFreX.Audio.Helpers
             return new ReadLockContext<T>(semaphore, data);
         }
 
-        public void Dispose() => Dispose(true);
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        public void Dispose(bool disposeData)
+        protected virtual void Dispose(bool disposeData)
         {
             if (isDisposed)
             {
@@ -39,7 +44,7 @@ namespace NtFreX.Audio.Helpers
 
             if (disposeData)
             {
-                data.Dispose();
+                data?.Dispose();
             }
         }
     }

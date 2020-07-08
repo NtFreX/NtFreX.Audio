@@ -61,6 +61,42 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The given array is not in a supported length.
+        /// </summary>
+        internal static string ArrayLengthNotSupported {
+            get {
+                return ResourceManager.GetString("ArrayLengthNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Loading audio samples failed.
+        /// </summary>
+        internal static string AudioSampleLoadingFailed {
+            get {
+                return ResourceManager.GetString("AudioSampleLoadingFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A cancelation has been requested.
+        /// </summary>
+        internal static string CancelationRequested {
+            get {
+                return ResourceManager.GetString("CancelationRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The given data stream is null.
+        /// </summary>
+        internal static string DataStreamNull {
+            get {
+                return ResourceManager.GetString("DataStreamNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The value has to contain the letters &apos;data&apos; (0x64617461 big-endian form).
         /// </summary>
         internal static string DataSubChunkIdMissmatch {
@@ -97,11 +133,74 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The value has to contain the letters &apos;WAVE&apos; (0x57415645 big-endian form).
+        /// </summary>
+        internal static string InvalidRiffChunkFormat {
+            get {
+                return ResourceManager.GetString("InvalidRiffChunkFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value has to contain the letters &apos;RIFF&apos; (0x52494646 big-endian form).
+        /// </summary>
+        internal static string InvalidRiffChunkId {
+            get {
+                return ResourceManager.GetString("InvalidRiffChunkId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No audio device handler for the current platform has been found..
+        /// </summary>
+        internal static string NoAudioDeviceForPlatform {
+            get {
+                return ResourceManager.GetString("NoAudioDeviceForPlatform", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The given stream is to short.
+        /// </summary>
+        internal static string StreamToShort {
+            get {
+                return ResourceManager.GetString("StreamToShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The given target length is not supported.
+        /// </summary>
+        internal static string TargetLengthNotSupported {
+            get {
+                return ResourceManager.GetString("TargetLengthNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No data sub chunk has been found.
         /// </summary>
         internal static string WaveAudioContainerNoDataSubChunk {
             get {
                 return ResourceManager.GetString("WaveAudioContainerNoDataSubChunk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No fmt sub chunk has been found.
+        /// </summary>
+        internal static string WaveAudioContainerNoFmtSubChunk {
+            get {
+                return ResourceManager.GetString("WaveAudioContainerNoFmtSubChunk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No riff sub chunk has been found.
+        /// </summary>
+        internal static string WaveAudioContainerNoRiffSubChunk {
+            get {
+                return ResourceManager.GetString("WaveAudioContainerNoRiffSubChunk", resourceCulture);
             }
         }
     }

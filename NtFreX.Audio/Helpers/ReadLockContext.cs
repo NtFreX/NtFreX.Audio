@@ -4,13 +4,14 @@ using System.Threading;
 
 namespace NtFreX.Audio.Helpers
 {
-    public class ReadLockContext<T> : IDisposable
+    public sealed class ReadLockContext<T> : IDisposable
+        where T: class
     {
         private readonly SemaphoreSlim semaphore;
 
-        public T Data { [return:MaybeNull] get; }
+        public T? Data { [return:MaybeNull] get; }
 
-        public ReadLockContext([NotNull] SemaphoreSlim semaphore, [MaybeNull] T data)
+        public ReadLockContext([NotNull] SemaphoreSlim semaphore, [MaybeNull] T? data)
         {
             Data = data;
             this.semaphore = semaphore;

@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Extensions;
+﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
@@ -12,43 +13,36 @@ namespace NtFreX.Audio.Samplers
 {
     public class MonoAudioSampler : AudioSampler
     {
-        /// <summary>
-        /// </summary>
-        /// <param name="audio"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        [return:NotNull] public override Task<WaveAudioContainerStream> SampleAsync([NotNull] WaveAudioContainerStream audio, [MaybeNull] CancellationToken cancellationToken = default)
+        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.Container.FmtSubChunk.NumChannels == 1)
+            if (audio.FmtSubChunk.NumChannels == 1)
             {
                 return Task.FromResult(audio);
             }
 
-            IAsyncEnumerable<byte[]> monoData =
+            var monoData =
                 InterleaveChannelData(audio, cancellationToken)
-                    .SelectAsync(x => x.ToByteArray(audio.Container.FmtSubChunk.BitsPerSample / 8));
+                    .SelectAsync(x => x.ToByteArray(audio.FmtSubChunk.BitsPerSample / 8));
 
-#pragma warning disable CA2000 // Dispose objects before losing scope
-            return Task.FromResult(new WaveAudioContainerStream(
-                audio.Container
+            return Task.FromResult(audio
                     .WithFmtSubChunk(x => x
                         .WithNumChannels(1))
                     .WithDataSubChunk(x => x
-                        .WithSubchunk2Size(audio.Container.DataSubChunk.Subchunk2Size / audio.Container.FmtSubChunk.NumChannels)), monoData));
-#pragma warning restore CA2000 // Dispose objects before losing scope
+                        .WithSubchunk2Size(audio.DataSubChunk.Subchunk2Size / audio.FmtSubChunk.NumChannels)
+                        .WithData(monoData)));
         }
 
-        [return:NotNull] private async IAsyncEnumerable<long> InterleaveChannelData([NotNull] WaveAudioContainerStream audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        [return:NotNull] private static async IAsyncEnumerable<long> InterleaveChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var temp = new long[audio.Container.FmtSubChunk.NumChannels];
+            var temp = new long[audio.FmtSubChunk.NumChannels];
             var counter = 0;
-            var samples = audio.Stream;
+            var samples = audio.DataSubChunk.Data;
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 temp[counter++] = value.ToInt64();
-                if (counter == audio.Container.FmtSubChunk.NumChannels)
+                if (counter == audio.FmtSubChunk.NumChannels)
                 {
                     yield return (long)temp.Average();
                     counter = 0;

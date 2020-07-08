@@ -7,6 +7,6 @@ namespace NtFreX.Audio.Devices
 {
     public interface IAudioDevice : IDisposable
     {
-         [return:NotNull] Task<Task> PlayAsync([NotNull] AudioContainer audio);
+         [return:NotNull] Task<Task> PlayAsync([NotNull] IStreamAudioContainer audio);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Math;
+using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -11,12 +12,15 @@ namespace NtFreX.Audio.Extensions
     {
         [return:NotNull] public static async Task<Stream> SkipAsync([NotNull] this Stream stream, int length, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            _ = stream ?? throw new ArgumentNullException(nameof(stream));
+
             if (stream.CanSeek)
             {
                 stream.Seek(length, SeekOrigin.Current);
             }
             else
             {
+                //TODO: use buffer size factory?
                 await stream.ReadAsync(new byte[length], 0, length, cancellationToken).ConfigureAwait(false);
             }
             return stream;
@@ -54,11 +58,13 @@ namespace NtFreX.Audio.Extensions
 
         [return: NotNull] public static async Task<byte[]> ReadBytesAsync([NotNull] this Stream stream, int requiredLength, [MaybeNull] CancellationToken cancellationToken = default)
         {
+            _ = stream ?? throw new ArgumentNullException(nameof(stream));
+
             var buffer = new byte[requiredLength];
             var length = await stream.ReadAsync(buffer, 0, requiredLength, cancellationToken).ConfigureAwait(false);
             if (length != requiredLength)
             {
-                throw new InvalidOperationException("The given stream doesn't contain the 4 bytes nessesary to create an integer");
+                throw new InvalidOperationException(ExceptionMessages.StreamToShort);
             }
             return buffer;
         }

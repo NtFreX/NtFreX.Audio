@@ -4,8 +4,8 @@ namespace NtFreX.Audio.Math
 {
     public class CartesianCordinate
     {
-        public double X { [return:MaybeNull] get; }
-        public double Y { [return: MaybeNull] get; }
+        public double? X { get; }
+        public double? Y { get; }
 
         public CartesianCordinate()
         {
@@ -28,14 +28,18 @@ namespace NtFreX.Audio.Math
         [return:NotNull] public static CartesianCordinate FromPolarCordinate(double r, double radians)
             => new CartesianCordinate(r * System.Math.Cos(radians), r * System.Math.Sin(radians));
 
-        [return: NotNull] public static CartesianCordinate operator +([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator +([MaybeNull] CartesianCordinate? a, [MaybeNull] CartesianCordinate? b)
             => new CartesianCordinate((a?.X ?? 0d) + (b?.X ?? 0d), (a?.Y ?? 0d) + (b?.Y ?? 0d));
 
-        [return: NotNull] public static CartesianCordinate operator -([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator -([MaybeNull] CartesianCordinate? a, [MaybeNull] CartesianCordinate? b)
             => new CartesianCordinate((a?.X ?? 0d) - (b?.X ?? 0d), (a?.Y ?? 0d) - (b?.Y ?? 0d));
 
-        [return: NotNull] public static CartesianCordinate operator *([MaybeNull] CartesianCordinate a, [MaybeNull] CartesianCordinate b)
+        [return: NotNull] public static CartesianCordinate operator *([MaybeNull] CartesianCordinate? a, [MaybeNull] CartesianCordinate? b)
             => new CartesianCordinate(((a?.X ?? 0d) * (b?.X ?? 0d)) - ((a?.Y ?? 0d) * (b?.Y ?? 0d)), ((a?.X ?? 0d) * (b?.Y ?? 0d)) + ((a?.Y ?? 0d) * (b?.X ?? 0d)));
+
+        public static CartesianCordinate Add(CartesianCordinate left, CartesianCordinate right) => left + right;
+        public static CartesianCordinate Subtract(CartesianCordinate left, CartesianCordinate right) => left - right;
+        public static CartesianCordinate Multiply(CartesianCordinate left, CartesianCordinate right) => left * right;
 
         [return: NotNull] public override string ToString()
         {

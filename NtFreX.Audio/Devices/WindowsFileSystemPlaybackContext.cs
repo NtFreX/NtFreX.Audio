@@ -8,9 +8,9 @@ namespace NtFreX.Audio.Devices
 {
     internal class WindowsFileSystemPlaybackContext : IDisposable
     {
-        public string FileName { [return: NotNull] get; }
-        public Process Process { [return: NotNull] get; }
-        public TaskCompletionSource<int> CompletionSource { [return:NotNull] get; }
+        public string FileName { get; }
+        public Process Process { get; }
+        public TaskCompletionSource<int> CompletionSource { get; }
 
         internal WindowsFileSystemPlaybackContext([NotNull] string fileName, [NotNull] Process process, [NotNull] TaskCompletionSource<int> completionSource)
         {
