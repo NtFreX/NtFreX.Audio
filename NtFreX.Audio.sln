@@ -3,13 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Console", "NtFreX.Audio.Console\NtFreX.Audio.Console.csproj", "{2A985E45-8094-409D-8130-80B3C0A2646C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Console", "demo\NtFreX.Audio.Console\NtFreX.Audio.Console.csproj", "{2A985E45-8094-409D-8130-80B3C0A2646C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio", "NtFreX.Audio\NtFreX.Audio.csproj", "{789A51D2-AC36-463F-A66B-EDA80826AA66}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio", "src\NtFreX.Audio\NtFreX.Audio.csproj", "{789A51D2-AC36-463F-A66B-EDA80826AA66}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F86D48BF-0A83-4B93-83BB-BA3091E2FBA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Tests", "test\NtFreX.Audio.Tests\NtFreX.Audio.Tests.csproj", "{98DBA6CD-18EF-404E-83B9-CA2519C022A8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Wasapi", "src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj", "{519B8C3A-1F57-4233-A8B0-DBC138370814}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.PulseAudio", "src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj", "{88E08594-24DE-4771-80A0-C3B0D880DA02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7BA896D0-53DE-432F-B594-6C5857ACC811}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{22C239CA-135A-4CA3-98C0-4D86F7AE4134}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +37,24 @@ Global
 		{98DBA6CD-18EF-404E-83B9-CA2519C022A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98DBA6CD-18EF-404E-83B9-CA2519C022A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98DBA6CD-18EF-404E-83B9-CA2519C022A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{519B8C3A-1F57-4233-A8B0-DBC138370814}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{519B8C3A-1F57-4233-A8B0-DBC138370814}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{519B8C3A-1F57-4233-A8B0-DBC138370814}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{519B8C3A-1F57-4233-A8B0-DBC138370814}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88E08594-24DE-4771-80A0-C3B0D880DA02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88E08594-24DE-4771-80A0-C3B0D880DA02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88E08594-24DE-4771-80A0-C3B0D880DA02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88E08594-24DE-4771-80A0-C3B0D880DA02}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{2A985E45-8094-409D-8130-80B3C0A2646C} = {22C239CA-135A-4CA3-98C0-4D86F7AE4134}
+		{789A51D2-AC36-463F-A66B-EDA80826AA66} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
 		{98DBA6CD-18EF-404E-83B9-CA2519C022A8} = {F86D48BF-0A83-4B93-83BB-BA3091E2FBA3}
+		{519B8C3A-1F57-4233-A8B0-DBC138370814} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
+		{88E08594-24DE-4771-80A0-C3B0D880DA02} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F119CBCB-237A-4C8D-A302-A4ACA18D6116}

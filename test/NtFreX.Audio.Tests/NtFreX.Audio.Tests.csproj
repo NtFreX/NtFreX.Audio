@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\NtFreX.Audio\NtFreX.Audio.csproj" />
+    <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
   </ItemGroup>
 
 </Project>
