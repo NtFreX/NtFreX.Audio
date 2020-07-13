@@ -20,8 +20,8 @@ namespace NtFreX.Audio.Sampler.Console
     class Program
     {
         const string testWav = @"E:\Programs\Steam\steamapps\common\The Beginners Guide\beginnersguide\sound\narration\VOF\VOF_machine08.wav";
-        const string testWav2 = @"..\..\..\..\8-bit Detective.wav";
-        const string testWav3 = @"..\..\..\..\Dash Runner.wav";
+        const string testWav2 = @"..\..\..\..\..\8-bit Detective.wav";
+        const string testWav3 = @"..\..\..\..\..\Dash Runner.wav";
         
         static async Task Main()
         {
@@ -60,10 +60,9 @@ namespace NtFreX.Audio.Sampler.Console
                 File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer, convertedAudio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
 
                 System.Console.WriteLine($"Playing...");
-                using (var device = AudioEnvironment.Device.Get())
-                {
-                    await await device.PlayAsync(convertedAudio);
-                }
+                using var device = AudioEnvironment.Device.Get();
+                using var context = await device.PlayAsync(convertedAudio, cancelationTokenSource.Token).ConfigureAwait(false);
+                
                 System.Console.WriteLine("  Audio device has been disposed");
             }
         }

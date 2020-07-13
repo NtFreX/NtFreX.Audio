@@ -1,10 +1,11 @@
-﻿using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public sealed class FmtSubChunk
+    public sealed class FmtSubChunk : IFmtSubChunk
     {
         public const string ChunkIdentifier = "fmt ";
 
@@ -71,6 +72,7 @@ namespace NtFreX.Audio.Containers
 
         private void ThrowIfInvalid(/*uint byteRate, ushort blockAlign*/)
         {
+            //TODO: validate byteRate and blockAlign
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
             /*if (byteRate != ByteRate)
             {

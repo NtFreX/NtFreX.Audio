@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -7,9 +8,10 @@ namespace NtFreX.Audio.Devices.Adapters
 {
     public sealed class AudioDeviceAdapterFactory
     {
-        private readonly IAudioDeviceAdapter[] audioDeviceResolvers = new[]
+        private readonly IAudioDeviceAdapter[] audioDeviceResolvers = new IAudioDeviceAdapter[]
         {
-            new WindowsFileSystemAudioDeviceAdapter()
+            new WasapiAudioDeviceAdapter(),
+            new PulseAudioDeviceAdapter()
         };
 
         public static AudioDeviceAdapterFactory Instance { [return:NotNull] get; } = new AudioDeviceAdapterFactory();

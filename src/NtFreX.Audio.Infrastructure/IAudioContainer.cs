@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 
-namespace NtFreX.Audio.Containers
+namespace NtFreX.Audio.Infrastructure
 {
     public interface IAudioContainer
     {

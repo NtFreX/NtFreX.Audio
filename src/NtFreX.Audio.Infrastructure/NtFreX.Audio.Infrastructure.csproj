@@ -5,8 +5,4 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\NtFreX.Audio.AdapterInfrastructure\NtFreX.Audio.AdapterInfrastructure.csproj" />
-  </ItemGroup>
-
 </Project>

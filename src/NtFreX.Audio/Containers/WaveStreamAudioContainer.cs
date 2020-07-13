@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -8,9 +9,11 @@ namespace NtFreX.Audio.Containers
     /// http://soundfile.sapp.org/doc/WaveFormat/
     /// </summary>
     //TODO: support seekable and non seekable cases
-    public sealed class WaveStreamAudioContainer : WaveAudioContainer<StreamDataSubChunk>, IStreamAudioContainer
+    public sealed class WaveStreamAudioContainer : WaveAudioContainer<StreamDataSubChunk>, IWaveStreamAudioContainer
     {
         private bool disposed = false;
+
+        IFmtSubChunk IWaveStreamAudioContainer.FmtSubChunk => FmtSubChunk;
 
         public WaveStreamAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] StreamDataSubChunk dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
             : base(riffChunkDescriptor, fmtSubChunk, dataSubChunk, riffSubChuncks) { }
