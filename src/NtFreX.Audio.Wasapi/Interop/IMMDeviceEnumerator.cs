@@ -15,7 +15,7 @@ namespace NtFreX.Audio.Wasapi.Interop
     /// https://github.com/jamesjharper/nFundamental/blob/master/src/nFundamental.Interface.Wasapi/Interop/IMMDeviceEnumerator.cs
     /// </summary>
     [ComImport]
-    [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
+    [Guid(ClsId.IMMDeviceEnumerator)]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IMMDeviceEnumerator
     {
