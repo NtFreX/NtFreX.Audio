@@ -9,6 +9,41 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Wasapi
 {
+    internal enum WaveFormatType: ushort
+    {
+        WAVE_FORMAT_PCM = 0x0001,
+        WAVE_FORMAT_EXTENSIBLE = 0xFFFE
+    }
+
+
+    internal struct WaveFormat
+    {
+        internal struct WaveFormatInner
+        {
+            public WaveFormatType FormatTag;
+            public ushort Channels;
+            public uint SamplesPerSec;
+            public uint AvgBytesPerSec;
+            public ushort BlockAlign;
+            public ushort BitsPerSample;
+            public ushort cbSize;
+        }
+
+        public WaveFormatInner Format;
+
+        internal struct SamplesInner
+        {
+            public ushort wValidBitsPerSample;
+            public ushort wSamplesPerBlock;
+            public ushort wReserved;
+        }
+
+        public SamplesInner Samples;
+        public uint dwChannelMask;
+        public Guid SubFormat;
+    };
+
+
     public class WasapiAudioDevice : IAudioDevice
     {
         [return: NotNull]
@@ -38,10 +73,48 @@ namespace NtFreX.Audio.Wasapi
             }
 
             //audioClient.IsFormatSupported
-            //if(audioClient.Initialize(AudioClientShareMode.Exclusive, AudioClientStreamFlags.Loopback, 0, 0, IntPtr.Zero, Guid.Empty) != HResult.S_OK)
-            //{
-            //    throw new Exception("Could not intitialize the audio client");
-            //}
+            //https://github.com/jamesjharper/nFundamental/blob/29551b9457e4147ddeb5e944d3322a93a9178317/src/nFundamental.Wave/Format/WaveFormat.cs
+            var bitsPerSample = 8;
+            var channels = 1;
+            var sampleRate = 44100;
+            var format = new WaveFormat
+            {
+                Format = new WaveFormat.WaveFormatInner
+                {
+                    BitsPerSample = (ushort)bitsPerSample,
+                    Channels = (ushort)channels,
+                    BlockAlign = (ushort)(channels * bitsPerSample / 8),
+                    SamplesPerSec = (ushort)sampleRate,
+                    AvgBytesPerSec = (ushort)(sampleRate * (channels * bitsPerSample / 8)),
+
+                    FormatTag = WaveFormatType.WAVE_FORMAT_EXTENSIBLE,
+                    cbSize = 22
+                },
+                Samples = new WaveFormat.SamplesInner
+                {
+                    wReserved = 0,
+                    wSamplesPerBlock = 0,
+                    wValidBitsPerSample = 8
+                },
+                dwChannelMask = 0x4
+            };
+            var formatPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(format));
+            Marshal.StructureToPtr(format, formatPtr, false);
+
+            if (audioClient.GetMixFormat(out IntPtr defaultFormatPtr) != HResult.S_OK)
+            {
+                throw new Exception("Could not get the mix format");
+            }
+            var defaultFormatToCompare = Marshal.PtrToStructure<WaveFormat>(defaultFormatPtr);
+
+            const int REFTIMES_PER_SEC = 10000000;
+            //var nFrames = 0;
+            //var referenceTime = (ulong) ((10000.0 * 1000 / format.SamplesPerSec * nFrames) + 0.5);
+            var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, REFTIMES_PER_SEC, 0, formatPtr, Guid.Empty);
+            if (initializeResult != HResult.S_OK)
+            {
+                throw new Exception("Could not intitialize the audio client");
+            }
 
             var getServiceResult = audioClient.GetService(new Guid("F294ACFC-3146-4483-A7BF-ADDCA7C260E2"), out object audioRenderClientObj);
             if (getServiceResult != HResult.S_OK || !(audioRenderClientObj is IAudioRenderClient audioRenderClient) || audioRenderClient == null)

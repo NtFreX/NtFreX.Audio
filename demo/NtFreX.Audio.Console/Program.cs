@@ -56,8 +56,8 @@ namespace NtFreX.Audio.Sampler.Console
                     .ConfigureAwait(false);
 
                 System.Console.WriteLine();
-                System.Console.WriteLine($"Drawing...");
-                File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer, convertedAudio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
+                //System.Console.WriteLine($"Drawing...");
+                //File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer, convertedAudio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
 
                 System.Console.WriteLine($"Playing...");
                 using var device = AudioEnvironment.Device.Get();
