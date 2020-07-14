@@ -13,7 +13,7 @@ namespace NtFreX.Audio.PulseAudio
     {
         private readonly List<PulseAudioPlaybackContext> playbackContexts = new List<PulseAudioPlaybackContext>();
 
-        public async Task<IPlaybackContext> PlayAsync(IWaveStreamAudioContainer streamAudioContainer, CancellationToken cancellationToken = default)
+        public async Task<IPlaybackContext> PlayAsync(IWaveAudioContainer streamAudioContainer, CancellationToken cancellationToken = default)
         {
             var spec = new pa_sample_spec
             {
@@ -47,6 +47,8 @@ namespace NtFreX.Audio.PulseAudio
         private readonly uint bufferSize;
         private readonly CancellationToken cancellationToken;
         private readonly Task task;
+
+        public Observable<EventArgs> EndOfDataReached { get; } = new Observable<EventArgs>();
 
         internal PulseAudioPlaybackContext(pa_simple client, IAsyncEnumerable<byte[]> data, uint bufferSize, CancellationToken cancellationToken = default)
         {
@@ -83,6 +85,7 @@ namespace NtFreX.Audio.PulseAudio
 
         private async Task PumpAudioAsync()
         {
+            //TODO: loop over data
             var buffer = await FillNextBufferAsync().ConfigureAwait(false);
             var handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
             IntPtr dataPtr = handle.AddrOfPinnedObject();
@@ -93,6 +96,8 @@ namespace NtFreX.Audio.PulseAudio
 
             Simple.pa_simple_drain(client, ref error);
             if (error != 0) throw new Exception(error.ToString());
+
+            EndOfDataReached?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()

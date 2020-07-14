@@ -2,6 +2,7 @@
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using NtFreX.Audio.Samplers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,9 +37,9 @@ namespace NtFreX.Audio.Sampler.Console
                 System.Console.WriteLine($"Converting...");
 
                 using var convertedAudio = await new AudioSamplerPipe()
-                    .Add(x => x.MonoAudioSampler())
+                    //.Add(x => x.MonoAudioSampler())
                     .Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
-                    .Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
+                    //.Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
                     //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
                     //.Add(x => x.VolumeAudioSampler(0.5))
                     //.Add(x => x.ShiftWaveAudioSampler(8000))
@@ -48,7 +49,7 @@ namespace NtFreX.Audio.Sampler.Console
                     //.Add(x => x.BitsPerSampleAudioSampler(8))
                     //.Add(x => x.ShiftWaveAudioSampler(-64))
                     //.Add(x => x.VolumeAudioSampler(2))
-                    //.Add(x => x.SampleRateAudioSampler(44100))
+                    .Add(x => x.SampleRateAudioSampler(48000))
                     //.Add(x => x.VolumeAudioSampler(8))
                     .RunAsync(waveAudioContainer, cancelationTokenSource.Token)
                     .LogProgress(LogProgress, cancelationTokenSource.Token)
@@ -62,7 +63,9 @@ namespace NtFreX.Audio.Sampler.Console
                 System.Console.WriteLine($"Playing...");
                 using var device = AudioEnvironment.Device.Get();
                 using var context = await device.PlayAsync(convertedAudio, cancelationTokenSource.Token).ConfigureAwait(false);
-                
+
+                await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
+
                 System.Console.WriteLine("  Audio device has been disposed");
             }
         }

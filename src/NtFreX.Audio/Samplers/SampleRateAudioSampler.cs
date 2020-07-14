@@ -29,7 +29,7 @@ namespace NtFreX.Audio.Samplers
             }
 
             // TODO: implement
-            throw new NotImplementedException();
+            return Task.FromResult(audio.WithFmtSubChunk(x => x.WithSampleRate(sampleRate)));
         }
 
         public override string ToString()
