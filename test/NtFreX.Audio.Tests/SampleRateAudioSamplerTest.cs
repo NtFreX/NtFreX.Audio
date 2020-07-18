@@ -34,14 +34,14 @@ namespace NtFreX.Audio.Tests
     [TestFixture]
     public class SampleRateAudioSamplerTest
     {
-        //[TestCase(2, 4)]
+        [TestCase(2, 4)]
         [TestCase(4, 6)]
-        //[TestCase(3, 5)]
-        //[TestCase(4, 8)]
-        //[TestCase(SampleRate.Hz44100, SampleRate.Hz48000)]
-        //[TestCase(SampleRate.Hz8000, SampleRate.Hz32000)]
-        //[TestCase(8, 4)]
-        //[TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
+        [TestCase(3, 5)]
+        [TestCase(4, 8)]
+        [TestCase(SampleRate.Hz44100, SampleRate.Hz48000)]
+        [TestCase(SampleRate.Hz8000, SampleRate.Hz32000)]
+        [TestCase(8, 4)]
+        [TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
             var audio = Build(10, 16, (uint) fromSampleRate);

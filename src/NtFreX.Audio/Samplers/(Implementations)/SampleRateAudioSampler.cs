@@ -44,25 +44,21 @@ namespace NtFreX.Audio.Samplers
             var factor = sampleRate / (float) audio.FmtSubChunk.SampleRate;
             var previous = 0L;
             var counter = 1d;
-            var lastLeftOverDown = double.MaxValue;
-            var lastLeftOver = double.MaxValue;
             await foreach (var value in audio.DataSubChunk.Data.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 var number = value.ToInt64();
 
                 var leftOverDown = counter % reverseFactor;
-                if (factor > 1 || (factor < 1 && lastLeftOverDown < leftOverDown))
+                if (factor > 1 || (factor < 1 && System.Math.Round(leftOverDown, 2) == 0d))
                 {
                     yield return value;
                 }
-                lastLeftOverDown = leftOverDown;
 
                 var leftOver = counter % reverseFactor;
-                if (factor > 1 && lastLeftOver < leftOver)
+                if (factor > 1 && System.Math.Round(leftOver, 2) == 0d)
                 {
                     yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
                 }
-                lastLeftOver = leftOver;
 
                 counter++;
                 previous = number;
