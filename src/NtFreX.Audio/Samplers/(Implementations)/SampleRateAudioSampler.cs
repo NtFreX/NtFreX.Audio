@@ -34,11 +34,6 @@ namespace NtFreX.Audio.Samplers
                 audio = audio.WithDataSubChunk(x => x.WithData(SampleInnerAsync(audio, newDataSize, cancellationToken)));
                 factor -= 2;
             }
-            //while (factor < 1)
-            //{
-            //    audio = audio.WithDataSubChunk(x => x.WithData(SampleInnerAsync(audio, cancellationToken)));
-            //    factor += 2;
-            //}
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
