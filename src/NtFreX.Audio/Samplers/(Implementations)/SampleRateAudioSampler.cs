@@ -40,7 +40,9 @@ namespace NtFreX.Audio.Samplers
         [return: NotNull]
         private async IAsyncEnumerable<byte[]> SampleInnerAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var reverseFactor = audio.FmtSubChunk.SampleRate / (float)sampleRate;
+            var reverseFactor = System.Math.Round(audio.FmtSubChunk.SampleRate / (double)sampleRate, 6);
+            reverseFactor = (reverseFactor * 100000) % 2 != 0 ? reverseFactor - 0.00001 : reverseFactor;
+
             var factor = sampleRate / (float) audio.FmtSubChunk.SampleRate;
             var previous = 0L;
             var counter = 1d;
@@ -49,13 +51,13 @@ namespace NtFreX.Audio.Samplers
                 var number = value.ToInt64();
 
                 var leftOverDown = counter % reverseFactor;
-                if (factor > 1 || (factor < 1 && System.Math.Round(leftOverDown, 2) == 0d))
+                if (factor > 1 || (factor < 1 && leftOverDown == 0d))
                 {
                     yield return value;
                 }
 
                 var leftOver = counter % reverseFactor;
-                if (factor > 1 && System.Math.Round(leftOver, 2) == 0d)
+                if (factor > 1 && leftOver == 0d)
                 {
                     yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
                 }

@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Sampler.Console
             var cancelationTokenSource = new CancellationTokenSource();
 
             System.Console.WriteLine($"Reading...");
-            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav4, cancelationTokenSource.Token).ConfigureAwait(false);
+            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav2, cancelationTokenSource.Token).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
             if (audio is WaveStreamAudioContainer waveAudioContainer)

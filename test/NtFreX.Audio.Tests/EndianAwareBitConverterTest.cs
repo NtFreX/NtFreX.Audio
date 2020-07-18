@@ -27,7 +27,6 @@ namespace NtFreX.Audio.Tests
             Assert.AreEqual(result, value);
         }
 
-
         [TestCase(0)]
         [TestCase(1)]
         [TestCase(-1)]
