@@ -22,7 +22,8 @@ namespace NtFreX.Audio.Samplers
             if (audio.FmtSubChunk.NumChannels == 2)
             {
                 return Task.FromResult(audio);
-            } else if (audio.FmtSubChunk.NumChannels != 1)
+            } 
+            else if (audio.FmtSubChunk.NumChannels != 1)
             {
                 throw new ArgumentException("can only convert Mono to Stereo!", nameof(audio));
             }
