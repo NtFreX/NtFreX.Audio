@@ -54,23 +54,23 @@ namespace NtFreX.Audio.Wasapi
 
         internal WasapiPlaybackContext(IWaveAudioContainer audio, AudioClient audioClient, CancellationToken cancellationToken)
         {
+            this.audio = audio;
+            this.audioClient = audioClient.audioClient;
+            this.format = audioClient.format;
+            this.cancellationToken = cancellationToken;
+
             var getServiceResult = this.audioClient.GetService(new Guid(ClsId.IAudioRendererClient), out object audioRenderClientObj);
             if (getServiceResult != HResult.S_OK || !(audioRenderClientObj is IAudioRenderClient audioRenderClient) || audioRenderClient == null)
             {
                 throw new Exception("Could not get the audio renderer client", new COMException(null, (int)getServiceResult));
             }
+            this.audioRenderClient = audioRenderClient;
 
             if (this.audioClient.GetBufferSize(out uint bufferFrameCount) != HResult.S_OK)
             {
                 throw new Exception("Could not get the buffer size");
             }
-
-            this.audio = audio;
-            this.audioClient = audioClient.audioClient;
             this.bufferFrameCount = bufferFrameCount;
-            this.audioRenderClient = audioRenderClient;
-            this.format = audioClient.format;
-            this.cancellationToken = cancellationToken;
 
             task = Task.Run(PumpAudioAsync, cancellationToken);
         }

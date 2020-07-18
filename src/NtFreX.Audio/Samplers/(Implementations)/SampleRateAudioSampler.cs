@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
@@ -29,31 +28,41 @@ namespace NtFreX.Audio.Samplers
             }
 
             var factor = sampleRate / (double) audio.FmtSubChunk.SampleRate;
+            // if factor > 2 then divide by 2 and make multiple passes
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
                 .WithDataSubChunk(x => x
                     .WithSubchunk2Size((uint) (factor * audio.DataSubChunk.Subchunk2Size))
-                    .WithData(SampleInnerAsync(audio, factor, cancellationToken))));
+                    .WithData(SampleInnerAsync(audio, cancellationToken))));
         }
 
         [return: NotNull]
-        private static async IAsyncEnumerable<byte[]> SampleInnerAsync([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
+        private async IAsyncEnumerable<byte[]> SampleInnerAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
         {
+            var reverseFactor = audio.FmtSubChunk.SampleRate / (float)sampleRate;
+            var factor = sampleRate / (float) audio.FmtSubChunk.SampleRate;
             var previous = 0L;
-            var counter = 1;
+            var counter = 1d;
+            var lastLeftOverDown = double.MaxValue;
+            var lastLeftOver = double.MaxValue;
             await foreach (var value in audio.DataSubChunk.Data.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 var number = value.ToInt64();
-                if (factor > 1 && counter % factor == 0)
-                {
-                    yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
-                }
 
-                if (factor < 1 && counter % (1d / factor) != 0) 
+                var leftOverDown = counter % reverseFactor;
+                if (factor > 1 || (factor < 1 && lastLeftOverDown < leftOverDown))
                 {
                     yield return value;
                 }
+                lastLeftOverDown = leftOverDown;
+
+                var leftOver = counter % reverseFactor;
+                if (factor > 1 && lastLeftOver < leftOver)
+                {
+                    yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
+                }
+                lastLeftOver = leftOver;
 
                 counter++;
                 previous = number;

@@ -27,12 +27,16 @@ namespace NtFreX.Audio.Sampler.Console
             var cancelationTokenSource = new CancellationTokenSource();
 
             System.Console.WriteLine($"Reading...");
-            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav2, cancelationTokenSource.Token).ConfigureAwait(false);
+            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav3, cancelationTokenSource.Token).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
             if (audio is WaveStreamAudioContainer waveAudioContainer)
             {
                 System.Console.WriteLine($"Converting...");
+                if(File.Exists("mono8bit.wav"))
+                {
+                    File.Delete("mono8bit.wav");
+                }
 
                 using var convertedAudio = await new AudioSamplerPipe()
                     //.Add(x => x.MonoAudioSampler())

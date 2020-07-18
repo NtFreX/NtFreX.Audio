@@ -1,6 +1,12 @@
+using Dasync.Collections;
+using NtFreX.Audio.Containers;
 using NtFreX.Audio.Math;
+using NtFreX.Audio.Samplers;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Tests
 {
