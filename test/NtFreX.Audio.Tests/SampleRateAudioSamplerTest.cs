@@ -40,18 +40,21 @@ namespace NtFreX.Audio.Tests
         [TestCase(4, 8)]
         [TestCase(SampleRate.Hz44100, SampleRate.Hz48000)]
         [TestCase(SampleRate.Hz8000, SampleRate.Hz32000)]
+        [TestCase(SampleRate.Hz32000, SampleRate.Hz48000)]
         [TestCase(8, 4)]
         [TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
-            var audio = WaveContainerBuilder.Build(10, 16, (uint) fromSampleRate);
+            var audio = WaveContainerBuilder.Build(10, 32, (uint) fromSampleRate);
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
+            var oldData = await audio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false);
             var newData = await newAudio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false);
 
-            int expectedNewSize = (int)(audio.DataSubChunk.Subchunk2Size * (toSampleRate / (float)fromSampleRate));
-            Assert.AreEqual(expectedNewSize, newData.SelectMany(x => x).Count());
+            float factor = toSampleRate / (float)fromSampleRate;
+            int expectedNewSize = (int)(audio.DataSubChunk.Subchunk2Size * factor);
+            Assert.AreEqual((uint)(oldData.SelectMany(x => x).Count() * factor), newData.SelectMany(x => x).Count());
             Assert.AreEqual(expectedNewSize, newAudio.DataSubChunk.Subchunk2Size);
         }
 
@@ -65,7 +68,6 @@ namespace NtFreX.Audio.Tests
             var sampler = new SampleRateAudioSampler((uint)toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
-            var newData = (await newAudio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false)).SelectMany(x => x);
 
             Assert.AreEqual(audio.GetLength().Ticks, newAudio.GetLength().Ticks);
         }
