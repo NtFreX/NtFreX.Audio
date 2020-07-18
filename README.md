@@ -44,5 +44,4 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] generation
    - [ ] splitting
    - [ ] joining
- - [ ] cleanup github action script
  - [ ] ...
