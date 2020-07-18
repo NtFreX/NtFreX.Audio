@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
+    /// <summary>
+    /// converts stereo to mono 
+    /// </summary>
     public class MonoAudioSampler : AudioSampler
     {
         [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
