@@ -41,6 +41,7 @@ namespace NtFreX.Audio.Sampler.Console
 
                 using var convertedAudio = await new AudioSamplerPipe()
                     //.Add(x => x.MonoAudioSampler())
+                    .Add(x => x.MonoToStereoAudioSampler())
                     .Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
                     //.Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
                     //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
@@ -52,7 +53,7 @@ namespace NtFreX.Audio.Sampler.Console
                     //.Add(x => x.BitsPerSampleAudioSampler(8))
                     //.Add(x => x.ShiftWaveAudioSampler(-64))
                     //.Add(x => x.VolumeAudioSampler(2))
-                    .Add(x => x.SampleRateAudioSampler(48000))
+                    .Add(x => x.SampleRateAudioSampler(44100))
                     //.Add(x => x.VolumeAudioSampler(8))
                     .RunAsync(waveAudioContainer, cancelationTokenSource.Token)
                     .LogProgress(LogProgress, cancelationTokenSource.Token)
