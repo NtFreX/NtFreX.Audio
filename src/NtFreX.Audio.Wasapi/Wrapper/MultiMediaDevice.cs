@@ -26,7 +26,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return id;
         }
 
-        public AudioClient GetAudioClient([NotNull] IWaveAudioContainer audio)
+        public AudioClient? TryGetAudioClient([NotNull] IWaveAudioContainer audio, out WaveFormatDefinition supportedFormat)
         {
             if (audioClient == null)
             {
@@ -59,10 +59,11 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var formatPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(format));
             Marshal.StructureToPtr(format, formatPtr, false);
 
-            var isFormatSupportedResult = audioClient.IsFormatSupported(AudioClientShareMode.Shared, formatPtr, out IntPtr avaiableFormat);
+            var isFormatSupportedResult = audioClient.IsFormatSupported(AudioClientShareMode.Shared, formatPtr, out IntPtr avaiableFormatPtr);
             if (isFormatSupportedResult != HResult.S_OK)
             {
-                throw new Exception("The given format is not supported");
+                supportedFormat = Marshal.PtrToStructure<WaveFormatDefinition>(avaiableFormatPtr);
+                return null;
             }
 
             var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, WasapiPlaybackContext.REFTIMES_PER_SEC, 0, formatPtr, Guid.Empty);
@@ -71,6 +72,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 throw new Exception("Could not intitialize the audio client");
             }
 
+            supportedFormat = format;
             return new AudioClient(audioClient, format);
         } 
     }

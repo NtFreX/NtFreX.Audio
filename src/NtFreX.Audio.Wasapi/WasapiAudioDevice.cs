@@ -13,6 +13,9 @@ namespace NtFreX.Audio.Wasapi
 {
     public class WasapiAudioDevice : IAudioDevice
     {
+        private AudioClient? audioClient;
+        private IWaveAudioContainer? audio;
+
         /// <summary>
         /// https://docs.microsoft.com/en-us/windows/win32/coreaudio/rendering-a-stream
         /// </summary>
@@ -20,16 +23,30 @@ namespace NtFreX.Audio.Wasapi
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         [return: NotNull]
-        public Task<IPlaybackContext> PlayAsync([NotNull] IWaveAudioContainer audio, CancellationToken cancellationToken = default)
+        public Task<IPlaybackContext> PlayAsync(CancellationToken cancellationToken = default)
         {
-            var device = MultiMediaDeviceEnumerator.Instance.GetDefaultRenderDevice();
-            var audioClient = device.GetAudioClient(audio);
-
-
+            if(audio == null || audioClient == null)
+            {
+                throw new Exception("The device is not initialized");
+            }
             // todo: dispose/cleanup
             var context = new WasapiPlaybackContext(audio, audioClient, cancellationToken);
             return Task.FromResult(context as IPlaybackContext);
         }
+
+        public bool TryInitialize(IWaveAudioContainer audio, out Format supportedFormat)
+        {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            var device = MultiMediaDeviceEnumerator.Instance.GetDefaultRenderDevice();
+            this.audioClient = device.TryGetAudioClient(audio, out var supportedFormatInner);
+            this.audio = audio;
+
+            supportedFormat = new Format(supportedFormatInner.Format.SamplesPerSec, supportedFormatInner.Format.BitsPerSample);
+            return IsInitialized();
+        }
+
+        public bool IsInitialized() => audioClient != null;
 
         public void Dispose()
         {

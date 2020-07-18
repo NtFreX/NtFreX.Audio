@@ -29,7 +29,7 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] pulse audio (ALSA?)
  - [ ] audio playback
    - [x] basis
-   - [ ] wasapi 
+   - [ ] wasapi
      - [ ] channel mapping
    - [ ] pulse audio
  - [ ] audio recording
@@ -44,4 +44,5 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] generation
    - [ ] splitting
    - [ ] joining
+ - [ ] cleanup github action script
  - [ ] ...

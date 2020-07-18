@@ -28,41 +28,60 @@ namespace NtFreX.Audio.Samplers
             }
 
             var factor = sampleRate / (double) audio.FmtSubChunk.SampleRate;
-            // if factor > 2 then divide by 2 and make multiple passes
+            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.Subchunk2Size, 0);
+            while(factor > 0)
+            {
+                audio = audio.WithDataSubChunk(x => x.WithData(SampleInnerAsync(audio, newDataSize, cancellationToken)));
+                factor -= 2;
+            }
+            //while (factor < 1)
+            //{
+            //    audio = audio.WithDataSubChunk(x => x.WithData(SampleInnerAsync(audio, cancellationToken)));
+            //    factor += 2;
+            //}
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
-                .WithDataSubChunk(x => x
-                    .WithSubchunk2Size((uint) (factor * audio.DataSubChunk.Subchunk2Size))
-                    .WithData(SampleInnerAsync(audio, cancellationToken))));
+                .WithDataSubChunk(x => x.WithSubchunk2Size((uint)newDataSize)));
         }
 
         [return: NotNull]
-        private async IAsyncEnumerable<byte[]> SampleInnerAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
+        private async IAsyncEnumerable<byte[]> SampleInnerAsync([NotNull] WaveEnumerableAudioContainer audio, double newDataSize, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var factor = sampleRate / (float)audio.FmtSubChunk.SampleRate;
-            var newSize = audio.DataSubChunk.Subchunk2Size * factor;
-            var reverseFactor = audio.DataSubChunk.Subchunk2Size / (double) System.Math.Abs(audio.DataSubChunk.Subchunk2Size - newSize);
+            var sizeOfParts = audio.DataSubChunk.Subchunk2Size / (double) System.Math.Abs(audio.DataSubChunk.Subchunk2Size - newDataSize);
             var previous = 0L;
             var counter = 1d;
+            var total = 0L;
             await foreach (var value in audio.DataSubChunk.Data.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 var number = value.ToInt64();
 
-                var leftOver = counter > reverseFactor;
-                if (factor > 1 && leftOver)
+                var positionReached = counter > sizeOfParts;
+
+                // upsampling
+                if (factor > 1)
                 {
-                    yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
-                    counter -= reverseFactor;
+                    if (positionReached)
+                    {
+                        yield return ((number + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
+                        counter -= sizeOfParts;
+                    }
+
+                    yield return value;
                 }
 
-                if (factor > 1 || (factor < 1 && leftOver))
+                // downsampling
+                if (factor < 1)
                 {
-                    yield return value;
-
-                    if (factor < 1)
+                    if (positionReached)
                     {
-                        counter -= reverseFactor;
+                        counter -= sizeOfParts;
+                    }
+                    else if(total < newDataSize)
+                    {
+                        yield return value;
+                        total += audio.FmtSubChunk.BitsPerSample / 8;
                     }
                 }
 
@@ -70,7 +89,7 @@ namespace NtFreX.Audio.Samplers
                 previous = number;
             }
 
-            if (factor > 1 && counter > reverseFactor)
+            if (factor > 1 && counter > sizeOfParts && factor <= 2)
             {
                 yield return ((0 + previous) / 2).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8);
             }

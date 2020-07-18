@@ -43,6 +43,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(SampleRate.Hz32000, SampleRate.Hz48000)]
         [TestCase(8, 4)]
         [TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
+        [TestCase(SampleRate.Hz32000, SampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
             var audio = WaveContainerBuilder.Build(10, 32, (uint) fromSampleRate);

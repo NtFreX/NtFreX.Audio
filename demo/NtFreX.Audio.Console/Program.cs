@@ -1,7 +1,9 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Extensions;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
 using NtFreX.Audio.Samplers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,61 +25,88 @@ namespace NtFreX.Audio.Sampler.Console
         const string testWav3 = @"..\..\..\..\..\resources\Dash Runner.wav";
         const string testWav4 = @"..\..\..\..\..\resources\1000hz_sinwave.wav";
 
+        private static async Task PlayAsync(IWaveAudioContainer audio, CancellationToken cancelationToken)
+        {
+            System.Console.WriteLine($"Playing...");
+            using var device = AudioEnvironment.Device.Get();
+
+            var toPlay = audio
+                .AsEnumerable(cancelationToken)
+                .LogProgress(LogProgress, cancelationToken);
+
+            //TODO: create api to initialize and convert if possible
+            if (!device.TryInitialize(toPlay, out var supportedFormat))
+            {
+                // TODO convert everyting nessesary
+                toPlay = await new AudioSamplerPipe()
+                    .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
+                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
+                    .RunAsync(toPlay, cancelationToken)
+                    .ConfigureAwait(false);
+
+                if (!device.TryInitialize(toPlay, out _))
+                {
+                    throw new Exception("Not supported");
+                }
+            }
+
+            using var context = await device.PlayAsync(cancelationToken).ConfigureAwait(false);
+
+            await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
+
+            System.Console.WriteLine();
+            System.Console.WriteLine("  Audio device has been disposed");
+        }
+
+        private static async Task SampleAsync(IWaveAudioContainer audio, CancellationToken cancelationToken)
+        {
+            System.Console.WriteLine($"Converting...");
+            if (File.Exists("mono8bit.wav"))
+            {
+                File.Delete("mono8bit.wav");
+            }
+
+            using var convertedAudio = await new AudioSamplerPipe()
+                //.Add(x => x.MonoAudioSampler())
+                .Add(x => x.MonoToStereoAudioSampler())
+                .Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
+                //.Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
+                //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
+                //.Add(x => x.VolumeAudioSampler(0.5))
+                //.Add(x => x.ShiftWaveAudioSampler(8000))
+                //.Add(x => x.BitsPerSampleAudioSampler(64))
+                //.Add(x => x.BitsPerSampleAudioSampler(32))
+                //.Add(x => x.BitsPerSampleAudioSampler(16))
+                //.Add(x => x.BitsPerSampleAudioSampler(8))
+                //.Add(x => x.ShiftWaveAudioSampler(-64))
+                //.Add(x => x.VolumeAudioSampler(2))
+                //.Add(x => x.SampleRateAudioSampler(48000))
+                //.Add(x => x.VolumeAudioSampler(8))
+                .RunAsync(audio.AsEnumerable(cancelationToken), cancelationToken)
+                .LogProgress(LogProgress, cancelationToken)
+                .ToFileAsync("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationToken)
+                .ConfigureAwait(false);
+
+            System.Console.WriteLine();
+        }
+
         static async Task Main()
         {
-            var cancelationTokenSource = new CancellationTokenSource();
+            using var cancelationTokenSource = new CancellationTokenSource();
 
             System.Console.WriteLine($"Reading...");
             using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav3, cancelationTokenSource.Token).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
+            // TODO: implement/call converter library to get wave file
             if (audio is WaveStreamAudioContainer waveAudioContainer)
             {
-                System.Console.WriteLine($"Converting...");
-                if(File.Exists("mono8bit.wav"))
-                {
-                    File.Delete("mono8bit.wav");
-                }
+                await SampleAsync(waveAudioContainer, cancelationTokenSource.Token).ConfigureAwait(false);
 
-                using var convertedAudio = await new AudioSamplerPipe()
-                    //.Add(x => x.MonoAudioSampler())
-                    .Add(x => x.MonoToStereoAudioSampler())
-                    .Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
-                    //.Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
-                    //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
-                    //.Add(x => x.VolumeAudioSampler(0.5))
-                    //.Add(x => x.ShiftWaveAudioSampler(8000))
-                    //.Add(x => x.BitsPerSampleAudioSampler(64))
-                    //.Add(x => x.BitsPerSampleAudioSampler(32))
-                    //.Add(x => x.BitsPerSampleAudioSampler(16))
-                    //.Add(x => x.BitsPerSampleAudioSampler(8))
-                    //.Add(x => x.ShiftWaveAudioSampler(-64))
-                    //.Add(x => x.VolumeAudioSampler(2))
-                    .Add(x => x.SampleRateAudioSampler(48000))
-                    //.Add(x => x.VolumeAudioSampler(8))
-                    .RunAsync(waveAudioContainer, cancelationTokenSource.Token)
-                    .LogProgress(LogProgress, cancelationTokenSource.Token)
-                    .ToFileAsync("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationTokenSource.Token)
-                    .ConfigureAwait(false);
-
-                System.Console.WriteLine();
                 //System.Console.WriteLine($"Drawing...");
                 //File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(waveAudioContainer, convertedAudio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
 
-                System.Console.WriteLine($"Playing...");
-                using var device = AudioEnvironment.Device.Get();
-                using var context = await device.PlayAsync(
-                    await Task
-                    .FromResult(WaveEnumerableAudioContainer.ToEnumerable(convertedAudio, cancelationTokenSource.Token))
-                    .LogProgress(LogProgress, cancelationTokenSource.Token)
-                    .ConfigureAwait(false), cancelationTokenSource.Token).ConfigureAwait(false);
-
-                await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
-
-                //using var file = await convertedAudio.ToStream("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationTokenSource.Token).ConfigureAwait(false);
-
-                System.Console.WriteLine();
-                System.Console.WriteLine("  Audio device has been disposed");
+                await PlayAsync(waveAudioContainer, cancelationTokenSource.Token).ConfigureAwait(false);
             }
         }
 
