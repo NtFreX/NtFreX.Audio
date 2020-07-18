@@ -44,7 +44,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
-            var audio = Build(10, 16, (uint) fromSampleRate);
+            var audio = WaveContainerBuilder.Build(10, 16, (uint) fromSampleRate);
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -61,27 +61,13 @@ namespace NtFreX.Audio.Tests
         [TestCase(SampleRate.Hz48000, SampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(int fromSampleRate, int toSampleRate)
         {
-            var audio = Build(10, 32, (uint)fromSampleRate);
+            var audio = WaveContainerBuilder.Build(10, 32, (uint)fromSampleRate);
             var sampler = new SampleRateAudioSampler((uint)toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
             var newData = (await newAudio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false)).SelectMany(x => x);
 
             Assert.AreEqual(audio.GetLength().Ticks, newAudio.GetLength().Ticks);
-        }
-
-        private static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate)
-        {
-            var byteCount = sampleRate * sampleCount * bitsPerSample / 8;
-            var totalSamples = sampleRate * sampleCount;
-            return new WaveEnumerableAudioContainer(
-                   null,
-                   new FmtSubChunk("fmt ", 16, 1, 1, sampleRate, bitsPerSample),
-                   new EnumerableDataSubChunk(
-                       "data",
-                       (uint)byteCount,
-                       Enumerable.Repeat(0L, (int) totalSamples).Select(x => x.ToByteArray(bitsPerSample / 8)).ToAsyncEnumerable()),
-                   new List<UnknownSubChunk>());
         }
     }
 }
