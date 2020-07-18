@@ -8,11 +8,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
-    //TODO: wave generation
-    //TODO:
-    //public class VolumeNormalizerAudioSampler : AudioSampler { }
-    //public class SpeedAudioSampler: AudioSampler { } // strech out wave (width)
-    //public class BackgroundNoiseAudioSampler: AudioSampler { } //TODO: cache fourier transform
     public class ShiftWaveAudioSampler: AudioSampler
     {
         private readonly double shiftAdder;

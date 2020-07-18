@@ -20,7 +20,6 @@ namespace NtFreX.Audio.Samplers
 
         [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            //TODO: make this work correctly with and from all sample rates
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             if (audio.FmtSubChunk.BitsPerSample == bitsPerSample)
@@ -28,6 +27,7 @@ namespace NtFreX.Audio.Samplers
                 return Task.FromResult(audio);
             }
 
+            //TODO: make this work correctly with and from all sample rates
             // HINT: doubling bits per sample and not changing data will double speed
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
             var factor = System.Math.Pow(16, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);

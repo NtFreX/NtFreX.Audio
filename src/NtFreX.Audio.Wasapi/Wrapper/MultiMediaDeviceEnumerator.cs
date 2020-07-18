@@ -11,17 +11,10 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         private MultiMediaDeviceEnumerator()
         {
-            Guid deviceEnumeratorId = new Guid(ClsId.MMDeviceEnumerator);
-            Type deviceEnumeratorType = Type.GetTypeFromCLSID(deviceEnumeratorId, true);
-            deviceEnumerator = Activator.CreateInstance(deviceEnumeratorType) as IMMDeviceEnumerator;
-            
-            if (deviceEnumerator == null)
-            {
-                throw new Exception("Could not get the device enumerator");
-            }
+            deviceEnumerator = ComObject.Initialize<IMMDeviceEnumerator>(ClsId.MMDeviceEnumerator);
         }
 
-        public IMMDevice GetDefaultRenderDevice()
+        public MultiMediaDevice GetDefaultRenderDevice()
         {
             /*
              * In Windows Vista, the MMDevice API supports device roles but the system-supplied user interface programs do not. 
@@ -38,7 +31,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 throw new Exception("Could not get the default renderer device");
             }
 
-            return device;
+            return new MultiMediaDevice(device);
         }
     }
 }

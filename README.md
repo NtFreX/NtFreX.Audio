@@ -6,6 +6,8 @@ For a demo look into the NtFrex.Audio.Console project
 
 ## TODO
 
+ - [ ] tests
+ - [ ] api refinement
  - [ ] Wave audio container
    - [x] basis
    - [x] streamable
@@ -16,13 +18,15 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] bits per sample
    - [ ] sample rate
    - [ ] volume
+   - [ ] volume normalization
+   - [ ] background noise filter
    - [ ] speed
    - [ ] channels
    - [ ] fourier
  - [ ] audio devices
    - [x] basis
    - [ ] windows multi media
-   - [ ] pulse audio
+   - [ ] pulse audio (ALSA?)
  - [ ] audio playback
    - [x] basis
    - [ ] wasapi
@@ -35,4 +39,8 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] IEEE FLOAT
    - [ ] mp3
  - [ ] audio converters
+ - [ ] signal modification
+   - [ ] generation
+   - [ ] splitting
+   - [ ] joining
  - [ ] ...

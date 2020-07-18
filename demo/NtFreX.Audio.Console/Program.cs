@@ -2,7 +2,6 @@
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using NtFreX.Audio.Samplers;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,16 +19,15 @@ namespace NtFreX.Audio.Sampler.Console
     // down/up sampling
     class Program
     {
-        const string testWav = @"E:\Programs\Steam\steamapps\common\The Beginners Guide\beginnersguide\sound\narration\VOF\VOF_machine08.wav";
-        const string testWav2 = @"..\..\..\..\..\8-bit Detective.wav";
-        const string testWav3 = @"..\..\..\..\..\Dash Runner.wav";
+        const string testWav2 = @"..\..\..\..\..\resources\8-bit Detective.wav";
+        const string testWav3 = @"..\..\..\..\..\resources\Dash Runner.wav";
         
         static async Task Main()
         {
             var cancelationTokenSource = new CancellationTokenSource();
 
             System.Console.WriteLine($"Reading...");
-            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav3, cancelationTokenSource.Token).ConfigureAwait(false);
+            using var audio = await AudioEnvironment.Serializer.FromFileAsync(testWav2, cancelationTokenSource.Token).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
             
             if (audio is WaveStreamAudioContainer waveAudioContainer)
@@ -62,10 +60,17 @@ namespace NtFreX.Audio.Sampler.Console
 
                 System.Console.WriteLine($"Playing...");
                 using var device = AudioEnvironment.Device.Get();
-                using var context = await device.PlayAsync(convertedAudio, cancelationTokenSource.Token).ConfigureAwait(false);
+                using var context = await device.PlayAsync(
+                    await Task
+                    .FromResult(WaveEnumerableAudioContainer.ToEnumerable(convertedAudio, cancelationTokenSource.Token))
+                    .LogProgress(LogProgress, cancelationTokenSource.Token)
+                    .ConfigureAwait(false), cancelationTokenSource.Token).ConfigureAwait(false);
 
                 await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
 
+                //using var file = await convertedAudio.ToStream("mono8bit.wav", FileMode.OpenOrCreate, cancellationToken: cancelationTokenSource.Token).ConfigureAwait(false);
+
+                System.Console.WriteLine();
                 System.Console.WriteLine("  Audio device has been disposed");
             }
         }
