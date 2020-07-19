@@ -129,6 +129,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] basis
    - [ ] wasapi
      - [ ] channel mapping
+     - [ ] format type cleanup
      - [ ] interop cleanup
      - [ ] dispose
      - [ ] events
