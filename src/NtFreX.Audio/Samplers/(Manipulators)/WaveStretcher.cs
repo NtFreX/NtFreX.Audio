@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Math;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
-
     public static class WaveStretcher
     {
         [return: NotNull]

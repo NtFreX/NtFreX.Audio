@@ -13,8 +13,12 @@ namespace NtFreX.Audio.Devices
         [return: NotNull]
         public static IAudioDevice Initialize(string assemblyName, string typeName)
         {
-            // TODO: correct path
+#if DEBUG && NETCOREAPP3_1
             string path = Path.Combine(Directory.GetCurrentDirectory(), $@"..\..\..\..\..\src\{assemblyName}\bin\debug\netcoreapp3.1\{assemblyName}.dll");
+#else
+            string path = Path.Combine(Directory.GetCurrentDirectory(), $@"{assemblyName}.dll");
+#endif
+
             var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
             var type = assembly.GetExportedTypes().First(x => x.Name == typeName);
             if (type == null)
