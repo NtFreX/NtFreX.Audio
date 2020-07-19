@@ -39,7 +39,9 @@ There are serval extension methods which make use of those methods.
 **Audio sampling**
 
 ```
-var newAudio = await AudioEnvironment.Sampler.SampleRateAudioSampler(WellKnownSampleRate.Hz44100).SampleAsync(audio, cancellationToken)
+var newAudio = await AudioEnvironment.Sampler
+                                     .SampleRateAudioSampler(WellKnownSampleRate.Hz44100)
+                                     .SampleAsync(audio, cancellationToken)
 ```
 
 The sampler is not executed until the new audio is moved into an in memory container or written into another stream.
