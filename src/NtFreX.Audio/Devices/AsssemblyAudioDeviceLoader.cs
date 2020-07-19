@@ -11,19 +11,19 @@ namespace NtFreX.Audio.Devices
 {
     internal static class AsssemblyAudioDeviceLoader
     {
-        private static readonly Dictionary<string, IAudioDevice> initializedAdapters = new Dictionary<string, IAudioDevice>();
+        private static readonly Dictionary<string, IAudioDevice> InitializedAdapters = new Dictionary<string, IAudioDevice>();
 
         [return: NotNull]
         public static IAudioDevice Initialize(string assemblyName, string typeName)
         {
             var key = $"{assemblyName}:{typeName}";
-            if (initializedAdapters.ContainsKey(key))
+            if (InitializedAdapters.ContainsKey(key))
             {
-                return initializedAdapters[key];
+                return InitializedAdapters[key];
             }
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), $@"{assemblyName}.dll");
-            Type type = null;
+            Type? type = null;
             if (!TryLoadTypeFrom(File.Exists(path) ? AssemblyLoadContext.Default.LoadFromAssemblyPath(path) : Assembly.GetExecutingAssembly(), typeName, out type))
             {
                 if (!TryLoadTypeFrom(Assembly.GetEntryAssembly(), typeName, out type))
@@ -43,7 +43,7 @@ namespace NtFreX.Audio.Devices
                 throw new Exception("The audio device could not be instantiated");
             }
 
-            initializedAdapters.Add(key, audioDevice);
+            InitializedAdapters.Add(key, audioDevice);
             return audioDevice;
         }
 

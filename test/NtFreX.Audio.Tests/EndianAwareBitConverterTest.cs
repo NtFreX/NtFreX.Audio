@@ -1,12 +1,6 @@
-using Dasync.Collections;
-using NtFreX.Audio.Containers;
 using NtFreX.Audio.Math;
-using NtFreX.Audio.Samplers;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Tests
 {
@@ -45,8 +39,8 @@ namespace NtFreX.Audio.Tests
         [TestCase(-1)]
         [TestCase(-100)]
         [TestCase(250)]
-        [TestCase(Int16.MaxValue)]
-        [TestCase(Int16.MinValue)]
+        [TestCase(short.MaxValue)]
+        [TestCase(short.MinValue)]
         public void CanConvertToInt16(short value)
         {
             var result = EndianAwareBitConverter.ToInt16(BitConverter.GetBytes(value));
@@ -59,8 +53,8 @@ namespace NtFreX.Audio.Tests
         [TestCase(-1)]
         [TestCase(-100)]
         [TestCase(250)]
-        [TestCase(Int32.MaxValue)]
-        [TestCase(Int32.MinValue)]
+        [TestCase(int.MaxValue)]
+        [TestCase(int.MinValue)]
         public void CanConvertToInt32(int value)
         {
             var result = EndianAwareBitConverter.ToInt32(BitConverter.GetBytes(value));
@@ -73,8 +67,8 @@ namespace NtFreX.Audio.Tests
         [TestCase(-1)]
         [TestCase(-100)]
         [TestCase(250)]
-        [TestCase(Int64.MaxValue)]
-        [TestCase(Int64.MinValue)]
+        [TestCase(long.MaxValue)]
+        [TestCase(long.MinValue)]
         public void CanConvertToInt64(long value)
         {
             var result = EndianAwareBitConverter.ToInt64(BitConverter.GetBytes(value));

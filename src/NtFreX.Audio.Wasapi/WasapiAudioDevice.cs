@@ -19,9 +19,6 @@ namespace NtFreX.Audio.Wasapi
         /// <summary>
         /// https://docs.microsoft.com/en-us/windows/win32/coreaudio/rendering-a-stream
         /// </summary>
-        /// <param name="audio"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         [return: NotNull]
         public Task<IPlaybackContext> PlayAsync(CancellationToken cancellationToken = default)
         {

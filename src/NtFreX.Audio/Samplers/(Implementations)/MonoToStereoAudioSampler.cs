@@ -10,7 +10,6 @@ namespace NtFreX.Audio.Samplers
 {
     public class MonoToStereoAudioSampler : AudioSampler
     {
-
         [return: NotNull]
         public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {

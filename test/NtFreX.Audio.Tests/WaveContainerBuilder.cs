@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace NtFreX.Audio.Tests
 {
-
     internal static class WaveContainerBuilder
     {
         public static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate, string riffChunkId = RiffChunkDescriptor.ChunkIdentifierRIFF)

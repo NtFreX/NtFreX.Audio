@@ -65,7 +65,6 @@ namespace NtFreX.Audio.Containers
 
                 try
                 {
-
                     var readLength = await readContext.Data.ReadAsync(buffer, 0, realBufferSize, cancellationToken).ConfigureAwait(false);
                     if (readLength == 0)
                     {

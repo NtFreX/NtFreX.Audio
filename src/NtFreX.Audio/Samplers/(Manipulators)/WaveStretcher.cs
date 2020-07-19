@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Math;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -13,6 +14,8 @@ namespace NtFreX.Audio.Samplers
         [return: NotNull]
         public static async IAsyncEnumerable<byte[]> StretchAsync([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
         {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
             var sizeOfParts = audio.DataSubChunk.ChunkSize / (double)System.Math.Abs(audio.DataSubChunk.ChunkSize - newDataSize);
             var previous = 0L;

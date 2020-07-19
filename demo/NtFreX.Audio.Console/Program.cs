@@ -9,23 +9,23 @@ namespace NtFreX.Audio.Sampler.Console
 
     // audio splitting, wave visualization, spectrogram
     // https://towardsdatascience.com/understanding-audio-data-fourier-transform-fft-spectrogram-and-speech-recognition-a4072d228520
-    class Program
+    public sealed class Program
     {
-        static readonly string[] sampleAudios = new [] 
+        private static string[] SampleAudios => new string[] 
         {
             @"..\..\..\..\..\resources\8-bit Detective.wav",
             @"..\..\..\..\..\resources\Dash Runner.wav",
             @"..\..\..\..\..\resources\1000hz_sinwave.wav"
         };
 
-        static readonly IDemo[] demos = new IDemo[]
+        private static IDemo[] Demos => new IDemo[]
         {
             new PlayAudioDemo(),
             new SampleAudioDemo(),
             new DrawDiagramsDemo()
         };
 
-        static async Task Main()
+        public static async Task Main()
         {
             using var cancellationTokenSource = new CancellationTokenSource();
 
@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.WriteLine();
 
             System.Console.WriteLine("Test audio files:");
-            foreach(var file in sampleAudios)
+            foreach(var file in SampleAudios)
             {
                 System.Console.WriteLine($"  - {file}");
             }
@@ -58,9 +58,9 @@ namespace NtFreX.Audio.Sampler.Console
             while (true)
             {
                 System.Console.WriteLine("Choose the demo you want to run");
-                for (var i = 0; i < demos.Length; i++)
+                for (var i = 0; i < Demos.Length; i++)
                 {
-                    System.Console.WriteLine($"  {i + 1} - {demos[i].Name} ({demos[i].Description})");
+                    System.Console.WriteLine($"  {i + 1} - {Demos[i].Name} ({Demos[i].Description})");
                 }
                 System.Console.WriteLine($"  {exitKey} - Quit application");
 
@@ -71,7 +71,7 @@ namespace NtFreX.Audio.Sampler.Console
                     break;
                 }
 
-                if (!int.TryParse(input, out var number) || number <= 0 || number > demos.Length)
+                if (!int.TryParse(input, out var number) || number <= 0 || number > Demos.Length)
                 {
                     System.Console.WriteLine("Invalid input");
                 }
@@ -79,7 +79,7 @@ namespace NtFreX.Audio.Sampler.Console
                 {
                     try
                     {
-                        await demos[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                        await Demos[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
                     }
                     catch (Exception exce)
                     {
