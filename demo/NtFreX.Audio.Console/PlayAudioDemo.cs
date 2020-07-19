@@ -14,9 +14,9 @@ using System.Threading.Tasks;
 namespace NtFreX.Audio.Sampler.Console
 {
 
-    internal class PlayAudioSample : ISample
+    internal class PlayAudioDemo : IDemo
     {
-        public string Name => nameof(PlayAudioSample);
+        public string Name => nameof(PlayAudioDemo);
         public string Description => "Plays the given audio file";
 
         public async Task RunAsync(CancellationToken cancellationToken)

@@ -8,7 +8,6 @@ namespace NtFreX.Audio.Sampler.Console
 
     // audio splitting, wave visualization, spectrogram
     // https://towardsdatascience.com/understanding-audio-data-fourier-transform-fft-spectrogram-and-speech-recognition-a4072d228520
-    // down/up sampling
     class Program
     {
         static readonly string[] sampleAudios = new [] 
@@ -18,11 +17,11 @@ namespace NtFreX.Audio.Sampler.Console
             @"..\..\..\..\..\resources\1000hz_sinwave.wav"
         };
 
-        static readonly ISample[] samples = new ISample[]
+        static readonly IDemo[] samples = new IDemo[]
         {
-            new PlayAudioSample(),
-            new SampleAudioSample(),
-            new DrawDiagramsSample()
+            new PlayAudioDemo(),
+            new SampleAudioDemo(),
+            new DrawDiagramsDemo()
         };
 
         static async Task Main()
@@ -48,6 +47,12 @@ namespace NtFreX.Audio.Sampler.Console
             }
             System.Console.WriteLine();
 
+            System.Console.CancelKeyPress += (object sender, System.ConsoleCancelEventArgs e) =>
+            {
+                cancellationTokenSource.Cancel();
+                System.Environment.Exit(0);
+            };
+
             const string exitKey = "x";
             while (true)
             {
@@ -58,14 +63,14 @@ namespace NtFreX.Audio.Sampler.Console
                 }
                 System.Console.WriteLine($"  {exitKey} - Quit application");
 
-                var input = System.Console.ReadLine();
+                var input = cancellationTokenSource.IsCancellationRequested ? exitKey : System.Console.ReadLine();
                 if (input == exitKey)
                 {
                     cancellationTokenSource.Cancel();
                     break;
                 }
 
-                if (!int.TryParse(input, out var number) || number < 0 || number >= samples.Length)
+                if (!int.TryParse(input, out var number) || number <= 0 || number > samples.Length)
                 {
                     System.Console.WriteLine("Invalid input");
                 }

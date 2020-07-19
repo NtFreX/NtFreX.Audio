@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
 {
-    internal interface ISample
+    internal interface IDemo
     {
         string Name { get; }
         string Description { get; }

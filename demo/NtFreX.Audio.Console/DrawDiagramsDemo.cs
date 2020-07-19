@@ -1,9 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
-using NtFreX.Audio.Samplers;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,24 +10,29 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
 {
-
-    internal class DrawDiagramsSample : ISample
+    // TODO: cleanup improve
+    internal class DrawDiagramsDemo : IDemo
     {
-        public string Name => nameof(DrawDiagramsSample);
+        public string Name => nameof(DrawDiagramsDemo);
         public string Description => "Draws a diagram of the given audio file and saves it as svg to an given html file";
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            //using var audio = await AudioFactory.GetSampleAudioAsync(cancellationToken).ConfigureAwait(false);
+            System.Console.Write("Enter the file you want to draw: ");
+            var file = System.Console.ReadLine();
 
-            //TODO: implement
+            System.Console.Write("Enter the file you write to: ");
+            var target = System.Console.ReadLine();
+
+            using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
+
             System.Console.WriteLine($"Drawing...");
-            //File.WriteAllText("waves.html", Html(await DrawSampleWavesAsync(audio).ConfigureAwait(false), await DrawSectogramAsync(waveAudioContainer).ConfigureAwait(false)));
+            File.WriteAllText(target, Html(await DrawSampleWavesAsync(audio).ConfigureAwait(false)/*, await DrawSectogramAsync(audio).ConfigureAwait(false)*/));
         }
-
-
+        /*
         static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
         {
+            // TODO: cleanup improve make it work
             using var monoAudio = await AudioEnvironment.Sampler
                 .MonoAudioSampler()
                 .SampleAsync(waveAudioContainer)
@@ -63,17 +65,13 @@ namespace NtFreX.Audio.Sampler.Console
             spectrum.AppendLine("</svg>");
             return spectrum.ToString();
         }
-
-        static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer, WaveStreamAudioContainer converted)
+        */
+        static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            var convertedData = await converted.GetAudioSamplesAsync().SelectAsync(x => x.ToInt64()).ToArrayAsync().ConfigureAwait(false);
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
 
-            var data = new List<long[]>(channelSamples)
-            {
-                convertedData
-            };
-            return DrawSvg(data.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 });
+            //TODO: suport more then three channels
+            return DrawSvg(channelSamples.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 }, waveAudioContainer.FmtSubChunk.BitsPerSample / 8);
         }
 
         static async Task<IEnumerable<long[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
@@ -109,13 +107,10 @@ namespace NtFreX.Audio.Sampler.Console
             return html.ToString();
         }
 
-        const float xModifier = 0.01f;
-        const float yModifier = 0.05f;
-
-        static string DrawSvg(long[][] data, string[] colors, float[] opacities, int skip = 100)
+        static string DrawSvg(long[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
         {
-            var width = data[0].Length * xModifier; // TODO: replace with file length
-            var height = data[0].Max() * yModifier; // TODO: replace max with waveAudioContainer.FmtSubChunk.BitsPerSample
+            var width = data[0].Length / skip; // TODO: replace with file length
+            var height = 100;
             var middle = height / 2.0f;
 
             var image = new StringBuilder();
@@ -123,22 +118,24 @@ namespace NtFreX.Audio.Sampler.Console
             image.AppendLine($"<line x1=\"0\" y1=\"{middle}\" x2=\"{width}\" y2=\"{middle}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
             for (int i = 0; i < data.Length; i++)
             {
-                image.AppendLine(DrawPath(data[i], colors[i], opacities[i], height, skip));
+                image.AppendLine(DrawPath(data[i], colors[i], opacities[i], height, byteCount, skip));
             }
             image.AppendLine("</svg>");
             return image.ToString();
         }
 
-        static string DrawPath(long[] data, string color, float opacity, float height, int skip)
+        static string DrawPath(long[] data, string color, float opacity, float height, int byteCount, int skip)
         {
             var middle = height / 2.0f;
 
             var path = new StringBuilder();
+            var modifier = System.Math.Pow(256, byteCount) / 4;
+
             path.AppendLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {middle}");
-            for (int i = 0; i < data.Length; i += skip)
+            for (int i = 0; i * skip < data.Length; i++)
             {
-                var averageData = data.Skip(i).Take(skip).Average();
-                path.AppendLine($"L{i * xModifier} {middle - (averageData * yModifier)} ");
+                var averageData = data.Skip(i * skip).Take(skip).Average();
+                path.AppendLine($"L{i} {middle - (averageData / modifier * 100)} ");
             }
             path.AppendLine("\" />");
             return path.ToString();

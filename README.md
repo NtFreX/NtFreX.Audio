@@ -4,6 +4,62 @@
 
 For a demo look into the NtFrex.Audio.Console project
 
+## Samples
+
+*Read/Write an audio file*
+
+```
+var filePath = "myAudio.wave";
+using IStreamAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath, cancellationToken);
+if (audio is WaveStreamAudioContainer waveAudioContainer)
+{
+  // other audio types are currently not supported
+  // it is planed to replace the if statement with a converter factory
+}
+```
+
+Other methods which resolve/write an `IStreamAudioContainer` are:
+
+ - AudioEnvironment.Serializer.FromDataAsync
+ - AudioEnvironment.Serializer.FromStreamAsync
+ - AudioEnvironment.Serializer.ToStreamSync
+ - AudioEnvironment.Serializer.ToFileAsync
+ - AudioEnvironment.Serializer.ToDataAsync
+
+There are serval extension methods which make use of those methods.
+
+*Audio sampling*
+
+```
+var newAudio = await AudioEnvironment.Sampler.SampleRateAudioSampler(WellKnownSampleRate.Hz44100).SampleAsync(audio, cancellationToken)
+```
+
+The sampler is not executed until the new audio is moved into an in memory container or written into another stream.
+Other samplers are available under `AudioEnvironment.Sampler`.
+Audio samplers can only be used with wave pcm data.
+
+*Audio playback*
+
+```
+using var device = AudioEnvironment.Device.Get();
+if (!device.TryInitialize(audio, out var supportedFormat))
+{
+   // an api to sample the audio automaticly is in planing
+  audio = await new AudioSamplerPipe()
+    .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
+    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
+    .RunAsync(toPlay, cancellationToken)
+
+  if (!device.TryInitialize(audio, out _))
+  {
+    throw new Exception("Not supported");
+  }
+}
+
+using var context = await device.PlayAsync(cancellationToken);
+await context.EndOfDataReached.WaitForNextEvent();
+```
+
 ## TODO
 
  - [ ] tests
@@ -38,7 +94,7 @@ For a demo look into the NtFrex.Audio.Console project
    - [ ] pulse audio
  - [ ] audio formats and containers
    - [ ] IEEE FLOAT
-   - [ ] mp3
+   - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
  - [ ] audio converters
  - [ ] signal modification
    - [ ] generation
