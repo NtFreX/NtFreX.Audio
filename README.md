@@ -3,7 +3,9 @@
 
 ## Demo
 
-For a demo look into the NtFrex.Audio.Console project
+For a demo look into the demo/NtFrex.Audio.Console project.
+
+![img](./resources/console.jpg)
 
 ## Samples
 
