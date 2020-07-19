@@ -18,7 +18,7 @@ namespace NtFreX.Audio.Sampler.Console
             @"..\..\..\..\..\resources\1000hz_sinwave.wav"
         };
 
-        static readonly IDemo[] samples = new IDemo[]
+        static readonly IDemo[] demos = new IDemo[]
         {
             new PlayAudioDemo(),
             new SampleAudioDemo(),
@@ -41,7 +41,7 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.WriteLine();
             System.Console.WriteLine();
 
-            System.Console.WriteLine("Sample audio files:");
+            System.Console.WriteLine("Test audio files:");
             foreach(var file in sampleAudios)
             {
                 System.Console.WriteLine($"  - {file}");
@@ -57,10 +57,10 @@ namespace NtFreX.Audio.Sampler.Console
             const string exitKey = "x";
             while (true)
             {
-                System.Console.WriteLine("Choose the sample you want to run");
-                for (var i = 0; i < samples.Length; i++)
+                System.Console.WriteLine("Choose the demo you want to run");
+                for (var i = 0; i < demos.Length; i++)
                 {
-                    System.Console.WriteLine($"  {i + 1} - {samples[i].Name} ({samples[i].Description})");
+                    System.Console.WriteLine($"  {i + 1} - {demos[i].Name} ({demos[i].Description})");
                 }
                 System.Console.WriteLine($"  {exitKey} - Quit application");
 
@@ -71,7 +71,7 @@ namespace NtFreX.Audio.Sampler.Console
                     break;
                 }
 
-                if (!int.TryParse(input, out var number) || number <= 0 || number > samples.Length)
+                if (!int.TryParse(input, out var number) || number <= 0 || number > demos.Length)
                 {
                     System.Console.WriteLine("Invalid input");
                 }
@@ -79,7 +79,7 @@ namespace NtFreX.Audio.Sampler.Console
                 {
                     try
                     {
-                        await samples[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                        await demos[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
                     }
                     catch (Exception exce)
                     {

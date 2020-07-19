@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
 namespace NtFreX.Audio.Devices
@@ -24,18 +23,15 @@ namespace NtFreX.Audio.Devices
             }
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), $@"{assemblyName}.dll");
-            Assembly assembly;
-            if (File.Exists(path))
+            Type type = null;
+            if (!TryLoadTypeFrom(File.Exists(path) ? AssemblyLoadContext.Default.LoadFromAssemblyPath(path) : Assembly.GetExecutingAssembly(), typeName, out type))
             {
-                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-            } 
-            else
-            {
-                // TODO: self contained?
-                assembly = Assembly.GetExecutingAssembly();
+                if (!TryLoadTypeFrom(Assembly.GetEntryAssembly(), typeName, out type))
+                {
+                    TryLoadTypeFrom(Assembly.Load(assemblyName), typeName, out type);
+                }
             }
-
-            var type = assembly.GetExportedTypes().FirstOrDefault(x => x.Name == typeName);
+            
             if (type == null)
             {
                 throw new Exception("The audio device adapter could not be loaded");
@@ -49,6 +45,12 @@ namespace NtFreX.Audio.Devices
 
             initializedAdapters.Add(key, audioDevice);
             return audioDevice;
+        }
+
+        private static bool TryLoadTypeFrom(Assembly? assembly, string name, out Type? type)
+        {
+            type = assembly?.GetExportedTypes().FirstOrDefault(x => x.Name == name);
+            return type != null;
         }
     }
 }
