@@ -30,7 +30,7 @@ namespace NtFreX.Audio.Samplers
             //TODO: make this work correctly with and from all sample rates
             // HINT: doubling bits per sample and not changing data will double speed
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
-            var factor = System.Math.Pow(16, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
+            var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
             var samples = audio.DataSubChunk.Data.SelectAsync(x => ((long)(isNewBigger ? x.ToInt64() * factor : x.ToInt64() / factor)).ToByteArray(bitsPerSample / 8));
 
             return Task.FromResult(audio

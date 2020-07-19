@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
@@ -76,7 +77,14 @@ namespace NtFreX.Audio.Sampler.Console
                 }
                 else
                 {
-                    await samples[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                    try
+                    {
+                        await samples[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
+                    }
+                    catch (Exception exce)
+                    {
+                        System.Console.WriteLine(exce.Message);
+                    }
                 }
             }
         }

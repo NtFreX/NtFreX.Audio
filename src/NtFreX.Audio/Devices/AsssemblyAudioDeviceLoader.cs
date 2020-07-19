@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
@@ -23,9 +24,18 @@ namespace NtFreX.Audio.Devices
             }
 
             string path = Path.Combine(Directory.GetCurrentDirectory(), $@"{assemblyName}.dll");
+            Assembly assembly;
+            if (File.Exists(path))
+            {
+                assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+            } 
+            else
+            {
+                // TODO: self contained?
+                assembly = Assembly.GetExecutingAssembly();
+            }
 
-            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-            var type = assembly.GetExportedTypes().First(x => x.Name == typeName);
+            var type = assembly.GetExportedTypes().FirstOrDefault(x => x.Name == typeName);
             if (type == null)
             {
                 throw new Exception("The audio device adapter could not be loaded");

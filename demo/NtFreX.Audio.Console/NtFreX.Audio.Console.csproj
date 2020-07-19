@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!--TODO: include platform assembly only on matching config-->
     <ProjectReference Include="..\..\src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" />
     <ProjectReference Include="..\..\src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" />
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
