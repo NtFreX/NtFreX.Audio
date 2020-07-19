@@ -1,6 +1,6 @@
 ﻿namespace NtFreX.Audio.Infrastructure
 {
-    public interface IFmtSubChunk
+    public interface IFmtSubChunk : ISubChunk
     {
         uint ByteRate { get; }
         uint SampleRate { get; }

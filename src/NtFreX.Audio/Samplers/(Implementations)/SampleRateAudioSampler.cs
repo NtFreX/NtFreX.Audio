@@ -26,7 +26,7 @@ namespace NtFreX.Audio.Samplers
 
             var factor = sampleRate / (double) audio.FmtSubChunk.SampleRate;
             var originFactor = factor;
-            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.Subchunk2Size, 0);
+            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
             while(factor > 0)
             {
                 audio = audio.WithDataSubChunk(x => x.WithData(WaveStretcher.StretchAsync(audio, originFactor, cancellationToken)));
@@ -35,7 +35,7 @@ namespace NtFreX.Audio.Samplers
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
-                .WithDataSubChunk(x => x.WithSubchunk2Size((uint)newDataSize)));
+                .WithDataSubChunk(x => x.WithChunkSize((uint)newDataSize)));
         }
 
         public override string ToString()

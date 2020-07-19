@@ -37,7 +37,7 @@ namespace NtFreX.Audio.Samplers
                 .WithFmtSubChunk(x => x
                     .WithBitsPerSample(bitsPerSample))
                 .WithDataSubChunk(x => x
-                    .WithSubchunk2Size(audio.DataSubChunk.Subchunk2Size / audio.FmtSubChunk.BitsPerSample * bitsPerSample)
+                    .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample)
                     .WithData(samples)));
         }
 

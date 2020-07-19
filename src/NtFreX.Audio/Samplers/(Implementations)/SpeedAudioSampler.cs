@@ -24,7 +24,7 @@ namespace NtFreX.Audio.Samplers
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             var currentSpeedFactor = speedFactor;
-            var newDataSize = System.Math.Round(speedFactor * audio.DataSubChunk.Subchunk2Size, 0);
+            var newDataSize = System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0);
             while (currentSpeedFactor > 0)
             {
                 audio = audio.WithDataSubChunk(x => x.WithData(WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken)));
@@ -32,7 +32,7 @@ namespace NtFreX.Audio.Samplers
             }
 
             return Task.FromResult(audio
-                .WithDataSubChunk(x => x.WithSubchunk2Size((uint)newDataSize)));
+                .WithDataSubChunk(x => x.WithChunkSize((uint)newDataSize)));
         }
 
         public override string ToString()

@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Extensions
         {
             _ = container ?? throw new ArgumentNullException(nameof(container));
 
-            var data = new EnumerableDataSubChunk(container.DataSubChunk.Subchunk2Id, container.DataSubChunk.Subchunk2Size, container.GetAudioSamplesAsync(cancellationToken));
+            var data = new EnumerableDataSubChunk(container.DataSubChunk.ChunkId, container.DataSubChunk.ChunkSize, container.GetAudioSamplesAsync(cancellationToken));
             return new WaveEnumerableAudioContainer(container.RiffChunkDescriptor, container.FmtSubChunk, data, container.UnknownSubChuncks);
         }
     }

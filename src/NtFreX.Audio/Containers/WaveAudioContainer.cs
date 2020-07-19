@@ -28,9 +28,10 @@ namespace NtFreX.Audio.Containers
 
         [return: NotNull]
         public TimeSpan GetLength()
-            => TimeSpan.FromSeconds(DataSubChunk.Subchunk2Size / (FmtSubChunk.ByteRate * 1.0f));
+            => TimeSpan.FromSeconds(DataSubChunk.ChunkSize / (FmtSubChunk.ByteRate * 1.0f));
+        
         public bool IsDataLittleEndian()
-            => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.ChunkIdentifier;
+            => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.ChunkIdentifierRIFF;
 
         [return: NotNull]
         public async IAsyncEnumerable<byte[]> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)

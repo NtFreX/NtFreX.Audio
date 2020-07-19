@@ -31,8 +31,8 @@ namespace NtFreX.Audio.Tests
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
             var newData = await newAudio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(audio.DataSubChunk.Subchunk2Size*2, newAudio.DataSubChunk.Subchunk2Size);
-            Assert.AreEqual(newAudio.DataSubChunk.Subchunk2Size, newData.SelectMany(x => x).Count());
+            Assert.AreEqual(audio.DataSubChunk.ChunkSize*2, newAudio.DataSubChunk.ChunkSize);
+            Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.SelectMany(x => x).Count());
         }
 
         [Test]

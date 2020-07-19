@@ -17,7 +17,6 @@ namespace NtFreX.Audio.Containers.Serializers
 
         private AudioContainerSerializerFactory() { }
 
-        // TODO: resolve by signature in file or/and by file extension
         [return:NotNull] public Task<IStreamAudioContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default) => audioContainerSerializers.First().FromFileAsync(path, cancellationToken);
         [return:NotNull] public Task<IStreamAudioContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default) => audioContainerSerializers.First().FromDataAsync(data, cancellationToken);
         [return:NotNull] public Task<IStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default) => audioContainerSerializers.First().FromStreamAsync(stream, cancellationToken);

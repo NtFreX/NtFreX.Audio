@@ -33,7 +33,7 @@ namespace NtFreX.Audio.Samplers
                     .WithFmtSubChunk(x => x
                         .WithNumChannels(1))
                     .WithDataSubChunk(x => x
-                        .WithSubchunk2Size(audio.DataSubChunk.Subchunk2Size / audio.FmtSubChunk.NumChannels)
+                        .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.NumChannels)
                         .WithData(monoData)));
         }
 

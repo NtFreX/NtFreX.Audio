@@ -32,7 +32,7 @@ namespace NtFreX.Audio.Containers
             await WaveAudioContainerSerializer.WriteDataAsync(DataSubChunk.Data, stream, cancellationToken).ConfigureAwait(false);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-            return new WaveStreamAudioContainer(RiffChunkDescriptor, FmtSubChunk, new StreamDataSubChunk(length - Containers.DataSubChunk.ChunkHeaderSize, DataSubChunk.Subchunk2Id, DataSubChunk.Subchunk2Size, stream), UnknownSubChuncks);
+            return new WaveStreamAudioContainer(RiffChunkDescriptor, FmtSubChunk, new StreamDataSubChunk(length - Containers.DataSubChunk.ChunkHeaderSize, DataSubChunk.ChunkId, DataSubChunk.ChunkSize, stream), UnknownSubChuncks);
 #pragma warning restore CA2000 // Dispose objects before losing scope
         }
     }

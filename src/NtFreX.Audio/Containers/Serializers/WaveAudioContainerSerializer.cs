@@ -56,8 +56,8 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(riff.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(riff.ChunkSize.ToByteArray())
                 .Concat(riff.Format.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
-                .Concat(fmt.Subchunk1Id.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
-                .Concat(fmt.Subchunk1Size.ToByteArray())
+                .Concat(fmt.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
+                .Concat(fmt.ChunkSize.ToByteArray())
                 .Concat(fmt.AudioFormat.ToByteArray())
                 .Concat(fmt.NumChannels.ToByteArray())
                 .Concat(fmt.SampleRate.ToByteArray())
@@ -66,12 +66,12 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(fmt.BitsPerSample.ToByteArray())
                 .Concat(unknown.Select(subChunck =>
                 {
-                    return new List<byte>(subChunck.SubchunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
-                        .Concat(subChunck.SubchunkSize.ToByteArray())
+                    return new List<byte>(subChunck.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
+                        .Concat(subChunck.ChunkSize.ToByteArray())
                         .Concat(subChunck.SubchunkData);
                 }).SelectMany(x => x))
-                .Concat(data.Subchunk2Id.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
-                .Concat(data.Subchunk2Size.ToByteArray())
+                .Concat(data.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
+                .Concat(data.ChunkSize.ToByteArray())
                 .ToArray();
         }
 
@@ -84,7 +84,6 @@ namespace NtFreX.Audio.Containers.Serializers
 
         [return: NotNull] public override async Task<WaveStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            //TODO: support non seekable streams?
             //TODO: fix all the casting
             StreamDataSubChunk? data = null;
             FmtSubChunk? fmt = null;
@@ -98,19 +97,19 @@ namespace NtFreX.Audio.Containers.Serializers
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
                     data = new StreamDataSubChunk(
                           startIndex: stream.Position - 4,
-                          subchunk2Id: chunckId,
-                          subchunk2Size: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                          chunkId: chunckId,
+                          chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                           data: stream);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
                     //TODO: does this line mean we read the whole stream here?
-                    await stream.SkipAsync((int)data.Subchunk2Size, cancellationToken).ConfigureAwait(false);
+                    await stream.SkipAsync((int)data.ChunkSize, cancellationToken).ConfigureAwait(false);
                 }
                 else if (chunckId == FmtSubChunk.ChunkIdentifier)
                 {
                     fmt = new FmtSubChunk(
-                       subchunk1Id: chunckId,
-                       subchunk1Size: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                       chunkId: chunckId,
+                       chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        audioFormat: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        numChannels: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        sampleRate: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
@@ -118,7 +117,7 @@ namespace NtFreX.Audio.Containers.Serializers
                        blockAlign: data.TakeUShort(32)*/
                        bitsPerSample: await (await stream.SkipAsync(6, cancellationToken).ConfigureAwait(false)).ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false));
                 }
-                else if(chunckId == RiffChunkDescriptor.ChunkIdentifier)
+                else if(chunckId == RiffChunkDescriptor.ChunkIdentifierRIFF)
                 {
                     riff = new RiffChunkDescriptor(
                        chunkId: chunckId,

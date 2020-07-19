@@ -29,7 +29,7 @@ namespace NtFreX.Audio.Samplers
                     .WithFmtSubChunk(x => x
                         .WithNumChannels(2))
                     .WithDataSubChunk(x => x
-                        .WithSubchunk2Size(audio.DataSubChunk.Subchunk2Size * 2)
+                        .WithChunkSize(audio.DataSubChunk.ChunkSize * 2)
                         .WithData(DuplicateChannelData(audio, cancellationToken))));
         }
 

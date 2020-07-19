@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -6,7 +7,7 @@ using System.Threading;
 
 namespace NtFreX.Audio.Containers
 {
-    public abstract class DataSubChunk
+    public abstract class DataSubChunk : ISubChunk
     {
         public const string ChunkIdentifer = "data";
         public const int ChunkHeaderSize = 8;
@@ -14,17 +15,17 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// Contains the letters "data" (0x64617461 big-endian form).
         /// </summary>
-        public string Subchunk2Id { get; }
+        public string ChunkId { get; }
 
         /// <summary>
         /// == NumSamples * NumChannels * BitsPerSample/8
         /// </summary>
-        public uint Subchunk2Size { get; }
+        public uint ChunkSize { get; }
 
-        protected DataSubChunk([NotNull] string subchunk2Id, uint subchunk2Size)
+        protected DataSubChunk([NotNull] string chunkId, uint chunkSize)
         {
-            Subchunk2Id = subchunk2Id;
-            Subchunk2Size = subchunk2Size;
+            ChunkId = chunkId;
+            ChunkSize = chunkSize;
 
             ThrowIfInvalid();
         }
@@ -35,9 +36,9 @@ namespace NtFreX.Audio.Containers
         private void ThrowIfInvalid()
         {
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-            if (Subchunk2Id != ChunkIdentifer)
+            if (ChunkId != ChunkIdentifer)
             {
-                throw new ArgumentException(ExceptionMessages.DataSubChunkIdMissmatch, nameof(Subchunk2Id));
+                throw new ArgumentException(ExceptionMessages.DataSubChunkIdMissmatch, nameof(ChunkId));
             }
 #pragma warning restore CA2208 // Instantiate argument exceptions correctly
         }

@@ -1,23 +1,20 @@
 ﻿using Dasync.Collections;
 using NtFreX.Audio.Containers;
 using NtFreX.Audio.Math;
-using NtFreX.Audio.Samplers;
-using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Tests
 {
 
     internal static class WaveContainerBuilder
     {
-        public static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate)
+        public static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate, string riffChunkId = RiffChunkDescriptor.ChunkIdentifierRIFF)
         {
             var byteCount = sampleRate * sampleCount * bitsPerSample / 8;
             var totalSamples = sampleRate * sampleCount;
             return new WaveEnumerableAudioContainer(
-                   null,
+                   new RiffChunkDescriptor(riffChunkId, 0, RiffChunkDescriptor.WAVE),
                    new FmtSubChunk("fmt ", 16, 1, 1, sampleRate, bitsPerSample),
                    new EnumerableDataSubChunk(
                        "data",
