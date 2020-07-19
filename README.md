@@ -89,6 +89,9 @@ await context.EndOfDataReached.WaitForNextEvent();
    - [ ] fourier
  - [ ] audio devices
    - [x] basis
+   - [ ] platform assembly
+     - [ ] loading
+     - [ ] packaging
    - [ ] windows multi media
    - [ ] pulse audio (ALSA?)
  - [ ] audio playback
