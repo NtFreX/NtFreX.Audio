@@ -16,7 +16,7 @@ namespace NtFreX.Audio.Extensions
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             var data = await audio.ConfigureAwait(false);
-            return await data.ToStream(new MemoryStream(), cancellationToken).ConfigureAwait(false);
+            return await data.ToInMemoryContainerAsync(cancellationToken).ConfigureAwait(false);
         }
 
         [return: NotNull]
@@ -25,7 +25,7 @@ namespace NtFreX.Audio.Extensions
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             var data = await audio.ConfigureAwait(false);
-            return await data.ToStream(path, fileMode, cancellationToken).ConfigureAwait(false);
+            return await WaveEnumerableAudioContainerExtensions.ToFileAsync(data, path, fileMode, cancellationToken).ConfigureAwait(false);
         }
 
         [return: NotNull]

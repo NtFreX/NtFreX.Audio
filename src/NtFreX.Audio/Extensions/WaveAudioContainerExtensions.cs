@@ -16,7 +16,7 @@ namespace NtFreX.Audio.Extensions
             }
             if (audio is WaveStreamAudioContainer waveStreamAudioContainer)
             {
-                return WaveEnumerableAudioContainer.ToEnumerable(waveStreamAudioContainer, cancellationToken);
+                return waveStreamAudioContainer.ToEnumerable(cancellationToken);
             }
 
             throw new ArgumentException("The given wave container type is not supported", nameof(audio));

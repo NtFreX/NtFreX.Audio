@@ -20,20 +20,11 @@ namespace NtFreX.Audio.Containers
             : base(riffChunkDescriptor, fmtSubChunk, dataSubChunk, riffSubChuncks) { }
 
         [return: NotNull]
-        public static WaveEnumerableAudioContainer ToEnumerable([NotNull] WaveStreamAudioContainer container, CancellationToken cancellationToken = default)
-        {
-            _ = container ?? throw new ArgumentNullException(nameof(container));
-
-            var data = new EnumerableDataSubChunk(container.DataSubChunk.Subchunk2Id, container.DataSubChunk.Subchunk2Size, container.GetAudioSamplesAsync(cancellationToken));
-            return new WaveEnumerableAudioContainer(container.RiffChunkDescriptor, container.FmtSubChunk, data, container.UnknownSubChuncks);
-        }
+        public Task<WaveStreamAudioContainer> ToFileAsync([NotNull] string path, [NotNull] FileMode fileMode = FileMode.CreateNew, [MaybeNull] CancellationToken cancellationToken = default)
+            => ToStreamAsync(new FileStream(path, fileMode, FileAccess.ReadWrite), cancellationToken);
 
         [return: NotNull]
-        public Task<WaveStreamAudioContainer> ToStream([NotNull] string path, [NotNull] FileMode fileMode = FileMode.CreateNew, [MaybeNull] CancellationToken cancellationToken = default)
-            => ToStream(new FileStream(path, fileMode, FileAccess.ReadWrite), cancellationToken);
-
-        [return: NotNull]
-        public async Task<WaveStreamAudioContainer> ToStream([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        public async Task<WaveStreamAudioContainer> ToStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
