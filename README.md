@@ -21,11 +21,9 @@ For a demo look into the demo/NtFrex.Audio.Console project.
 ```
 var filePath = "myAudio.wave";
 using IStreamAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath, cancellationToken);
-if (audio is WaveStreamAudioContainer waveAudioContainer)
-{
-  // other audio types are currently not supported
-  // it is planed to replace the if statement with a converter factory
-}
+
+// other audio types are currently not supported
+using var convertedAudio = AudioEnvironment.Converter.Convert<WaveStreamAudioContainer>(audio);
 ```
 
 Other methods which resolve/write an `IStreamAudioContainer` are:
