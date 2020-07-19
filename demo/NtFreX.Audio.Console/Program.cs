@@ -12,9 +12,9 @@ namespace NtFreX.Audio.Sampler.Console
     {
         private static string[] SampleAudios => new string[] 
         {
-            @"..\..\..\..\..\resources\8-bit Detective.wav",
-            @"..\..\..\..\..\resources\Dash Runner.wav",
-            @"..\..\..\..\..\resources\1000hz_sinwave.wav"
+            @"..\..\..\..\..\resources\audio\8-bit Detective.wav",
+            @"..\..\..\..\..\resources\audio\Dash Runner.wav",
+            @"..\..\..\..\..\resources\audio\1000hz_sinwave.wav"
         };
 
         private static IDemo[] Demos => new IDemo[]
