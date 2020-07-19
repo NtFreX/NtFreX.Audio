@@ -100,6 +100,9 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] speed
      - [ ] interpolation
    - [ ] channels
+     - [x] monto to stereo
+     - [ ] x to mono (test with sub frequency channel)
+     - [ ] x to x
    - [ ] fourier
    - [ ] volume normalization
    - [ ] background noise filter
