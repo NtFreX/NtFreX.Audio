@@ -89,35 +89,54 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] Wave audio samplers
    - [x] basis
    - [ ] bits per sample
-   - [ ] sample rate
    - [ ] volume
-   - [ ] volume normalization
-   - [ ] background noise filter
-   - [ ] speed
+   - [x] sample rate
+     - [ ] interpolation
+   - [x] speed
+     - [ ] interpolation
    - [ ] channels
    - [ ] fourier
+   - [ ] volume normalization
+   - [ ] background noise filter
+   - [ ] ...
  - [ ] audio devices
    - [x] basis
    - [ ] platform assembly
      - [ ] loading
      - [ ] packaging
    - [ ] windows multi media
+     - [x] basis
+     - [ ] get all devices
+     - [ ] get all playback devices
+     - [ ] get all recording devices
+     - [ ] get device properties
+     - [ ] get supported audio formats of device
+     - [ ] events?
+     - [ ] ...
    - [ ] pulse audio (ALSA?)
+   - [ ] ...
  - [ ] audio playback
    - [x] basis
    - [ ] wasapi
      - [ ] channel mapping
+     - [ ] events
+     - [ ] ...
    - [ ] pulse audio
+   - [ ] ...
  - [ ] audio recording
    - [ ] basis
    - [ ] wasapi
    - [ ] pulse audio
+   - [ ] ...
  - [ ] audio formats and containers
    - [ ] IEEE FLOAT
-   - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
+   - [ ] ...
  - [ ] audio converters
+   - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
+   - [ ] ...
  - [ ] signal modification
    - [ ] generation
    - [ ] splitting
    - [ ] joining
+   - [ ] ...
  - [ ] ...
