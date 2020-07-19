@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master, dev/wasapi-simple-audio ]
+    branches: [ master ]
 
 jobs:
   build:
