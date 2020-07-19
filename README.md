@@ -1,5 +1,5 @@
 # NtFreX.Audio
-![.NET Core](https://github.com/NtFreX/NtFreX.Audio/workflows/.NET%20Core/badge.svg)
+![Build and test](https://github.com/NtFreX/NtFreX.Audio/workflows/Build%20and%20test/badge.svg)
 
 This .net core library provides functionality to read audio containers, sample wave pcm data, convert between audio formats and play/record wave pcm data.
 The entry point should most of the time be the `AudioEnvironment` class.
