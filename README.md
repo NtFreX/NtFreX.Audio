@@ -160,5 +160,5 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - 1. Run `Local (netcoreapp3.1, win-x86)` publish profile
    - 2. Start executable
    - 3. Choose `PlayAudioDemo`
-   - 4. Choose `resources/8-bit Detective.wav`
+   - 4. Choose `resources/audio/8-bit Detective.wav`
    - 5. Fatal error occures
