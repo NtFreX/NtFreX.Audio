@@ -31,8 +31,12 @@ namespace NtFreX.Audio.Tests
 
             float factor = toSampleRate / (float)fromSampleRate;
             int expectedNewSize = (int)(audio.DataSubChunk.Subchunk2Size * factor);
-            Assert.AreEqual((uint)(oldData.SelectMany(x => x).Count() * factor), newData.SelectMany(x => x).Count());
-            Assert.AreEqual(expectedNewSize, newAudio.DataSubChunk.Subchunk2Size);
+            var expectedNewDataSize = (uint)(oldData.SelectMany(x => x).Count() * factor);
+            var newDataSize = newData.SelectMany(x => x).Count();
+
+            Assert.AreEqual(expectedNewDataSize, newDataSize);
+            Assert.AreEqual(expectedNewDataSize, newAudio.DataSubChunk.Subchunk2Size);
+            Assert.AreEqual(expectedNewDataSize, expectedNewDataSize);
         }
 
         [TestCase(4, 8)]

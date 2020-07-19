@@ -46,6 +46,7 @@ namespace NtFreX.Audio.Containers
             var bufferSize = StreamFactory.GetBufferSize();
             var max = Subchunk2Size;
             var current = 0;
+            var endOfChunk = Subchunk2Size + StartIndex + ChunkHeaderSize;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -54,10 +55,17 @@ namespace NtFreX.Audio.Containers
                 }
 
                 var realBufferSize = (int)(current + bufferSize > max ? max - current : bufferSize);
+                if (readContext.Data.Position + realBufferSize > endOfChunk)
+                {
+                    // other chunks could follow after this so stop when end of chunk is reached
+                    realBufferSize = (int) (endOfChunk - readContext.Data.Position);
+                }
+
                 var buffer = new byte[realBufferSize];
 
                 try
                 {
+
                     var readLength = await readContext.Data.ReadAsync(buffer, 0, realBufferSize, cancellationToken).ConfigureAwait(false);
                     if (readLength == 0)
                     {
@@ -68,7 +76,6 @@ namespace NtFreX.Audio.Containers
                 {
                     throw new Exception(ExceptionMessages.AudioSampleLoadingFailed, exce);
                 }
-
                 yield return buffer;
             }
         }
