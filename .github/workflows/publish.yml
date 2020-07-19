@@ -1,4 +1,4 @@
-name: publish to nuget
+name: Publish to nuget
 on:
   push:
     branches:
@@ -11,7 +11,6 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: publish on version change
-        id: publish_nuget
         uses: rohith/publish-nuget@v2
         with:
           # Filepath of the project to be packaged, relative to root of repository
@@ -24,7 +23,6 @@ jobs:
           NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/index.json
           
       - name: publish on version change
-        id: publish_nuget
         uses: rohith/publish-nuget@v2
         with:
           # Filepath of the project to be packaged, relative to root of repository
