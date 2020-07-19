@@ -68,6 +68,13 @@ using var context = await device.PlayAsync(cancellationToken);
 await context.EndOfDataReached.WaitForNextEvent();
 ```
 
+## Installation
+
+You need to install the `NtFreX.Audio` nuget package and then addtional nuget packages depending on the platforms you want to use.
+
+ - For windows the `NtFreX.Audio.Wasapi` package
+ - For Linux the `NtFreX.Audio.PulseAudio` package
+
 ## TODO
 
  - [ ] tests
