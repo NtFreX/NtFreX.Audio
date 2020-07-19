@@ -80,6 +80,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
 ## TODO
 
  - [ ] tests
+ - [ ] performance
  - [ ] api refinement
  - [ ] Wave audio container
    - [x] basis
