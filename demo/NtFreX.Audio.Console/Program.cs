@@ -6,7 +6,6 @@ namespace NtFreX.Audio.Sampler.Console
 {
     //TODO: dotnet core 5 and data class
     //TODO: see over disposing and passing of cancelation token and configure await 
-
     // audio splitting, wave visualization, spectrogram
     // https://towardsdatascience.com/understanding-audio-data-fourier-transform-fft-spectrogram-and-speech-recognition-a4072d228520
     public sealed class Program

@@ -1,20 +1,14 @@
-﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
+﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Samplers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
 {
-
     internal class SampleAudioDemo : IDemo
     {
         public string Name => nameof(SampleAudioDemo);
@@ -94,20 +88,23 @@ namespace NtFreX.Audio.Sampler.Console
                 //.Add(x => x.VolumeAudioSampler(2))
                 //.Add(x => x.VolumeAudioSampler(8))
                 .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
-                .LogProgress(ConsoleHelper.LogProgress, cancellationToken)
+                .LogProgress(ConsoleProgressBar.LogProgress, cancellationToken)
                 .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
             System.Console.WriteLine();
         }
 
+        private static ParameterInfo[] GetParameters(string name)
+            => typeof(AudioSamplerFactory).GetMethod(name)?.GetParameters() ?? Array.Empty<ParameterInfo>();
+
         private static string GetDisplayName(string name)
         {
             var method = typeof(AudioSamplerFactory).GetMethod(name);
-            return $"{method.Name} ({string.Join(", ", method.GetParameters().Select(p => p.Name + ":" + p.ParameterType.Name))})";
+            return $"{method?.Name} ({string.Join(", ", method?.GetParameters().Select(p => p.Name + ":" + p.ParameterType.Name) ?? Array.Empty<string>())})";
         }
 
         private static string[] GetAudioSamplerNames()
-            => typeof(AudioSamplerFactory).GetMethods().Where(x => !x.IsStatic && x.Name.Contains("Sampler")).Select(x => x.Name).ToArray();
+            => typeof(AudioSamplerFactory).GetMethods().Where(x => !x.IsStatic && !string.IsNullOrEmpty(x.Name) && x.Name.Contains("Sampler", StringComparison.Ordinal)).Select(x => x.Name).ToArray();
     }
 }

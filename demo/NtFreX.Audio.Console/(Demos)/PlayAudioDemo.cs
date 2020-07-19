@@ -1,19 +1,12 @@
-﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
+﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Samplers;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Sampler.Console
 {
-
     internal class PlayAudioDemo : IDemo
     {
         public string Name => nameof(PlayAudioDemo);
@@ -31,7 +24,7 @@ namespace NtFreX.Audio.Sampler.Console
 
             var toPlay = audio
                 .AsEnumerable(cancellationToken)
-                .LogProgress(ConsoleHelper.LogProgress, cancellationToken);
+                .LogProgress(ConsoleProgressBar.LogProgress, cancellationToken);
 
             //TODO: create api to initialize and convert if possible
             if (!device.TryInitialize(toPlay, out var supportedFormat))
