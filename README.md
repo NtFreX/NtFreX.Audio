@@ -1,4 +1,5 @@
 # NtFreX.Audio
+![.NET Core](https://github.com/NtFreX/NtFreX.Audio/workflows/.NET%20Core/badge.svg)
 
 ## Demo
 
@@ -6,7 +7,7 @@ For a demo look into the NtFrex.Audio.Console project
 
 ## Samples
 
-*Read/Write an audio file*
+**Read/Write an audio file**
 
 ```
 var filePath = "myAudio.wave";
@@ -28,7 +29,7 @@ Other methods which resolve/write an `IStreamAudioContainer` are:
 
 There are serval extension methods which make use of those methods.
 
-*Audio sampling*
+**Audio sampling**
 
 ```
 var newAudio = await AudioEnvironment.Sampler.SampleRateAudioSampler(WellKnownSampleRate.Hz44100).SampleAsync(audio, cancellationToken)
@@ -38,7 +39,7 @@ The sampler is not executed until the new audio is moved into an in memory conta
 Other samplers are available under `AudioEnvironment.Sampler`.
 Audio samplers can only be used with wave pcm data.
 
-*Audio playback*
+**Audio playback**
 
 ```
 using var device = AudioEnvironment.Device.Get();
