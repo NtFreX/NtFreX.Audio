@@ -9,7 +9,7 @@ namespace NtFreX.Audio.Containers
     /// http://soundfile.sapp.org/doc/WaveFormat/
     /// </summary>
     //TODO: support seekable and non seekable cases
-    public sealed class WaveStreamAudioContainer : WaveAudioContainer<StreamDataSubChunk>, IWaveAudioContainer, IStreamAudioContainer
+    public sealed class WaveStreamAudioContainer : WaveAudioContainer<StreamDataSubChunk>, IStreamAudioContainer
     {
         private bool disposed = false;
 
