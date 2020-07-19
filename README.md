@@ -85,6 +85,10 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] basis
    - [x] streamable
    - [x] enumerable
+   - [ ] serializer factory resolve by signature in file or/and file extension
+   - [ ] why are some headers big endian instead of little endian as doc says? (WaveAudioContainerSerializer)
+   - [ ] cleanup EndianAwareBitConverter
+   - [ ] support non seekable streams? (WaveAudioContainerSerializer and more)
    - [ ] options
  - [ ] Wave audio samplers
    - [x] basis
@@ -102,10 +106,12 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] audio devices
    - [x] basis
    - [ ] platform assembly
-     - [ ] loading
+     - [ ] loading (self contained)
      - [ ] packaging
    - [ ] windows multi media
      - [x] basis
+     - [ ] interop cleanup
+     - [ ] dispose
      - [ ] get all devices
      - [ ] get all playback devices
      - [ ] get all recording devices
@@ -119,6 +125,8 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] basis
    - [ ] wasapi
      - [ ] channel mapping
+     - [ ] interop cleanup
+     - [ ] dispose
      - [ ] events
      - [ ] ...
    - [ ] pulse audio
