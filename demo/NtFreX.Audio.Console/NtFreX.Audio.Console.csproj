@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" />
+    <ProjectReference Include="..\..\src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" />
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
   </ItemGroup>
 

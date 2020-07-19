@@ -3,6 +3,7 @@ using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.PulseAudio.Interop;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,22 @@ namespace NtFreX.Audio.PulseAudio
             {
                 context.Dispose();
             }
+        }
+
+        public bool IsInitialized()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryInitialize(IWaveAudioContainer audio, out Format supportedFormat)
+        {
+            throw new NotImplementedException();
+        }
+
+        [return: NotNull]
+        public Task<IPlaybackContext> PlayAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 
