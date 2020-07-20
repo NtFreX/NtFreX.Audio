@@ -26,7 +26,7 @@ jobs:
           NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
 
           # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/index.json
+          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/NtFreX.Audio/index.json
           
       - name: publish on version change
         uses: rohith/publish-nuget@v2
@@ -40,4 +40,4 @@ jobs:
           NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
 
           # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/index.json
+          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/NtFreX.Audio/index.json
