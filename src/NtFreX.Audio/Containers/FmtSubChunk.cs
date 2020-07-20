@@ -89,6 +89,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.FmtSubChunkIdMissmatch, nameof(ChunkId));
             }
 
+            // TODO: chunk size should be 24
             if (ChunkSize != 16)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckSizeMissmatch, nameof(ChunkSize));

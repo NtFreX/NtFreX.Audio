@@ -4,7 +4,7 @@ using System;
 
 namespace NtFreX.Audio.Wasapi
 {
-    public sealed class WasapiPlaybackContext : IPlaybackContext
+    public sealed class WasapiRenderContext : IRenderContext
     {
         private readonly ManagedAudioRender managedAudioRender;
 
@@ -14,7 +14,7 @@ namespace NtFreX.Audio.Wasapi
 
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
 
-        internal WasapiPlaybackContext(ManagedAudioRender managedAudioRender)
+        internal WasapiRenderContext(ManagedAudioRender managedAudioRender)
         {
             this.managedAudioRender = managedAudioRender;
 

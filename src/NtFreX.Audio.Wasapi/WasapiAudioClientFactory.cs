@@ -5,6 +5,22 @@ namespace NtFreX.Audio.Wasapi
 {
     public class WasapiAudioClientFactory : IAudioClientFactory
     {
+        public AudioFormat GetDefaultFormat(IAudioDevice device)
+        {
+            if (!(device is MultiMediaDevice multiMediaDevice) || multiMediaDevice == null)
+            {
+                throw new ArgumentException($"Only {typeof(MultiMediaDevice).FullName} are supported", nameof(device));
+            }
+
+            //TODO dot not dispose client only to get mix format?
+            var wrapper = multiMediaDevice.ToManaged();
+            using var audioClient = wrapper.Activate();
+
+            using var mixFormat = audioClient.GetMixFormat();
+
+            return mixFormat?.ToAudioFormat() ?? throw new Exception();
+        }
+
         public bool TryInitialize(AudioFormat format, IAudioDevice device, out IAudioClient? client, out AudioFormat supportedFormat)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));

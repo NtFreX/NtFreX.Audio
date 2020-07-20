@@ -1,7 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Wasapi.Wrapper;
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,11 +17,18 @@ namespace NtFreX.Audio.Wasapi
         }
 
         [return: NotNull]
-        public Task<IPlaybackContext> PlayAsync(IWaveAudioContainer audio, CancellationToken cancellationToken = default)
+        public Task<IRenderContext> RenderAsync(IWaveAudioContainer audio, CancellationToken cancellationToken = default)
         {
             var audioRender = audioClient.GetAudioRenderer(audio, cancellationToken);
-            var context = new WasapiPlaybackContext(audioRender);
-            return Task.FromResult(context as IPlaybackContext);
+            var context = new WasapiRenderContext(audioRender);
+            return Task.FromResult(context as IRenderContext);
+        }
+
+        public Task<ICaptureContext> CaptureAsync(CancellationToken cancellationToken = default)
+        {
+            var audioCapturer = audioClient.GetAudioCapture(cancellationToken);
+            var context = new WasapiCaptureContext(audioCapturer);
+            return Task.FromResult(context as ICaptureContext);
         }
 
         public void Dispose()

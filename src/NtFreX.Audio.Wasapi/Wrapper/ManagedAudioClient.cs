@@ -18,6 +18,24 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             this.audioClient = audioClient;
         }
 
+        public ManagedWaveFormat GetMixFormat()
+        {
+            audioClient.GetMixFormat(out var formatPtr).ThrowIfNotSucceded();
+            return new ManagedWaveFormat(formatPtr);
+        }
+
+        public ManagedAudioCapture GetAudioCapture(CancellationToken cancellationToken)
+        {
+            var error = "Could not get the audio capturer client";
+            audioClient.GetService(new Guid(ClsId.IAudioCaptureClient), out object audioCaptureClientObj).ThrowIfNotSucceded(error);
+            if (!(audioCaptureClientObj is IAudioCaptureClient audioCaptureClient) || audioCaptureClient == null)
+            {
+                throw new Exception(error);
+            }
+
+            return new ManagedAudioCapture(this, audioCaptureClient, cancellationToken);
+        }
+
         public ManagedAudioRender GetAudioRenderer(IWaveAudioContainer audio, CancellationToken cancellationToken)
         {
             var error = "Could not get the audio renderer client";

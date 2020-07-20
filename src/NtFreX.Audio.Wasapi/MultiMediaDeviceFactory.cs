@@ -7,5 +7,8 @@ namespace NtFreX.Audio.Wasapi
     {
         public IAudioDevice GetDefaultRenderDevice()
             => MultiMediaDevice.FromManaged(ManagedMultiMediaDeviceEnumerator.Instance.GetDefaultRenderDevice());
+
+        public IAudioDevice GetDefaultCaptureDevice()
+            => MultiMediaDevice.FromManaged(ManagedMultiMediaDeviceEnumerator.Instance.GetDefaultCaptureDevice());
     }
 }

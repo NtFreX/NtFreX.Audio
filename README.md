@@ -78,6 +78,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] tests
  - [ ] performance
  - [ ] api refinement
+ - [ ] remove AsyncEnumerator dependency
  - [ ] Wave audio container
    - [x] basis
    - [x] streamable

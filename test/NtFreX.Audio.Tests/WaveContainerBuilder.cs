@@ -10,6 +10,7 @@ namespace NtFreX.Audio.Tests
     {
         public static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate, string riffChunkId = RiffChunkDescriptor.ChunkIdentifierRIFF)
         {
+            //TODO use WaveEnumerableAudioContainerBuilder delete this
             var byteCount = sampleRate * sampleCount * bitsPerSample / 8;
             var totalSamples = sampleRate * sampleCount;
             return new WaveEnumerableAudioContainer(

@@ -48,6 +48,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkId, nameof(ChunkId));
             }
 
+            // TODO: validate chunk size should be 12 and not 5057218
             if (Format != WAVE)
             {
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkFormat, nameof(ChunkId));

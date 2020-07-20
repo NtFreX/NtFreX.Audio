@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Extensions;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,7 +20,7 @@ namespace NtFreX.Audio.Sampler.Console
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-            (var context, var client) = await device.PlayAsync(audio, cancellationToken).ConfigureAwait(false);
+            (var context, var client) = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
 
             var totalLength = audio.GetLength().TotalSeconds;
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
