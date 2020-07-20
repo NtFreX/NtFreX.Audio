@@ -57,7 +57,10 @@ using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
 (var context, var client) = await device.PlayAsync(audio, cancellationToken).ConfigureAwait(false);
 
-await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
+var totalLength = audio.GetLength().TotalSeconds;
+context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
+
+await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
 
 context.Dispose();
 client.Dispose();
