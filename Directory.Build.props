@@ -6,7 +6,8 @@
     <!--TODO: <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>CS1591</NoWarn>  
+    <NoWarn>CS1591</NoWarn>
+    <Version>0.0.1-alpha</Version>
   </PropertyGroup>
 
   <ItemGroup>
