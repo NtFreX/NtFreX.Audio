@@ -35,6 +35,16 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return new ManagedMultiMediaDevice(device);
         }
 
+        public ManagedMultiMediaDevice GetDefaultCaptureDevice()
+        {
+            if (deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia, out IMMDevice device) != HResult.S_OK || device == null)
+            {
+                throw new Exception("Could not get the default capture device");
+            }
+
+            return new ManagedMultiMediaDevice(device);
+        }
+
         public void Dispose()
         {
             Marshal.ReleaseComObject(deviceEnumerator);
