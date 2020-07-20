@@ -12,32 +12,21 @@ jobs:
     name: build, pack & publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: publish on version change
-        uses: rohith/publish-nuget@v2
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: src/NtFreX.Audio/NtFreX.Audio.csproj
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v1
+        
+      - name: Build solution and generate NtFreX.Audio NuGet package
+        run: |  
+          cd src/NtFreX.Audio
+          dotnet pack -c Release -o out
+      
+      - name: Build solution and generate NtFreX.Audio.Wasapi NuGet package
+        run: |  
+          cd src/NtFreX.Audio.Wasapi
+          dotnet pack -c Release -o out
           
-          VERSION_STATIC: ${{env.VERSION}}
-          
-          # API key to authenticate with NuGet server
-          NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
-
-          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/NtFreX.Audio/index.json
-          
-      - name: publish on version change
-        uses: rohith/publish-nuget@v2
-        with:
-          # Filepath of the project to be packaged, relative to root of repository
-          PROJECT_FILE_PATH: src/NtFreX.Audio.Wasapi/NtFreX.Audio.Wasapi.csproj
-          
-          VERSION_STATIC: ${{env.VERSION}}
-          
-          # API key to authenticate with NuGet server
-          NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
-
-          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/NtFreX.Audio/index.json
+      - name: Push generated package to GitHub registry
+        run: dotnet nuget push ./**/*.nupkg --skip-duplicate --no-symbols true --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/NtFreX/NtFreX.Audio/index.json
