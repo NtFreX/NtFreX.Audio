@@ -11,12 +11,12 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public IAsyncEnumerable<byte[]> Data { get; }
 
-        [return: NotNull] internal EnumerableDataSubChunk WithSubchunk2Id([NotNull] string subchunk2Id) => new EnumerableDataSubChunk(subchunk2Id, Subchunk2Size, Data);
-        [return: NotNull] internal EnumerableDataSubChunk WithSubchunk2Size(uint subchunk2Size) => new EnumerableDataSubChunk(Subchunk2Id, subchunk2Size, Data);
-        [return: NotNull] internal EnumerableDataSubChunk WithData([NotNull] IAsyncEnumerable<byte[]> data) => new EnumerableDataSubChunk(Subchunk2Id, Subchunk2Size, data);
+        [return: NotNull] internal EnumerableDataSubChunk WithChunkId([NotNull] string chunkId) => new EnumerableDataSubChunk(chunkId, ChunkSize, Data);
+        [return: NotNull] internal EnumerableDataSubChunk WithChunkSize(uint chunkSize) => new EnumerableDataSubChunk(ChunkId, chunkSize, Data);
+        [return: NotNull] internal EnumerableDataSubChunk WithData([NotNull] IAsyncEnumerable<byte[]> data) => new EnumerableDataSubChunk(ChunkId, ChunkSize, data);
 
-        public EnumerableDataSubChunk([NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] IAsyncEnumerable<byte[]> data)
-            : base(subchunk2Id, subchunk2Size)
+        public EnumerableDataSubChunk([NotNull] string chunkId, uint chunkSize, [NotNull] IAsyncEnumerable<byte[]> data)
+            : base(chunkId, chunkSize)
         {
             Data = data;
         }

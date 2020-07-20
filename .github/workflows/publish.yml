@@ -1,0 +1,35 @@
+name: Publish to nuget
+on:
+  push:
+    branches:
+      - master # Default release branch
+jobs:
+  publish:
+    name: build, pack & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: publish on version change
+        uses: rohith/publish-nuget@v2
+        with:
+          # Filepath of the project to be packaged, relative to root of repository
+          PROJECT_FILE_PATH: src/NtFreX.Audio/NtFreX.Audio.csproj
+          
+          # API key to authenticate with NuGet server
+          NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
+
+          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
+          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/index.json
+          
+      - name: publish on version change
+        uses: rohith/publish-nuget@v2
+        with:
+          # Filepath of the project to be packaged, relative to root of repository
+          PROJECT_FILE_PATH: src/NtFreX.Audio.Wasapi/NtFreX.Audio.Wasapi.csproj
+          
+          # API key to authenticate with NuGet server
+          NUGET_KEY: ${{ secrets.GITHUB_TOKEN }}
+
+          # NuGet server uri hosting the packages, defaults to https://api.nuget.org
+          NUGET_SOURCE: https://nuget.pkg.github.com/NtFreX/index.json

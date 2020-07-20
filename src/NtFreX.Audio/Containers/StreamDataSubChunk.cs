@@ -22,13 +22,13 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public ReadLock<Stream> Data { get; }
 
-        public StreamDataSubChunk(long startIndex, [NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] Stream data)
+        public StreamDataSubChunk(long startIndex, [NotNull] string chunkId, uint chunkSize, [NotNull] Stream data)
 #pragma warning disable CS8777 // Parameter must have a non-null value when exiting. => set by overloaded constructor
-            : this(startIndex, subchunk2Id, subchunk2Size, new ReadLock<Stream>(data, data => data?.Seek(startIndex + ChunkHeaderSize, SeekOrigin.Begin))) { }
+            : this(startIndex, chunkId, chunkSize, new ReadLock<Stream>(data, data => data?.Seek(startIndex + ChunkHeaderSize, SeekOrigin.Begin))) { }
 #pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
 
-        internal StreamDataSubChunk(long startIndex, [NotNull] string subchunk2Id, uint subchunk2Size, [NotNull] ReadLock<Stream> data)
-            : base(subchunk2Id, subchunk2Size)
+        internal StreamDataSubChunk(long startIndex, [NotNull] string chunkId, uint chunkSize, [NotNull] ReadLock<Stream> data)
+            : base(chunkId, chunkSize)
         {
             StartIndex = startIndex;
             Data = data;
@@ -44,8 +44,9 @@ namespace NtFreX.Audio.Containers
             }
 
             var bufferSize = StreamFactory.GetBufferSize();
-            var max = Subchunk2Size;
+            var max = ChunkSize;
             var current = 0;
+            var endOfChunk = ChunkSize + StartIndex + ChunkHeaderSize;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -54,6 +55,12 @@ namespace NtFreX.Audio.Containers
                 }
 
                 var realBufferSize = (int)(current + bufferSize > max ? max - current : bufferSize);
+                if (readContext.Data.Position + realBufferSize > endOfChunk)
+                {
+                    // other chunks could follow after this so stop when end of chunk is reached
+                    realBufferSize = (int) (endOfChunk - readContext.Data.Position);
+                }
+
                 var buffer = new byte[realBufferSize];
 
                 try
@@ -68,7 +75,6 @@ namespace NtFreX.Audio.Containers
                 {
                     throw new Exception(ExceptionMessages.AudioSampleLoadingFailed, exce);
                 }
-
                 yield return buffer;
             }
         }
@@ -78,8 +84,8 @@ namespace NtFreX.Audio.Containers
             Data.Dispose();
         }
 
-        [return: NotNull] internal StreamDataSubChunk WithSubchunk2Id([NotNull] string subchunk2Id) => new StreamDataSubChunk(StartIndex, subchunk2Id, Subchunk2Size, Data);
-        [return: NotNull] internal StreamDataSubChunk WithSubchunk2Size(uint subchunk2Size) => new StreamDataSubChunk(StartIndex, Subchunk2Id, subchunk2Size, Data);
-        [return: NotNull] internal StreamDataSubChunk WithData([NotNull] Stream data) => new StreamDataSubChunk(StartIndex, Subchunk2Id, Subchunk2Size, data);
+        [return: NotNull] internal StreamDataSubChunk WithChunkId([NotNull] string chunkId) => new StreamDataSubChunk(StartIndex, chunkId, ChunkSize, Data);
+        [return: NotNull] internal StreamDataSubChunk WithChunkSize(uint chunkSize) => new StreamDataSubChunk(StartIndex, ChunkId, chunkSize, Data);
+        [return: NotNull] internal StreamDataSubChunk WithData([NotNull] Stream data) => new StreamDataSubChunk(StartIndex, ChunkId, ChunkSize, data);
     }
 }

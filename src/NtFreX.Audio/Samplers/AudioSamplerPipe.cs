@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -18,11 +19,11 @@ namespace NtFreX.Audio.Samplers
             samplers.Add(sampler(AudioSamplerFactory.Instance));
             return this;
         }
-
+        
         [return: NotNull]
-        public async Task<WaveEnumerableAudioContainer> RunAsync([NotNull] WaveStreamAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public async Task<WaveEnumerableAudioContainer> RunAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            WaveEnumerableAudioContainer currentAudio = WaveEnumerableAudioContainer.ToEnumerable(audio, cancellationToken);
+            WaveEnumerableAudioContainer currentAudio = audio;
             var count = (double)samplers.Count;
             for (var i = 0; i < count; i++)
             {

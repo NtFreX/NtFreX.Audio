@@ -1,12 +1,14 @@
-﻿using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public class RiffChunkDescriptor
+    public class RiffChunkDescriptor : ISubChunk
     {
-        public const string ChunkIdentifier = "RIFF";
+        public const string ChunkIdentifierRIFF = "RIFF";
+        public const string ChunkIdentifierRIFX = "RIFX";
         public const string WAVE = nameof(WAVE);
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace NtFreX.Audio.Containers
         private void ThrowIfInvalid()
         {
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-            if (ChunkId != ChunkIdentifier)
+            if (ChunkId != ChunkIdentifierRIFF)
             {
                 // TODO: support RIFX => The default byte ordering assumed for WAVE data files is little-endian. Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkId, nameof(ChunkId));

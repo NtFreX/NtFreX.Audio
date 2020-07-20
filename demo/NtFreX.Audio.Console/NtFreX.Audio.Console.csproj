@@ -3,10 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <!--TODO: include platform assembly only on matching config => validate if working -->
+    <ProjectReference Include="..\..\src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />
+    <ProjectReference Include="..\..\src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''" />
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
   </ItemGroup>
 

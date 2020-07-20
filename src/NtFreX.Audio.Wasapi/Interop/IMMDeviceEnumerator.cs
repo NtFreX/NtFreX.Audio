@@ -15,11 +15,10 @@ namespace NtFreX.Audio.Wasapi.Interop
     /// https://github.com/jamesjharper/nFundamental/blob/master/src/nFundamental.Interface.Wasapi/Interop/IMMDeviceEnumerator.cs
     /// </summary>
     [ComImport]
-    [Guid("A95664D2-9614-4F35-A746-DE8DB63617E6")]
+    [Guid(ClsId.IMMDeviceEnumerator)]
     [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     internal interface IMMDeviceEnumerator
     {
-
         /// <summary>
         /// The EnumAudioEndpoints method generates a collection of audio endpoint devices that meet the specified criteria.
         /// </summary>
@@ -54,12 +53,46 @@ namespace NtFreX.Audio.Wasapi.Interop
         /// E_INVALIDARG    Parameter dataFlow or deviceState is out of range.
         /// E_OUTOFMEMORY   Out of memory.
         /// </returns>
-        [PreserveSig] HResult EnumAudioEndpoints(
-            [In] DataFlow dataFlow,
-            [In] DeviceState deviceState,
-            [Out] out IMMDeviceCollection devices);
-        
-        
-        
+        [PreserveSig] HResult EnumAudioEndpoints([In] DataFlow dataFlow, [In] DeviceState deviceState, [Out] out IMMDeviceCollection devices);
+
+        /// <summary>
+        /// The GetDefaultAudioEndpoint method retrieves the default audio endpoint for the specified data-flow direction and role.
+        /// </summary>
+        /// <param name="dataFlow">
+        /// The data-flow direction for the endpoint device. The caller should set this parameter to one of the following two DataFlow enumeration values:
+        /// Render
+        /// Capture
+        /// The data-flow direction for a rendering device is eRender.The data-flow direction for a capture device is eCapture.
+        /// </param>
+        /// <param name="role">
+        /// The role of the endpoint device. The caller should set this parameter to one of the following Role enumeration values:
+        /// Console
+        /// Multimedia
+        /// Communications
+        /// </param>
+        /// <param name="ppEndpoint">
+        /// Pointer to a pointer variable into which the method writes the address of the IMMDevice interface of the endpoint object for the default audio endpoint device. 
+        /// Through this method, the caller obtains a counted reference to the interface. 
+        /// The caller is responsible for releasing the interface, when it is no longer needed, by calling the interface's Release method. 
+        /// If the GetDefaultAudioEndpoint call fails, ppDevice is NULL.
+        /// </param>
+        /// <returns>
+        /// If the method succeeds, it returns S_OK. If it fails, possible return codes include, but are not limited to, the values shown in the following table.
+        /// RETURN VALUE    Return code Description
+        /// E_POINTER       Parameter ppDevice is NULL.
+        /// E_INVALIDARG    Parameter dataFlow or role is out of range.
+        /// E_NOTFOUND      No device is available.
+        /// E_OUTOFMEMORY   Out of memory.
+        /// </returns>
+        [PreserveSig] HResult GetDefaultAudioEndpoint([In] DataFlow dataFlow, [In] Role role, [Out] out IMMDevice ppEndpoint);
+
+        [PreserveSig]
+        HResult GetDevice([In, MarshalAs(UnmanagedType.LPWStr)] string id, [Out] out IMMDevice device);
+
+        [PreserveSig]
+        HResult RegisterEndpointNotificationCallback([In] IMMNotificationClient notificationClient);
+
+        [PreserveSig]
+        HResult UnregisterEndpointNotificationCallback([In] IMMNotificationClient notificationClient);
     }
 }
