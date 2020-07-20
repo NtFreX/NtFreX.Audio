@@ -21,12 +21,12 @@ jobs:
       - name: Build solution and generate NtFreX.Audio NuGet package
         run: |  
           cd src/NtFreX.Audio
-          dotnet pack -c Release -o out
+          dotnet pack -c Release -o out --version-suffix ${{env.VERSION}}
       
       - name: Build solution and generate NtFreX.Audio.Wasapi NuGet package
         run: |  
           cd src/NtFreX.Audio.Wasapi
-          dotnet pack -c Release -o out
+          dotnet pack -c Release -o out --version-suffix ${{env.VERSION}}
           
       - name: Push generated package to GitHub registry
         run: |
