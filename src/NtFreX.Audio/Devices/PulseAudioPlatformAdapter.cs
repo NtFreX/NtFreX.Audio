@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 
 namespace NtFreX.Audio.Devices
 {
-    internal class PulseAudioDeviceAdapter : IAudioDeviceAdapter
+    internal class PulseAudioPlatformAdapter : IAudioPlatformAdapter
     {
         public bool CanUse()
             => RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 
         [return: NotNull]
-        public IAudioDevice Initialize()
-            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.PulseAudio", "PulseAudioDevice");
+        public IAudioPlatform Initialize()
+            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.PulseAudio", "PulseAudioPlatform");
     }
 }

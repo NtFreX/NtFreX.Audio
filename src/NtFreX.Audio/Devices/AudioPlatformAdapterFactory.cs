@@ -6,19 +6,19 @@ using System.Linq;
 
 namespace NtFreX.Audio.Devices.Adapters
 {
-    public sealed class AudioDeviceAdapterFactory
+    public sealed class AudioPlatformAdapterFactory
     {
-        private readonly IAudioDeviceAdapter[] audioDeviceResolvers = new IAudioDeviceAdapter[]
+        private readonly IAudioPlatformAdapter[] audioDeviceResolvers = new IAudioPlatformAdapter[]
         {
-            new WasapiAudioDeviceAdapter(),
-            new PulseAudioDeviceAdapter()
+            new WasapiAudioPlatformAdapter(),
+            new PulseAudioPlatformAdapter()
         };
 
-        public static AudioDeviceAdapterFactory Instance { [return:NotNull] get; } = new AudioDeviceAdapterFactory();
+        public static AudioPlatformAdapterFactory Instance { [return:NotNull] get; } = new AudioPlatformAdapterFactory();
 
-        private AudioDeviceAdapterFactory() { }
+        private AudioPlatformAdapterFactory() { }
 
-        [return: NotNull] public IAudioDevice Get()
+        [return: NotNull] public IAudioPlatform Get()
         {
             var audioFileResolver = audioDeviceResolvers.FirstOrDefault(x => x.CanUse());
             if (audioFileResolver == null)

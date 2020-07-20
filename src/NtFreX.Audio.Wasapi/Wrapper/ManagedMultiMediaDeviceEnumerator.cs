@@ -1,20 +1,21 @@
 ﻿using NtFreX.Audio.Wasapi.Interop;
 using System;
+using System.Runtime.InteropServices;
 
 namespace NtFreX.Audio.Wasapi.Wrapper
 {
-    internal class MultiMediaDeviceEnumerator
+    internal class ManagedMultiMediaDeviceEnumerator : IDisposable
     {
         private readonly IMMDeviceEnumerator deviceEnumerator;
 
-        public static MultiMediaDeviceEnumerator Instance { get; } = new MultiMediaDeviceEnumerator();
+        public static ManagedMultiMediaDeviceEnumerator Instance { get; } = new ManagedMultiMediaDeviceEnumerator();
 
-        private MultiMediaDeviceEnumerator()
+        private ManagedMultiMediaDeviceEnumerator()
         {
             deviceEnumerator = ComObject.Initialize<IMMDeviceEnumerator>(ClsId.MMDeviceEnumerator);
         }
 
-        public MultiMediaDevice GetDefaultRenderDevice()
+        public ManagedMultiMediaDevice GetDefaultRenderDevice()
         {
             /*
              * In Windows Vista, the MMDevice API supports device roles but the system-supplied user interface programs do not. 
@@ -31,7 +32,12 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 throw new Exception("Could not get the default renderer device");
             }
 
-            return new MultiMediaDevice(device);
+            return new ManagedMultiMediaDevice(device);
+        }
+
+        public void Dispose()
+        {
+            Marshal.ReleaseComObject(deviceEnumerator);
         }
     }
 }

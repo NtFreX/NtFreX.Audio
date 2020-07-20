@@ -51,23 +51,15 @@ Audio samplers can only be used with wave pcm data.
 **Audio playback**
 
 ```
-using var device = AudioEnvironment.Device.Get();
-if (!device.TryInitialize(audio, out var supportedFormat))
-{
-   // an api to sample the audio automaticly is in planing
-  audio = await new AudioSamplerPipe()
-    .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
-    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
-    .RunAsync(toPlay, cancellationToken)
+var audioPlatform = AudioEnvironment.Platform.Get();
+using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-  if (!device.TryInitialize(audio, out _))
-  {
-    throw new Exception("Not supported");
-  }
-}
+(var context, var client) = await device.PlayAsync(audio, cancellationToken).ConfigureAwait(false);
 
-using var context = await device.PlayAsync(cancellationToken);
-await context.EndOfDataReached.WaitForNextEvent();
+await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
+
+context.Dispose();
+client.Dispose();
 ```
 
 ## Installation

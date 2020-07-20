@@ -11,6 +11,6 @@ namespace NtFreX.Audio
         public static AudioSamplerFactory Sampler { [return:NotNull] get; } = AudioSamplerFactory.Instance;
         public static AudioContainerSerializerFactory Serializer { [return:NotNull] get; } = AudioContainerSerializerFactory.Instance;
         public static AudioConverterFactory Converter { [return: NotNull] get; } = AudioConverterFactory.Instance;
-        public static AudioDeviceAdapterFactory Device { [return:NotNull] get; } = AudioDeviceAdapterFactory.Instance;
+        public static AudioPlatformAdapterFactory Platform { [return:NotNull] get; } = AudioPlatformAdapterFactory.Instance;
     }
 }

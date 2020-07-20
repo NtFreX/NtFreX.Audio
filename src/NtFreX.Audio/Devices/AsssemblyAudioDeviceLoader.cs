@@ -11,10 +11,10 @@ namespace NtFreX.Audio.Devices
 {
     internal static class AsssemblyAudioDeviceLoader
     {
-        private static readonly Dictionary<string, IAudioDevice> InitializedAdapters = new Dictionary<string, IAudioDevice>();
+        private static readonly Dictionary<string, IAudioPlatform> InitializedAdapters = new Dictionary<string, IAudioPlatform>();
 
         [return: NotNull]
-        public static IAudioDevice Initialize(string assemblyName, string typeName)
+        public static IAudioPlatform Initialize(string assemblyName, string typeName)
         {
             var key = $"{assemblyName}:{typeName}";
             if (InitializedAdapters.ContainsKey(key))
@@ -34,13 +34,13 @@ namespace NtFreX.Audio.Devices
             
             if (type == null)
             {
-                throw new Exception("The audio device adapter could not be loaded");
+                throw new Exception("The audio platform could not be loaded");
             }
 
-            var audioDevice = Activator.CreateInstance(type) as IAudioDevice;
+            var audioDevice = Activator.CreateInstance(type) as IAudioPlatform;
             if (audioDevice == null)
             {
-                throw new Exception("The audio device could not be instantiated");
+                throw new Exception("The audio platform could not be instantiated");
             }
 
             InitializedAdapters.Add(key, audioDevice);

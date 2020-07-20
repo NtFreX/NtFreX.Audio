@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 
 namespace NtFreX.Audio.Devices
 {
-    internal class WasapiAudioDeviceAdapter : IAudioDeviceAdapter
+    internal class WasapiAudioPlatformAdapter : IAudioPlatformAdapter
     {
         public bool CanUse()
             => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         [return: NotNull]
-        public IAudioDevice Initialize()
-            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.Wasapi", "WasapiAudioDevice");
+        public IAudioPlatform Initialize()
+            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.Wasapi", "WasapiAudioPlatform");
     }
 }

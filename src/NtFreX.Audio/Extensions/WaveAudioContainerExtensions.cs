@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Containers;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
 using System;
 using System.Threading;
@@ -20,6 +21,15 @@ namespace NtFreX.Audio.Extensions
             }
 
             throw new ArgumentException("The given wave container type is not supported", nameof(audio));
+        }
+
+        public static AudioFormat ToFormat(this IWaveAudioContainer audio)
+        {
+            return new AudioFormat(
+                audio.FmtSubChunk.SampleRate,
+                audio.FmtSubChunk.BitsPerSample,
+                audio.FmtSubChunk.NumChannels,
+                audio.FmtSubChunk.AudioFormat);
         }
     }
 }

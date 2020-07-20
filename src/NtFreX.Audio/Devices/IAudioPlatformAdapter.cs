@@ -3,9 +3,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Devices
 {
-    public interface IAudioDeviceAdapter
+    public interface IAudioPlatformAdapter
     {
         bool CanUse();
-        [return: NotNull] IAudioDevice Initialize();
+        [return: NotNull] IAudioPlatform Initialize();
     }
 }
