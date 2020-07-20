@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Math;
 using System.Collections.Generic;
 using System.IO;
