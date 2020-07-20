@@ -7,6 +7,8 @@
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>CS1591</NoWarn>
+
+    <!-- TODO: use in package -->
     <Version>0.0.1-alpha</Version>
   </PropertyGroup>
 
