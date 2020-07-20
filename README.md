@@ -155,3 +155,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - 3. Choose `PlayAudioDemo`
    - 4. Choose `resources/audio/8-bit Detective.wav`
    - 5. Fatal error occures
+ - [ ] Progress bar is not filled to completion
+  - 1. Start console
+  - 2. Play any audio
+  - 3. Progress bar will stop short before the total
