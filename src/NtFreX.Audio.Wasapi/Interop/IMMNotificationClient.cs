@@ -92,7 +92,7 @@ namespace NtFreX.Audio.Wasapi.Interop
         /// <returns>
         /// If the method succeeds, it returns S_OK. If it fails, it returns an error code.
         /// </returns>
-        [PreserveSig]
-        HResult OnPropertyValueChanged([In, MarshalAs(UnmanagedType.LPWStr)] string deviceId, [In] PropertyKey key);
+        //[PreserveSig]
+        //HResult OnPropertyValueChanged([In, MarshalAs(UnmanagedType.LPWStr)] string deviceId, [In] PropertyKey key);
     }
 }
