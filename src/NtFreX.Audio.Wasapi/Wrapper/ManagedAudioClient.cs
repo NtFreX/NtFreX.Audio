@@ -26,7 +26,15 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             {
                 throw new Exception(error);
             }
-            return new ManagedAudioRender(this, audioRenderClient, audio, cancellationToken);
+
+            var clockError = "Could not get the audio clock";
+            audioClient.GetService(new Guid(ClsId.IAudioClock), out object audioClockObj).ThrowIfNotSucceded(clockError);
+            if (!(audioClockObj is IAudioClock audioClock) || audioClock == null)
+            {
+                throw new Exception(clockError);
+            }
+
+            return new ManagedAudioRender(this, new ManagedAudioClock(audioClock), audioRenderClient, audio, cancellationToken);
         }
 
         public uint GetBufferSize()

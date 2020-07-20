@@ -21,13 +21,12 @@ namespace NtFreX.Audio.Sampler.Console
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-            var toPlay = audio
-                .AsEnumerable(cancellationToken)
-                .LogProgress(ConsoleProgressBar.LogProgress, cancellationToken);
+            (var context, var client) = await device.PlayAsync(audio, cancellationToken).ConfigureAwait(false);
 
-            (var context, var client) = await device.PlayAsync(toPlay, cancellationToken).ConfigureAwait(false);
+            var totalLength = audio.GetLength().TotalSeconds;
+            context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
 
-            await context.EndOfDataReached.WaitForNextEvent().ConfigureAwait(false);
+            await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
 
             context.Dispose();
             client.Dispose();
