@@ -119,8 +119,8 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] speed
      - [ ] interpolation
    - [ ] channels
-     - [x] monto to stereo
-     - [ ] x to mono (test with sub frequency channel)
+     - [x] monto to x
+     - [x] x to mono
      - [ ] x to x
    - [ ] fourier
    - [ ] volume normalization
@@ -134,7 +134,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [ ] windows multi media
      - [x] basis
      - [ ] interop cleanup
-     - [ ] dispose
+     - [x] dispose
      - [ ] get all devices
      - [ ] get all playback devices
      - [ ] get all recording devices
@@ -147,17 +147,20 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] audio playback
    - [x] basis
    - [ ] wasapi
+     - [ ] control
      - [ ] channel mapping
      - [ ] format type cleanup
      - [ ] interop cleanup
-     - [ ] dispose
+     - [x] dispose
      - [ ] events
      - [ ] ...
    - [ ] pulse audio
    - [ ] ...
  - [ ] audio recording
-   - [ ] basis
+   - [x] basis
    - [ ] wasapi
+     - [x] basis
+     - [ ] control
    - [ ] pulse audio
    - [ ] ...
  - [ ] audio formats and containers
