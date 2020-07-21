@@ -174,6 +174,14 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [ ] splitting
    - [ ] joining
    - [ ] ...
+ - [ ] more
+   - [ ] make speed audio sampler  work with factor bigger then 2 or smaller then 0.5 and unify with sample rate audip sampler
+   - [ ] validate byterate, blockaligin and chunksize in fmt sub chunk
+   - [ ] rifx support
+   - [ ] riff sub chunk validation
+   - [ ] cleanup casting and allocations
+   - [ ] non seekable and non skipable streams?
+   - [ ] ... 
  - [ ] ...
 
 
