@@ -72,9 +72,8 @@ client.Dispose();
 var audioPlatform = AudioEnvironment.Platform.Get();
 using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 
-var pcmAudioType = 1;
 var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-var pcmFormat = new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, pcmAudioType);
+var pcmFormat = new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, AudioFormatType.PCM);
 
 using var sink = new FileAudioSink(file);
 await sink.InitializeAsync(pcmFormat).ConfigureAwait(false);
