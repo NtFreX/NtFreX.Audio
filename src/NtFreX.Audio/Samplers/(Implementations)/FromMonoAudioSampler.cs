@@ -8,38 +8,48 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
-    public class MonoToStereoAudioSampler : AudioSampler
+    public class FromMonoAudioSampler : AudioSampler
     {
+        private readonly int targetChannels;
+
+        public FromMonoAudioSampler(int targetChannels)
+        {
+            this.targetChannels = targetChannels;
+        }
+
         [return: NotNull]
         public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.FmtSubChunk.NumChannels == 2)
+            if(audio.FmtSubChunk.Channels != 1)
+            {
+                throw new ArgumentException("Only mono is supported");
+            }
+
+            if (audio.FmtSubChunk.Channels == targetChannels)
             {
                 return Task.FromResult(audio);
-            } 
-            else if (audio.FmtSubChunk.NumChannels != 1)
-            {
-                throw new ArgumentException("can only convert Mono to Stereo!", nameof(audio));
             }
-             
+            
             return Task.FromResult(audio
                     .WithFmtSubChunk(x => x
-                        .WithNumChannels(2))
+                        .WithChannels(2))
                     .WithDataSubChunk(x => x
-                        .WithChunkSize(audio.DataSubChunk.ChunkSize * 2)
+                        .WithChunkSize((uint)(audio.DataSubChunk.ChunkSize * targetChannels))
                         .WithData(DuplicateChannelData(audio, cancellationToken))));
         }
 
         [return: NotNull]
-        private static async IAsyncEnumerable<byte[]> DuplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        private async IAsyncEnumerable<byte[]> DuplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var samples = audio.DataSubChunk.Data;
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
-                yield return value;
-                yield return value;
+                for (var i = 0; i < targetChannels; i++)
+                {
+                    yield return value;
+                }
             }
         }
     }

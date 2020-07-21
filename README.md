@@ -49,13 +49,13 @@ The sampler is not executed until the new audio is moved into an in memory conta
 Other samplers are available under `AudioEnvironment.Sampler`.
 Audio samplers can only be used with wave pcm data.
 
-**Audio playback**
+**Audio render**
 
 ```
 var audioPlatform = AudioEnvironment.Platform.Get();
 using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-(var context, var client) = await device.PlayAsync(audio, cancellationToken).ConfigureAwait(false);
+(var context, var client) = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
 
 var totalLength = audio.GetLength().TotalSeconds;
 context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
@@ -64,6 +64,29 @@ await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
 
 context.Dispose();
 client.Dispose();
+```
+
+**Audio capture**
+
+```
+var audioPlatform = AudioEnvironment.Platform.Get();
+using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
+
+var pcmAudioType = 1;
+var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
+var pcmFormat = new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, pcmAudioType);
+
+using var sink = new FileAudioSink(file);
+await sink.InitializeAsync(pcmFormat).ConfigureAwait(false);
+
+(var context, var client) = await device.CaptureAsync(pcmFormat, sink, cancellationToken).ConfigureAwait(false);
+
+await Task.Delay(time).ConfigureAwait(false);
+
+context.Dispose();
+client.Dispose();
+
+sink.Finish();
 ```
 
 ## Installation

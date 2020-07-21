@@ -24,9 +24,9 @@ namespace NtFreX.Audio.Wasapi
             return Task.FromResult(context as IRenderContext);
         }
 
-        public Task<ICaptureContext> CaptureAsync(CancellationToken cancellationToken = default)
+        public Task<ICaptureContext> CaptureAsync(IAudioSink sink, CancellationToken cancellationToken = default)
         {
-            var audioCapturer = audioClient.GetAudioCapture(cancellationToken);
+            var audioCapturer = audioClient.GetAudioCapture(sink, cancellationToken);
             var context = new WasapiCaptureContext(audioCapturer);
             return Task.FromResult(context as ICaptureContext);
         }

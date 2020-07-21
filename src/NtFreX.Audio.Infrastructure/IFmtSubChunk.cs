@@ -4,8 +4,8 @@
     {
         uint ByteRate { get; }
         uint SampleRate { get; }
-        ushort NumChannels { get; }
+        ushort Channels { get; }
         ushort BitsPerSample { get; }
-        ushort AudioFormat { get; }
+        AudioFormatType AudioFormat { get; }
     }
 }

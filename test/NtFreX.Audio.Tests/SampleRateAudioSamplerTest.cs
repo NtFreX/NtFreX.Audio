@@ -15,6 +15,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(3, 5)]
         [TestCase(4, 8)]
         [TestCase(WellKnownSampleRate.Hz44100, WellKnownSampleRate.Hz48000)]
+        [TestCase(WellKnownSampleRate.Hz16000, WellKnownSampleRate.Hz48000)]
         [TestCase(WellKnownSampleRate.Hz8000, WellKnownSampleRate.Hz32000)]
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz48000)]
         [TestCase(8, 4)]
@@ -36,7 +37,7 @@ namespace NtFreX.Audio.Tests
 
             Assert.AreEqual(expectedNewDataSize, newDataSize);
             Assert.AreEqual(expectedNewDataSize, newAudio.DataSubChunk.ChunkSize);
-            Assert.AreEqual(expectedNewDataSize, expectedNewDataSize);
+            Assert.AreEqual(expectedNewDataSize, expectedNewSize);
         }
 
         [TestCase(4, 8)]

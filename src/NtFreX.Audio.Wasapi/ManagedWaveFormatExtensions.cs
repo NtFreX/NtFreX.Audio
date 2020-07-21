@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Wasapi.Wrapper;
 
 namespace NtFreX.Audio.Wasapi
@@ -10,8 +11,8 @@ namespace NtFreX.Audio.Wasapi
             return new AudioFormat(
                 audioFormat.Unmanaged.Format.SamplesPerSec, 
                 audioFormat.Unmanaged.Format.BitsPerSample,
-                ChannelFactory.GetChannels(audioFormat.Unmanaged.ChannelMask),
-                MediaTypeFactory.GetMediaType(audioFormat.Unmanaged.SubFormat));
+                audioFormat.Unmanaged.Format.Channels,
+                audioFormat.Unmanaged.Format.FormatTag == Interop.WaveFormatType.EXTENSIBLE ? MediaTypeFactory.GetMediaType(audioFormat.Unmanaged.SubFormat) : (AudioFormatType) audioFormat.Unmanaged.Format.FormatTag);
         }
     }
 }

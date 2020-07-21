@@ -24,7 +24,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return new ManagedWaveFormat(formatPtr);
         }
 
-        public ManagedAudioCapture GetAudioCapture(CancellationToken cancellationToken)
+        public ManagedAudioCapture GetAudioCapture(AdapterInfrastructure.IAudioSink sink, CancellationToken cancellationToken)
         {
             var error = "Could not get the audio capturer client";
             audioClient.GetService(new Guid(ClsId.IAudioCaptureClient), out object audioCaptureClientObj).ThrowIfNotSucceded(error);
@@ -33,7 +33,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 throw new Exception(error);
             }
 
-            return new ManagedAudioCapture(this, audioCaptureClient, cancellationToken);
+            return new ManagedAudioCapture(this, audioCaptureClient, sink, cancellationToken);
         }
 
         public ManagedAudioRender GetAudioRenderer(IWaveAudioContainer audio, CancellationToken cancellationToken)

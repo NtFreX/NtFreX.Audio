@@ -14,13 +14,13 @@ namespace NtFreX.Audio.Samplers
     /// <summary>
     /// converts stereo to mono 
     /// </summary>
-    public class MonoAudioSampler : AudioSampler
+    public class ToMonoAudioSampler : AudioSampler
     {
         [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.FmtSubChunk.NumChannels == 1)
+            if (audio.FmtSubChunk.Channels == 1)
             {
                 return Task.FromResult(audio);
             }
@@ -31,21 +31,21 @@ namespace NtFreX.Audio.Samplers
 
             return Task.FromResult(audio
                     .WithFmtSubChunk(x => x
-                        .WithNumChannels(1))
+                        .WithChannels(1))
                     .WithDataSubChunk(x => x
-                        .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.NumChannels)
+                        .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.Channels)
                         .WithData(monoData)));
         }
 
         [return:NotNull] private static async IAsyncEnumerable<long> InterleaveChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var temp = new long[audio.FmtSubChunk.NumChannels];
+            var temp = new long[audio.FmtSubChunk.Channels];
             var counter = 0;
             var samples = audio.DataSubChunk.Data;
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 temp[counter++] = value.ToInt64();
-                if (counter == audio.FmtSubChunk.NumChannels)
+                if (counter == audio.FmtSubChunk.Channels)
                 {
                     yield return (long)temp.Average();
                     counter = 0;

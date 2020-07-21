@@ -15,27 +15,47 @@ namespace NtFreX.Audio.Samplers
             this.sampleRate = sampleRate;
         }
 
-        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        [return:NotNull] public override async Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             if (audio.FmtSubChunk.SampleRate == sampleRate)
             {
-                return Task.FromResult(audio);
+                return audio;
             }
 
-            var factor = sampleRate / (double) audio.FmtSubChunk.SampleRate;
-            var originFactor = factor;
-            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
-            while(factor > 0)
+            var pipe = new AudioSamplerPipe();
+            var currentSampleRate = audio.FmtSubChunk.SampleRate;
+            if (sampleRate > currentSampleRate)
             {
-                audio = audio.WithDataSubChunk(x => x.WithData(WaveStretcher.StretchAsync(audio, originFactor, cancellationToken)));
-                factor -= 2;
+                while (currentSampleRate * 2 < sampleRate)
+                {
+                    pipe.Add(x => x.SampleRateAudioSampler(currentSampleRate * 2));
+                    currentSampleRate *= 2;
+                }
+            }
+            else
+            {
+                while (currentSampleRate / 2 > sampleRate)
+                {
+                    pipe.Add(x => x.SampleRateAudioSampler(currentSampleRate / 2));
+                    currentSampleRate /= 2;
+                }
             }
 
-            return Task.FromResult(audio
+            var factor = sampleRate / (double)currentSampleRate;
+            var preparedAudio = await pipe.RunAsync(audio, cancellationToken).ConfigureAwait(false);
+            return SampleInner(preparedAudio, factor, cancellationToken);
+        }
+
+        private WaveEnumerableAudioContainer SampleInner([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull] CancellationToken cancellationToken = default)
+        {
+            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
+            return audio
                 .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
-                .WithDataSubChunk(x => x.WithChunkSize((uint)newDataSize)));
+                .WithDataSubChunk(x => x
+                    .WithChunkSize((uint)newDataSize)
+                    .WithData(WaveStretcher.StretchAsync(audio, factor, cancellationToken)));
         }
 
         public override string ToString()

@@ -8,9 +8,10 @@ namespace NtFreX.Audio.Containers
     {
         public static WaveEnumerableAudioContainer Build(AudioFormat format, byte[] data)
         {
+            //TODO: fix riff chunk size and make constant for fmt size and ids
             return new WaveEnumerableAudioContainer(
                    new RiffChunkDescriptor(RiffChunkDescriptor.ChunkIdentifierRIFF, 5057218, RiffChunkDescriptor.WAVE),
-                   new FmtSubChunk("fmt ", 16, (ushort)format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
+                   new FmtSubChunk("fmt ", 16, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
                    new EnumerableDataSubChunk(
                        "data",
                        (uint)data.Length,

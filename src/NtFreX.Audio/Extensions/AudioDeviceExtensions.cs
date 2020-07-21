@@ -16,10 +16,13 @@ namespace NtFreX.Audio.Extensions
             IAudioClient? audioClient;
             if (!audioPlatform.AudioClientFactory.TryInitialize(audio.ToFormat(), device, out audioClient, out var supportedFormat) || audioClient == null)
             {
-                // TODO convert everyting nessesary
+                // TODO convert everyting nessesary (formatType)
                 audio = await new AudioSamplerPipe()
                     .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
                     .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
+                    // TODO: better channel sampler
+                    .Add(x => x.ToMonoAudioSampler())
+                    .Add(x => x.FromMonoAudioSampler(supportedFormat.Channels))
                     .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
                     .ConfigureAwait(false);
 
@@ -33,17 +36,15 @@ namespace NtFreX.Audio.Extensions
             return (context, audioClient);
         }
 
-        public static async Task<(ICaptureContext Context, IAudioClient Client)> CaptureAsync(this IAudioDevice device, CancellationToken cancellationToken)
+        public static async Task<(ICaptureContext Context, IAudioClient Client)> CaptureAsync(this IAudioDevice device, AudioFormat format, IAudioSink sink, CancellationToken cancellationToken)
         {
             var audioPlatform = AudioEnvironment.Platform.Get();
-            var defaultFormat = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-
-            if (!audioPlatform.AudioClientFactory.TryInitialize(defaultFormat, device, out var audioClient, out _) || audioClient == null)
+            if (!audioPlatform.AudioClientFactory.TryInitialize(format, device, out var audioClient, out _) || audioClient == null)
             {
-                throw new Exception();
+                throw new Exception("The given format is not supported");
             }
 
-            var context = await audioClient.CaptureAsync(cancellationToken).ConfigureAwait(false);
+            var context = await audioClient.CaptureAsync(sink, cancellationToken).ConfigureAwait(false);
             return (context, audioClient);
         }
     }

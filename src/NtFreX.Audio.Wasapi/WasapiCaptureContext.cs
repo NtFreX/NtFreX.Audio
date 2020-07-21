@@ -13,7 +13,6 @@ namespace NtFreX.Audio.Wasapi
         }
 
         public AudioFormat GetFormat() => managedAudioCapturer.GetFormat();
-        public byte[] GetSink() => managedAudioCapturer.GetSink();
 
         public void Dispose()
         {

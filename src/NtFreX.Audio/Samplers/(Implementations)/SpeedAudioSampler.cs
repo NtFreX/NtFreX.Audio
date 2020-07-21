@@ -1,9 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Math;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,6 +20,7 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+            // TODO: make work with factor bigger then 2 or smaller then 0.5
             var currentSpeedFactor = speedFactor;
             var newDataSize = System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0);
             while (currentSpeedFactor > 0)

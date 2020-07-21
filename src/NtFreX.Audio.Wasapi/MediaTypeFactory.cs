@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure;
+using System;
 using System.Collections.Generic;
 
 namespace NtFreX.Audio.Wasapi
@@ -6,16 +7,16 @@ namespace NtFreX.Audio.Wasapi
     internal static class MediaTypeFactory
     {
         // https://de.wikipedia.org/wiki/RIFF_WAVE
-        private static readonly Dictionary<int, Guid> MediaTypes = new Dictionary<int, Guid>()
+        private static readonly Dictionary<AudioFormatType, Guid> MediaTypes = new Dictionary<AudioFormatType, Guid>()
         {
-            { 0x0001, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_PCM },
-            { 0x0003, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT }
+            { AudioFormatType.PCM, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_PCM },
+            { AudioFormatType.IEE_FLOAT, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT }
         };
 
-        public static Guid GetMediaType(int mediaType)
+        public static Guid GetMediaType(AudioFormatType mediaType)
             => MediaTypes[mediaType];
 
-        public static int GetMediaType(Guid mediaType)
+        public static AudioFormatType GetMediaType(Guid mediaType)
         {
             foreach(var pair in MediaTypes)
             {

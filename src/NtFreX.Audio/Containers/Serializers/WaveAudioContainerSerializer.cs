@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Helpers;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
 using NtFreX.Audio.Resources;
 using System;
@@ -58,8 +59,8 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(riff.Format.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(fmt.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(fmt.ChunkSize.ToByteArray())
-                .Concat(fmt.AudioFormat.ToByteArray())
-                .Concat(fmt.NumChannels.ToByteArray())
+                .Concat(((ushort)fmt.AudioFormat).ToByteArray())
+                .Concat(fmt.Channels.ToByteArray())
                 .Concat(fmt.SampleRate.ToByteArray())
                 .Concat(fmt.ByteRate.ToByteArray())
                 .Concat(fmt.BlockAlign.ToByteArray())
@@ -110,8 +111,8 @@ namespace NtFreX.Audio.Containers.Serializers
                     fmt = new FmtSubChunk(
                        chunkId: chunckId,
                        chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                       audioFormat: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                       numChannels: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                       audioFormat: (AudioFormatType) await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                       channels: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        sampleRate: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        /*, byteRate: data.TakeUInt(28),
                        blockAlign: data.TakeUShort(32)*/

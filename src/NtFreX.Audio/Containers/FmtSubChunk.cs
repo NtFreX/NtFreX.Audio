@@ -22,12 +22,12 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// PCM = 1 (i.e. Linear quantization) Values other than 1 indicate some form of compression.
         /// </summary>
-        public ushort AudioFormat { get; }
+        public AudioFormatType AudioFormat { get; }
 
         /// <summary>
         /// Mono = 1, Stereo = 2, etc.
         /// </summary>
-        public ushort NumChannels { get; }
+        public ushort Channels { get; }
 
         /// <summary>
         /// 8000, 44100, etc.
@@ -37,33 +37,33 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// == SampleRate * NumChannels * BitsPerSample/8
         /// </summary>
-        public uint ByteRate => SampleRate * NumChannels * BitsPerSample / 8;
+        public uint ByteRate => SampleRate * Channels * BitsPerSample / 8;
 
         /// <summary>
         /// == NumChannels * BitsPerSample/8
         /// </summary>
-        public ushort BlockAlign => (ushort) (NumChannels * BitsPerSample / 8);
+        public ushort BlockAlign => (ushort) (Channels * BitsPerSample / 8);
 
         /// <summary>
         /// 8 bits = 8, 16 bits = 16, etc.
         /// </summary>
         public ushort BitsPerSample { get; }
 
-        [return: NotNull] public FmtSubChunk WithChunkId([NotNull] string chunkId) => new FmtSubChunk(chunkId, ChunkSize, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
-        [return: NotNull] public FmtSubChunk WithChunkSize(uint chunkSize) => new FmtSubChunk(ChunkId, chunkSize, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
-        [return: NotNull] public FmtSubChunk WithAudioFormat(ushort audioFormat) => new FmtSubChunk(ChunkId, ChunkSize, audioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
-        [return: NotNull] public FmtSubChunk WithNumChannels(ushort numChannels) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, numChannels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
-        [return: NotNull] public FmtSubChunk WithSampleRate(uint sampleRate) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, NumChannels, sampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        [return: NotNull] public FmtSubChunk WithChunkId([NotNull] string chunkId) => new FmtSubChunk(chunkId, ChunkSize, AudioFormat, Channels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        [return: NotNull] public FmtSubChunk WithChunkSize(uint chunkSize) => new FmtSubChunk(ChunkId, chunkSize, AudioFormat, Channels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        [return: NotNull] public FmtSubChunk WithAudioFormat(AudioFormatType audioFormat) => new FmtSubChunk(ChunkId, ChunkSize, audioFormat, Channels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        [return: NotNull] public FmtSubChunk WithChannels(ushort channels) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, channels, SampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
+        [return: NotNull] public FmtSubChunk WithSampleRate(uint sampleRate) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, Channels, sampleRate/*, ByteRate, BlockAlign*/, BitsPerSample);
         //public FmtSubChunk WithByteRate(uint byteRate) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate/*, byteRate, BlockAlign*/, BitsPerSample);
         // public FmtSubChunk WithBlockAlign(ushort blockAlign) => new FmtSubChunk(Subchunk1Id, Subchunk1Size, AudioFormat, NumChannels, SampleRate, ByteRate, blockAlign, BitsPerSample);
-        [return: NotNull] public FmtSubChunk WithBitsPerSample(ushort bitsPerSample) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, NumChannels, SampleRate/*, ByteRate, BlockAlign*/, bitsPerSample);
+        [return: NotNull] public FmtSubChunk WithBitsPerSample(ushort bitsPerSample) => new FmtSubChunk(ChunkId, ChunkSize, AudioFormat, Channels, SampleRate/*, ByteRate, BlockAlign*/, bitsPerSample);
 
-        public FmtSubChunk([NotNull] string chunkId, uint chunkSize, ushort audioFormat, ushort numChannels, uint sampleRate /*, uint byteRate, ushort blockAlign */, ushort bitsPerSample)
+        public FmtSubChunk([NotNull] string chunkId, uint chunkSize, AudioFormatType audioFormat, ushort channels, uint sampleRate /*, uint byteRate, ushort blockAlign */, ushort bitsPerSample)
         {
             ChunkId = chunkId;
             ChunkSize = chunkSize;
             AudioFormat = audioFormat;
-            NumChannels = numChannels;
+            Channels = channels;
             SampleRate = sampleRate;
             BitsPerSample = bitsPerSample;
 
@@ -95,7 +95,8 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckSizeMissmatch, nameof(ChunkSize));
             }
 
-            if (AudioFormat != 1)
+            // TODO: validate/support ieefloat
+            if (AudioFormat != AudioFormatType.PCM)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckFormatNotSupported, nameof(AudioFormat));
             }

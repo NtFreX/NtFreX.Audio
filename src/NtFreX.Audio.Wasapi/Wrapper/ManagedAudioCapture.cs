@@ -1,8 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
-using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,27 +18,26 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly ManagedWaveFormat managedWaveFormat;
         private readonly ManagedAudioClient managedAudioClient;
         private readonly IAudioCaptureClient audioCaptureClient;
+        private readonly IAudioSink sink;
         private readonly CancellationToken cancellationToken;
         private readonly Task audioPump;
         private readonly uint bufferFrameCount;
 
         private bool isDisposed = false;
-        private List<byte> sink = new List<byte>();
 
-        internal ManagedAudioCapture(ManagedAudioClient managedAudioClient, IAudioCaptureClient audioCaptureClient, CancellationToken cancellationToken)
+        internal ManagedAudioCapture(ManagedAudioClient managedAudioClient, IAudioCaptureClient audioCaptureClient, IAudioSink sink, CancellationToken cancellationToken)
         {
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
             this.managedWaveFormat = managedAudioClient.GetMixFormat();
             this.managedAudioClient = managedAudioClient;
             this.audioCaptureClient = audioCaptureClient;
+            this.sink = sink;
             this.cancellationToken = cancellationToken;
 
             audioPump = Task.Run(PumpAudioAsync, cancellationToken);
         }
 
         public AudioFormat GetFormat() => managedWaveFormat.ToAudioFormat();
-
-        public byte[] GetSink() => sink.ToArray();
 
         public void Dispose()
         {
@@ -84,7 +81,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                     var buffer = new byte[dataLength];
                     Marshal.Copy(dataPtr, buffer, 0, (int) dataLength);
 
-                    sink.AddRange(buffer);
+                    sink.DataReceived(buffer);
 
                     audioCaptureClient.ReleaseBuffer(numFramesToRead).ThrowIfNotSucceded();
 

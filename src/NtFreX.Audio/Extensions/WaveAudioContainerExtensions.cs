@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Extensions
             return new AudioFormat(
                 audio.FmtSubChunk.SampleRate,
                 audio.FmtSubChunk.BitsPerSample,
-                audio.FmtSubChunk.NumChannels,
+                audio.FmtSubChunk.Channels,
                 audio.FmtSubChunk.AudioFormat);
         }
     }

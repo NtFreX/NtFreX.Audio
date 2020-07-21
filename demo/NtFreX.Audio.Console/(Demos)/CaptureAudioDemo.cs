@@ -1,5 +1,8 @@
-﻿using NtFreX.Audio.Containers;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Devices;
 using NtFreX.Audio.Extensions;
+using NtFreX.Audio.Infrastructure;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,22 +26,25 @@ namespace NtFreX.Audio.Sampler.Console
             }
 
             System.Console.Write("Enter the amount of seconds you want to record: ");
-            var time = int.Parse(System.Console.ReadLine());
+            var time = int.Parse(System.Console.ReadLine(), NumberFormatInfo.InvariantInfo) * 1000;
 
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 
-            (var context, var client) = await device.CaptureAsync(cancellationToken).ConfigureAwait(false);
+            var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
+            var pcmFormat = new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, AudioFormatType.PCM);
+
+            using var sink = new FileAudioSink(file);
+            await sink.InitializeAsync(pcmFormat).ConfigureAwait(false);
+
+            (var context, var client) = await device.CaptureAsync(pcmFormat, sink, cancellationToken).ConfigureAwait(false);
 
             await Task.Delay(time).ConfigureAwait(false);
 
-            await WaveEnumerableAudioContainerBuilder
-                .Build(context.GetFormat(), context.GetSink())
-                .ToFileAsync(file, FileMode.CreateNew, cancellationToken)
-                .ConfigureAwait(false);
-
             context.Dispose();
             client.Dispose();
+
+            sink.Finish();
 
             System.Console.WriteLine();
             System.Console.WriteLine("  Audio device has been disposed");

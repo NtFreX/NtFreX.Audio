@@ -19,7 +19,7 @@ namespace NtFreX.Audio.Sampler.Console
 
         private static IDemo[] Demos => new IDemo[]
         {
-            new PlayAudioDemo(),
+            new RenderAudioDemo(),
             new CaptureAudioDemo(),
             new SampleAudioDemo(),
             new DrawDiagramsDemo()

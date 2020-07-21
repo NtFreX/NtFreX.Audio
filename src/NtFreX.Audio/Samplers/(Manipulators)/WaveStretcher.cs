@@ -16,6 +16,11 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+            if(factor > 2 || factor < 0.5)
+            {
+                throw new ArgumentException("Factor out of range", nameof(factor));
+            }
+
             var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
             var sizeOfParts = audio.DataSubChunk.ChunkSize / (double)System.Math.Abs(audio.DataSubChunk.ChunkSize - newDataSize);
             var previous = 0L;

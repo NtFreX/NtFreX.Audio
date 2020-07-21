@@ -75,7 +75,7 @@ namespace NtFreX.Audio.Sampler.Console
 
         static async Task<IEnumerable<long[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            var channels = new List<long>[waveAudioContainer.FmtSubChunk.NumChannels];
+            var channels = new List<long>[waveAudioContainer.FmtSubChunk.Channels];
             var currentChannel = 0;
             await foreach (var value in waveAudioContainer.GetAudioSamplesAsync().ConfigureAwait(false))
             {
@@ -86,7 +86,7 @@ namespace NtFreX.Audio.Sampler.Console
 
                 channels[currentChannel].Add(value.ToInt64());
 
-                if (++currentChannel >= waveAudioContainer.FmtSubChunk.NumChannels)
+                if (++currentChannel >= waveAudioContainer.FmtSubChunk.Channels)
                 {
                     currentChannel = 0;
                 }
