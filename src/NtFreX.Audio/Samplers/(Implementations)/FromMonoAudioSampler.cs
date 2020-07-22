@@ -37,11 +37,11 @@ namespace NtFreX.Audio.Samplers
                         .WithChannels(2))
                     .WithDataSubChunk(x => x
                         .WithChunkSize((uint)(audio.DataSubChunk.ChunkSize * targetChannels))
-                        .WithData(DuplicateChannelData(audio, cancellationToken))));
+                        .WithData(MultiplicateChannelData(audio, cancellationToken))));
         }
 
         [return: NotNull]
-        private async IAsyncEnumerable<byte[]> DuplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        private async IAsyncEnumerable<byte[]> MultiplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var samples = audio.DataSubChunk.Data;
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure;
+using System;
 using System.Runtime.InteropServices;
 
 namespace NtFreX.Audio.Wasapi.Interop
