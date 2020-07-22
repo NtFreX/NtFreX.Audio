@@ -7,7 +7,7 @@ namespace NtFreX.Audio.Alsa
     /// <summary>
     /// https://github.com/ZhangGaoxing/alsa.net
     /// </summary>
-    class AlsaRenderContext
+    class AlsaCaptureContext
     {
     }
 }

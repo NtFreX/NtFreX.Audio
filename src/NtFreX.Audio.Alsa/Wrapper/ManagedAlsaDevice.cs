@@ -18,5 +18,7 @@ namespace NtFreX.Audio.Alsa.Wrapper
         {
             // TODO: dispose?
         }
+
+        public static implicit operator IntPtr(ManagedAlsaDevice device) => device.ptr;
     }
 }

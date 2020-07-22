@@ -2,9 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-internal partial class Interop
+namespace NtFreX.Audio.Alsa.Interop
 {
-    private const string LibcLibrary = "libc";
+    internal partial class Alsa
+    {
+        private const string LibcLibrary = "libc";
 
-    private const string AlsaLibrary = "libasound";
+        private const string AlsaLibrary = "libasound";
+    }
 }

@@ -8,7 +8,7 @@ namespace NtFreX.Audio.Alsa.Wrapper
         {
             IntPtr devicePtr = IntPtr.Zero;
             var id = "default";
-            var error = Interop.snd_pcm_open(ref devicePtr, id, snd_pcm_stream_t.SND_PCM_STREAM_PLAYBACK, 0);
+            Interop.Alsa.snd_pcm_open(ref devicePtr, id, Interop.snd_pcm_stream_t.SND_PCM_STREAM_PLAYBACK, 0).ThrowIfNotSucceded();
             return new ManagedAlsaDevice(devicePtr, id);
         }
 
@@ -16,7 +16,7 @@ namespace NtFreX.Audio.Alsa.Wrapper
         {
             IntPtr devicePtr = IntPtr.Zero;
             var id = "default";
-            var error = Interop.snd_pcm_open(ref devicePtr, id, snd_pcm_stream_t.SND_PCM_STREAM_CAPTURE, 0);
+            Interop.Alsa.snd_pcm_open(ref devicePtr, id, Interop.snd_pcm_stream_t.SND_PCM_STREAM_CAPTURE, 0).ThrowIfNotSucceded();
             return new ManagedAlsaDevice(devicePtr, id);
         }
     }

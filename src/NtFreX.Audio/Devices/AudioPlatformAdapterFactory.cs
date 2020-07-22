@@ -11,7 +11,8 @@ namespace NtFreX.Audio.Devices.Adapters
         private readonly IAudioPlatformAdapter[] audioDeviceResolvers = new IAudioPlatformAdapter[]
         {
             new WasapiAudioPlatformAdapter(),
-            new PulseAudioPlatformAdapter()
+            new AlsaPlatformAdapter()
+            //new PulseAudioPlatformAdapter()
         };
 
         public static AudioPlatformAdapterFactory Instance { [return:NotNull] get; } = new AudioPlatformAdapterFactory();

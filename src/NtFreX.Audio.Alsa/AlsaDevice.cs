@@ -12,6 +12,8 @@ namespace NtFreX.Audio.Alsa
             this.managedAlsaDevice = managedAlsaDevice;
         }
 
+        internal ManagedAlsaDevice GetManagedDevice() => managedAlsaDevice;
+
         public string GetId()
             => managedAlsaDevice.Id;
 
