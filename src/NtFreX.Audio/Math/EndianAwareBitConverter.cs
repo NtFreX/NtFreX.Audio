@@ -78,7 +78,7 @@ namespace NtFreX.Audio.Math
         {
             return targetLength switch
             {
-                1 => new[] { value >= 0 ? (byte) (value + 128) : (byte)((128 + value) * -1) },
+                1 => new[] { (byte)value }, //new[] { value >= 0 ? (byte) (value + 128) : (byte)((128 + value) * -1) },
                 2 => BitConverter.GetBytes((short)value),
                 4 => BitConverter.GetBytes((int)value),
                 8 => BitConverter.GetBytes(value),
@@ -90,7 +90,7 @@ namespace NtFreX.Audio.Math
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
             return value.Length switch
             {
-                1 => value[0] < 128 ? (128 - value[0]) * -1 : value[0] - 128,
+                1 => (sbyte)value[0], //value[0] < 128 ? (128 - value[0]) * -1 : value[0] - 128,
                 2 => BitConverter.ToInt16(switched),
                 4 => BitConverter.ToInt32(switched),
                 8 => BitConverter.ToInt64(switched),

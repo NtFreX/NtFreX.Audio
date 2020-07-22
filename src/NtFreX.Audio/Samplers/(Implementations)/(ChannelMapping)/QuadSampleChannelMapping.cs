@@ -1,0 +1,27 @@
+﻿using NtFreX.Audio.Infrastructure;
+using System.Linq;
+
+namespace NtFreX.Audio.Samplers
+{
+    internal sealed class QuadSampleChannelMapping : SampleChannelMapping
+    {
+        public override Speaker Speaker => Speaker.Quad;
+
+        public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
+        {
+            return sample.Take(bitsPerSample / 8).ToArray();
+        }
+        public override byte[] GetFrontRight(byte[] sample, ushort bitsPerSample)
+        {
+            return sample.Skip(1 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
+        }
+        public override byte[] GetBackLeft(byte[] sample, ushort bitsPerSample)
+        {
+            return sample.Skip(2 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
+        }
+        public override byte[] GetBackRight(byte[] sample, ushort bitsPerSample)
+        {
+            return sample.Skip(3 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
+        }
+    }
+}
