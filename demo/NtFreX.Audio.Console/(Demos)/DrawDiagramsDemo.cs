@@ -1,5 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -84,7 +84,7 @@ namespace NtFreX.Audio.Sampler.Console
                     channels[currentChannel] = new List<long>();
                 }
 
-                channels[currentChannel].Add(value.ToInt64());
+                channels[currentChannel].Add(value.AsInt64());
 
                 if (++currentChannel >= waveAudioContainer.FmtSubChunk.Channels)
                 {

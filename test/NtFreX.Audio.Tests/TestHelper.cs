@@ -26,23 +26,18 @@ namespace NtFreX.Audio.Tests
                    new List<UnknownSubChunk>());
         }
 
-        public static byte[] BuildChannelSamples(ushort bitsPerSample, params long[] channelSamples)
+        public static Sample[] BuildChannelSamples(ushort bitsPerSample, params long[] channelSamples)
         {
-            var buffer = new byte[channelSamples.Length * bitsPerSample / 8];
+            var buffer = new Sample[channelSamples.Length];
             for (var i = 0; i < channelSamples.Length; i++)
             {
-                Array.Copy(
-                    channelSamples[i].ToByteArray(bitsPerSample / 8),
-                    0,
-                    buffer,
-                    i * bitsPerSample / 8,
-                    bitsPerSample / 8);
+                buffer[i] = new Sample(channelSamples[i].ToByteArray(bitsPerSample / 8), bitsPerSample, AudioFormatType.PCM);
             }
             return buffer;
         }
-        public static void AssertChannelAverage(int channelToTest, byte[] resultChannelSamples, ushort bitsPerSample, params long[] expectedValues)
+        public static void AssertChannelAverage(int channelToTest, Sample[] resultChannelSamples, ushort bitsPerSample, params long[] expectedValues)
         {
-            var channelValue = resultChannelSamples.Skip(channelToTest * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray().ToInt64();
+            var channelValue = resultChannelSamples.SelectMany(x => x.AsByteArray()).Skip(channelToTest * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray().ToInt64();
             Assert.AreEqual((long)System.Math.Round(expectedValues.Sum() / (double)expectedValues.Length, 0), channelValue);
         }
     }

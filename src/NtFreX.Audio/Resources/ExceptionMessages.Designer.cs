@@ -61,15 +61,6 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The given array is not in a supported length.
-        /// </summary>
-        internal static string ArrayLengthNotSupported {
-            get {
-                return ResourceManager.GetString("ArrayLengthNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Loading audio samples failed.
         /// </summary>
         internal static string AudioSampleLoadingFailed {
@@ -165,15 +156,6 @@ namespace NtFreX.Audio.Resources {
         internal static string StreamToShort {
             get {
                 return ResourceManager.GetString("StreamToShort", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The given target length is not supported.
-        /// </summary>
-        internal static string TargetLengthNotSupported {
-            get {
-                return ResourceManager.GetString("TargetLengthNotSupported", resourceCulture);
             }
         }
         

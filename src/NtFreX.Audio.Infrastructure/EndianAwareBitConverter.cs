@@ -1,11 +1,10 @@
-﻿using NtFreX.Audio.Resources;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace NtFreX.Audio.Math
+namespace NtFreX.Audio.Infrastructure
 {
     public static class EndianAwareBitConverter
     {
@@ -82,7 +81,7 @@ namespace NtFreX.Audio.Math
                 2 => BitConverter.GetBytes((short)value),
                 4 => BitConverter.GetBytes((int)value),
                 8 => BitConverter.GetBytes(value),
-                _ => throw new ArgumentException(ExceptionMessages.TargetLengthNotSupported, nameof(targetLength)),
+                _ => throw new ArgumentException("The given target length is not supported", nameof(targetLength)),
             };
         }
         private static long ParseByLength([NotNull] this byte[] value, bool isLittleEndian = true)
@@ -94,7 +93,7 @@ namespace NtFreX.Audio.Math
                 2 => BitConverter.ToInt16(switched),
                 4 => BitConverter.ToInt32(switched),
                 8 => BitConverter.ToInt64(switched),
-                _ => throw new ArgumentException(ExceptionMessages.ArrayLengthNotSupported, nameof(value)),
+                _ => throw new ArgumentException("The given array is not in a supported length", nameof(value)),
             };
         }
     }

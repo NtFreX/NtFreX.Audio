@@ -1,6 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
-
-namespace NtFreX.Audio.AdapterInfrastructure
+﻿namespace NtFreX.Audio.Infrastructure
 {
     //TODO: change interfaces and work with one format? (make it possible to interact without wave audioContainer)
     public sealed class AudioFormat

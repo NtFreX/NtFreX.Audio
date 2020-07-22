@@ -1,6 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
-using System.Linq;
 
 namespace NtFreX.Audio.Samplers
 {
@@ -9,21 +7,14 @@ namespace NtFreX.Audio.Samplers
     {
         public override Speaker Speaker => Speaker.Stereo;
 
-        public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(bitsPerSample / 8).ToArray();
-        }
+        public override Sample GetFrontLeft(Sample[] sample) => sample[0];
+        public override Sample GetFrontRight(Sample[] sample) => sample[1];
 
-        public override byte[] ToMono(byte[] sample, ushort bitsPerSample)
+        public override Sample[] ToMono(Sample[] sample)
         {
-            var total = GetFrontLeft(sample, bitsPerSample).ToInt64() +
-                GetFrontRight(sample, bitsPerSample).ToInt64();
+            var total = GetFrontLeft(sample) + GetFrontRight(sample);
 
-            return (total / 2).ToByteArray(bitsPerSample);
+            return new Sample[] { total / 2 };
         }
     }
 }

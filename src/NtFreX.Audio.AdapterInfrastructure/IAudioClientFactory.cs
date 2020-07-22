@@ -1,4 +1,6 @@
-﻿namespace NtFreX.Audio.AdapterInfrastructure
+﻿using NtFreX.Audio.Infrastructure;
+
+namespace NtFreX.Audio.AdapterInfrastructure
 {
     public interface IAudioClientFactory
     {

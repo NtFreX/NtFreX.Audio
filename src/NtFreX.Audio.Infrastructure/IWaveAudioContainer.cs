@@ -9,6 +9,6 @@ namespace NtFreX.Audio.Infrastructure
     {
         IFmtSubChunk FmtSubChunk { [return: NotNull] get; }
 
-        IAsyncEnumerable<byte[]> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default);
     }
 }

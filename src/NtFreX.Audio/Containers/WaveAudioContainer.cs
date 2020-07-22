@@ -34,19 +34,16 @@ namespace NtFreX.Audio.Containers
             => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.ChunkIdentifierRIFF;
 
         [return: NotNull]
-        public async IAsyncEnumerable<byte[]> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var samplesSize = GetSampleSize();
+            var samplesSize = FmtSubChunk.BitsPerSample / 8;
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
             {
                 for (var i = 0; i < buffer.Length; i += samplesSize)
                 {
-                    yield return buffer.AsMemory(i, samplesSize).ToArray();
+                    yield return new Sample(buffer.AsMemory(i, samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat);
                 }
             }
         }
-
-        private int GetSampleSize()
-            => FmtSubChunk.BitsPerSample / 8;
     }
 }
