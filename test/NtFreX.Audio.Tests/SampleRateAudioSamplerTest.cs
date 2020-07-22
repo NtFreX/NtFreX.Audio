@@ -23,7 +23,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
-            var audio = WaveContainerBuilder.Build(10, 32, (uint) fromSampleRate);
+            var audio = TestHelper.Build(10, 32, (uint) fromSampleRate);
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -46,7 +46,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(int fromSampleRate, int toSampleRate)
         {
-            var audio = WaveContainerBuilder.Build(10, 32, (uint)fromSampleRate);
+            var audio = TestHelper.Build(10, 32, (uint)fromSampleRate);
             var sampler = new SampleRateAudioSampler((uint)toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

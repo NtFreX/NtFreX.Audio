@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Wasapi.Wrapper;
 
 namespace NtFreX.Audio.Wasapi

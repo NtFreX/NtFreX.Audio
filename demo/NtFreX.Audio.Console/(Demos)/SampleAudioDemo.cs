@@ -71,6 +71,7 @@ namespace NtFreX.Audio.Sampler.Console
 
             // TODO: make pipe configurable through console input
             using var convertedAudio = await pipe
+                //.Add(x => x.ChannelAudioSampler(2))
                 //.Add(x => x.MonoAudioSampler())
                 //.Add(x => x.MonoToStereoAudioSampler())
                 //.Add(x => x.SpeedAudioSampler(4))
@@ -100,7 +101,8 @@ namespace NtFreX.Audio.Sampler.Console
 
         private static string GetDisplayName(string name)
         {
-            var method = typeof(AudioSamplerFactory).GetMethod(name);
+            //TODO: Correct resolving in case of overload
+            var method = typeof(AudioSamplerFactory).GetMethods().FirstOrDefault(x => x.Name == name);
             return $"{method?.Name} ({string.Join(", ", method?.GetParameters().Select(p => p.Name + ":" + p.ParameterType.Name) ?? Array.Empty<string>())})";
         }
 
