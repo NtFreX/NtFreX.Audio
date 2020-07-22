@@ -1,14 +1,11 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace NtFreX.Audio.Samplers
 {
     internal sealed class FivePointZeroSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => throw new NotImplementedException();
+        public override Speaker Speaker => Speaker.FivePointZero;
 
         public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
         {

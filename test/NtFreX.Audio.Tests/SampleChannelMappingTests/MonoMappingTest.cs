@@ -22,7 +22,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             var toStereoSample = sampleChannelMapping.ToStereo(sample, (ushort)bitsPerSample);
 
             AssertChannelAverage(0, toStereoSample, (ushort)bitsPerSample, 2);
+            AssertChannelAverage(1, toStereoSample, (ushort)bitsPerSample, 2);
         }
-
     }
 }

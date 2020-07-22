@@ -1,14 +1,6 @@
-﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {

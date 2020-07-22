@@ -46,8 +46,8 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.SelectMany(x => x).Count());
         }
 
-        //[TestCase(2U, 1U)]
-        //[TestCase(1U, 2U)]
+        [TestCase(2U, 1U)]
+        [TestCase(1U, 2U)]
         [TestCase(3U, 4U)]
         [TestCase(4U, 6U)]
         [TestCase(5U, 4U)]
