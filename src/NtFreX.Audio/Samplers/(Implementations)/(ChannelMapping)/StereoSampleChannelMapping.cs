@@ -15,7 +15,7 @@ namespace NtFreX.Audio.Samplers
 
     internal sealed class StereoSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => throw new NotImplementedException();
+        public override Speaker Speaker => Speaker.Stereo;
 
         public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
         {

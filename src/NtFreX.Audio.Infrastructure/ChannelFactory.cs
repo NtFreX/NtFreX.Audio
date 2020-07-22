@@ -7,14 +7,14 @@ namespace NtFreX.Audio.Infrastructure
         // TODO: validate default mapping
         private static readonly ChannelConfig[] ChannelConfigs = new ChannelConfig[]
         {
-            new ChannelConfig(Speaker.Mono, 1, true),
+            new ChannelConfig(Speaker.Mono, 1,        true),
             new ChannelConfig(Speaker.OnePointOne, 2, false),
-            new ChannelConfig(Speaker.Stereo, 2, true),
+            new ChannelConfig(Speaker.Stereo, 2,      true),
             new ChannelConfig(Speaker.TwoPointOne, 3, true),
             new ChannelConfig(Speaker.ThreePointZero, 3, false),
-            new ChannelConfig(Speaker.ThreePointOne, 4, false),
-            new ChannelConfig(Speaker.Quad, 4, true),
-            new ChannelConfig(Speaker.Surround, 4, false),
+            new ChannelConfig(Speaker.ThreePointOne, 4, true),
+            new ChannelConfig(Speaker.Quad, 4,        false),
+            new ChannelConfig(Speaker.Surround, 4,    false),
             new ChannelConfig(Speaker.FivePointZero, 5, true),
             new ChannelConfig(Speaker.FivePointOne, 6, true),
             new ChannelConfig(Speaker.SevenPointZero, 7, true),

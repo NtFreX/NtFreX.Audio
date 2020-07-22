@@ -6,9 +6,9 @@ using System.Text;
 
 namespace NtFreX.Audio.Samplers
 {
-    internal sealed class QuadSampleChannelMapping : SampleChannelMapping
+    internal sealed class SurroundSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => Speaker.Quad;
+        public override Speaker Speaker => throw new NotImplementedException();
 
         public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
         {
@@ -18,11 +18,11 @@ namespace NtFreX.Audio.Samplers
         {
             return sample.Skip(1 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
         }
-        public override byte[] GetBackLeft(byte[] sample, ushort bitsPerSample)
+        public override byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
         {
             return sample.Skip(2 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
         }
-        public override byte[] GetBackRight(byte[] sample, ushort bitsPerSample)
+        public override byte[] GetBackCenter(byte[] sample, ushort bitsPerSample)
         {
             return sample.Skip(3 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
         }

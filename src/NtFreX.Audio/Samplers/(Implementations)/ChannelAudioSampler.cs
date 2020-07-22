@@ -18,7 +18,19 @@ namespace NtFreX.Audio.Samplers
         private readonly SampleChannelMapping[] channelMappings = new SampleChannelMapping[]
         {
             new MonoSampleChannelMapping(),
-            new StereoSampleChannelMapping()
+            new OnePointOneSampleChannelMapping(),
+            new StereoSampleChannelMapping(),
+            new TwoPointOneSampleChannelMapping(),
+            new ThreePointZeroSampleChannelMapping(),
+            new ThreePointOneSampleChannelMapping(),
+            new QuadSampleChannelMapping(),
+            new SurroundSampleChannelMapping(),
+            new FivePointZeroSampleChannelMapping(),
+            new FivePointOneSampleChannelMapping(),
+            new SevenPointZeroSampleChannelMapping(),
+            new SevenPointOneSampleChannelMapping(),
+            new FivePointOneSurroundSampleChannelMapping(),
+            new SevenPointOneSurroundSampleChannelMapping()
         };
         private readonly Dictionary<Speaker, Func<SampleChannelMapping, Func<byte[], ushort, byte[]>>> converterResolver = new Dictionary<Speaker, Func<SampleChannelMapping, Func<byte[], ushort, byte[]>>>()
         {
@@ -54,13 +66,13 @@ namespace NtFreX.Audio.Samplers
         {
             // TODO: check if channel config is allready matching
             var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
-            var factor = targetChannels / audio.FmtSubChunk.Channels;
+            var factor = targetChannels / (double) audio.FmtSubChunk.Channels;
 
             return Task.FromResult(audio
                     .WithFmtSubChunk(x => x
                         .WithChannels((ushort)targetChannels))
                     .WithDataSubChunk(x => x
-                        .WithChunkSize((uint)factor * audio.DataSubChunk.ChunkSize)
+                        .WithChunkSize((uint) (factor * audio.DataSubChunk.ChunkSize))
                         .WithData(ManipulateAudioData(audio, cancellationToken))));
         }
 
@@ -73,15 +85,15 @@ namespace NtFreX.Audio.Samplers
             var samples = audio.DataSubChunk.Data;
             var converter = converterResolver[targetSpeaker].Invoke(channelMapping);
             var temp = new byte[audio.FmtSubChunk.Channels * audio.FmtSubChunk.BitsPerSample / 8];
-            var counter = 0;
             var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
 
+            var counter = 0;
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 Array.Copy(value, 0, temp, counter * audio.FmtSubChunk.BitsPerSample / 8, value.Length);
                 if (++counter == audio.FmtSubChunk.Channels)
                 {
-                    var convertedSample = converter.Invoke(value, audio.FmtSubChunk.BitsPerSample);
+                    var convertedSample = converter.Invoke(temp, audio.FmtSubChunk.BitsPerSample);
 
                     for (int i = 0; i < targetChannels; i++)
                     {

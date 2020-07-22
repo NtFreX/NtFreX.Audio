@@ -8,7 +8,7 @@ namespace NtFreX.Audio.Samplers
 {
     internal sealed class OnePointOneSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => throw new NotImplementedException();
+        public override Speaker Speaker => Speaker.OnePointOne;
 
         public override byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
         {
