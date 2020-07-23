@@ -12,6 +12,8 @@ namespace NtFreX.Audio.Samplers
         public AudioSampler FromMonoAudioSampler(int taretChannels) => new FromMonoAudioSampler(taretChannels);
         public AudioSampler BitsPerSampleAudioSampler(ushort bitsPerSample) => new BitsPerSampleAudioSampler(bitsPerSample);
         public AudioSampler SampleRateAudioSampler(uint sampleRate) => new SampleRateAudioSampler(sampleRate);
+        public AudioSampler PcmToFloatAudioSampler() => new PcmToFloatAudioSampler();
+        public AudioSampler FloatToPcmAudioSampler() => new FloatToPcmAudioSampler();
         public AudioSampler VolumeAudioSampler(double volumeFactor) => new VolumeAudioSampler(volumeFactor);
         public AudioSampler SpeedAudioSampler(double speedFactor) => new SpeedAudioSampler(speedFactor);
         public AudioSampler ShiftWaveAudioSampler(double shiftAdder) => new ShiftWaveAudioSampler(shiftAdder);
