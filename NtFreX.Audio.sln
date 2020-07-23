@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{F86D48BF-0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Tests", "test\NtFreX.Audio.Tests\NtFreX.Audio.Tests.csproj", "{98DBA6CD-18EF-404E-83B9-CA2519C022A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Wasapi", "src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj", "{519B8C3A-1F57-4233-A8B0-DBC138370814}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Wasapi", "src\adapters\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj", "{519B8C3A-1F57-4233-A8B0-DBC138370814}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.PulseAudio", "src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj", "{88E08594-24DE-4771-80A0-C3B0D880DA02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.PulseAudio", "src\adapters\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj", "{88E08594-24DE-4771-80A0-C3B0D880DA02}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7BA896D0-53DE-432F-B594-6C5857ACC811}"
 EndProject
@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Infrastructure
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adapters", "adapters", "{B5ECA57C-BF9A-4073-82FA-B4A67BC625DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.Alsa", "src\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj", "{23A17BF2-C808-4999-ACFB-806B73EB4502}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.Alsa", "src\adapters\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj", "{23A17BF2-C808-4999-ACFB-806B73EB4502}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
