@@ -169,10 +169,9 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [ ] serializer factory resolve by signature in file or/and file extension
    - [ ] platform assembly loading
  - [ ] more
-   - [ ] audio encoders
+   - [ ] audio encoders (https://wiki.multimedia.cx/index.php/Category:Audio_Codecs)
      - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
-   - [ ] audio converters
-     - [ ] avi
+   - [ ] audio container converters (https://wiki.multimedia.cx/index.php/Category:Container_Formats)
    - [ ] signal modification
      - [ ] generation
      - [ ] splitting
