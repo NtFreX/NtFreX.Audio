@@ -101,86 +101,77 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] api refinement
  - [ ] remove AsyncEnumerator dependency
  - [ ] warnings and todos
+   - [ ] why are some headers big endian instead of little endian as doc says? (WaveAudioContainerSerializer)
+   - [ ] cleanup EndianAwareBitConverter
+   - [ ] interop cleanup
+   - [ ] format type cleanup
  - [ ] Wave audio container
    - [x] basis
    - [x] streamable
    - [x] enumerable
-   - [ ] serializer factory resolve by signature in file or/and file extension
-   - [ ] why are some headers big endian instead of little endian as doc says? (WaveAudioContainerSerializer)
-   - [ ] cleanup EndianAwareBitConverter
-   - [ ] support non seekable streams? (WaveAudioContainerSerializer and more)
-   - [ ] options
  - [ ] Wave audio samplers
    - [x] basis
-   - [ ] bits per sample
-   - [ ] volume
    - [x] sample rate
-     - [ ] interpolation
    - [x] speed
-     - [ ] interpolation
    - [ ] channels
      - [x] monto to x
      - [x] x to mono
      - [ ] x to x
-   - [ ] fourier
-   - [ ] volume normalization
-   - [ ] background noise filter
-   - [ ] ...
+   - [ ] bits per sample
+   - [ ] volume
  - [ ] audio devices
    - [x] basis
-   - [ ] platform assembly
-     - [ ] loading (self contained)
-     - [ ] packaging
+   - [x] platform assembly
+     - [x] loading (self contained)
+     - [x] packaging
    - [ ] windows multi media
      - [x] basis
-     - [ ] interop cleanup
      - [x] dispose
      - [ ] get all devices
      - [ ] get all playback devices
      - [ ] get all recording devices
      - [ ] get device properties
      - [ ] get supported audio formats of device
-     - [ ] events?
-     - [ ] ...
-   - [ ] pulse audio (ALSA?)
-   - [ ] ...
+     - [ ] events
+   - [ ] ALSA
+   - [ ] pulse audio
  - [ ] audio playback
    - [x] basis
    - [ ] wasapi
      - [ ] control
-     - [ ] channel mapping
-     - [ ] format type cleanup
-     - [ ] interop cleanup
+     - [y] channel mapping
      - [x] dispose
      - [ ] events
-     - [ ] ...
    - [ ] pulse audio
-   - [ ] ...
  - [ ] audio recording
    - [x] basis
    - [ ] wasapi
      - [x] basis
      - [ ] control
    - [ ] pulse audio
-   - [ ] ...
  - [ ] audio formats and containers
    - [x] IEEE FLOAT
-   - [ ] ...
- - [ ] audio converters
-   - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
-   - [ ] ...
- - [ ] signal modification
-   - [ ] generation
-   - [ ] splitting
-   - [ ] joining
-   - [ ] ...
+ - [ ] improve
+   - [ ] sample rate/speed interpolation
+   - [ ] serializer factory resolve by signature in file or/and file extension
+   - [ ] platform assembly loading
  - [ ] more
+   - [ ] audio converters
+     - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)
+   - [ ] signal modification
+     - [ ] generation
+     - [ ] splitting
+     - [ ] joining
    - [ ] make speed audio sampler  work with factor bigger then 2 or smaller then 0.5 and unify with sample rate audip sampler
    - [ ] validate byterate, blockaligin and chunksize in fmt sub chunk
    - [ ] rifx support
    - [ ] riff sub chunk validation
    - [ ] cleanup casting and allocations
    - [ ] non seekable and non skipable streams?
+   - [ ] audio conainer options
+   - [ ] fourier
+   - [ ] volume normalization
+   - [ ] background noise filter
    - [ ] ... 
  - [ ] ...
 
