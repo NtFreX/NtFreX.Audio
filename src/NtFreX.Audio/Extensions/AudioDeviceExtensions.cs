@@ -19,7 +19,7 @@ namespace NtFreX.Audio.Extensions
                 // TODO convert everyting nessesary (formatType)
                 audio = await new AudioSamplerPipe()
                     .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
-                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
+                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate)) 
                     // TODO: better channel sampler
                     .Add(x => x.ToMonoAudioSampler())
                     .Add(x => x.FromMonoAudioSampler(supportedFormat.Channels))
