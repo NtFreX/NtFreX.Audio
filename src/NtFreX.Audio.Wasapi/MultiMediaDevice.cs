@@ -14,13 +14,13 @@ namespace NtFreX.Audio.Wasapi
 
         public string GetId() => wrapper.GetId();
 
-        internal static MultiMediaDevice FromManaged(ManagedMultiMediaDevice wrapper) => new MultiMediaDevice(wrapper);
-
-        internal ManagedMultiMediaDevice ToManaged() => wrapper;
-
         public void Dispose()
         {
             wrapper.Dispose();
         }
+
+        internal static MultiMediaDevice FromManaged(ManagedMultiMediaDevice wrapper) => new MultiMediaDevice(wrapper);
+
+        internal ManagedMultiMediaDevice ToManaged() => wrapper;
     }
 }

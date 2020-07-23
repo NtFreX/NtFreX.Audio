@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Samplers
 {
     public class ChannelAudioSampler : AudioSampler
     {
-        private readonly Speaker targetSpeaker;
+        private readonly Speakers targetSpeaker;
         private readonly SampleChannelMapping[] channelMappings = new SampleChannelMapping[]
         {
             new MonoSampleChannelMapping(),
@@ -30,25 +30,25 @@ namespace NtFreX.Audio.Samplers
             new FivePointOneSurroundSampleChannelMapping(),
             new SevenPointOneSurroundSampleChannelMapping()
         };
-        private readonly Dictionary<Speaker, Func<SampleChannelMapping, Func<Sample[], Sample[]>>> converterResolver = new Dictionary<Speaker, Func<SampleChannelMapping, Func<Sample[], Sample[]>>>()
+        private readonly Dictionary<Speakers, Func<SampleChannelMapping, Func<Sample[], Sample[]>>> converterResolver = new Dictionary<Speakers, Func<SampleChannelMapping, Func<Sample[], Sample[]>>>()
         {
-            { Speaker.Mono, x => x.ToMono },
-            { Speaker.OnePointOne, x => x.ToOnePointOne },
-            { Speaker.Stereo, x => x.ToStereo },
-            { Speaker.TwoPointOne, x => x.ToTwoPointOne },
-            { Speaker.ThreePointZero, x => x.ToThreePointZero },
-            { Speaker.ThreePointOne, x => x.ToThreePointOne },
-            { Speaker.Quad, x => x.ToQuad },
-            { Speaker.Surround, x => x.ToSurround },
-            { Speaker.FivePointZero, x => x.ToFivePointZero },
-            { Speaker.FivePointOne, x => x.ToFivePointOne },
-            { Speaker.SevenPointZero, x => x.ToSevenPointZero },
-            { Speaker.SevenPointOne, x => x.ToSevenPointOne },
-            { Speaker.FivePointOneSurround, x => x.ToFivePointOneSurround },
-            { Speaker.SevenPointOneSurround, x => x.ToSevenPointOneSurround }
+            { Speakers.Mono, x => x.ToMono },
+            { Speakers.OnePointOne, x => x.ToOnePointOne },
+            { Speakers.Stereo, x => x.ToStereo },
+            { Speakers.TwoPointOne, x => x.ToTwoPointOne },
+            { Speakers.ThreePointZero, x => x.ToThreePointZero },
+            { Speakers.ThreePointOne, x => x.ToThreePointOne },
+            { Speakers.Quad, x => x.ToQuad },
+            { Speakers.Surround, x => x.ToSurround },
+            { Speakers.FivePointZero, x => x.ToFivePointZero },
+            { Speakers.FivePointOne, x => x.ToFivePointOne },
+            { Speakers.SevenPointZero, x => x.ToSevenPointZero },
+            { Speakers.SevenPointOne, x => x.ToSevenPointOne },
+            { Speakers.FivePointOneSurround, x => x.ToFivePointOneSurround },
+            { Speakers.SevenPointOneSurround, x => x.ToSevenPointOneSurround }
         };
 
-        public ChannelAudioSampler(Speaker targetSpeaker)
+        public ChannelAudioSampler(Speakers targetSpeaker)
         {
             //TODO: get wasapi channel mapping
             this.targetSpeaker = targetSpeaker;
@@ -80,7 +80,7 @@ namespace NtFreX.Audio.Samplers
         private async IAsyncEnumerable<Sample> ManipulateAudioData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             //TODO: better way to get source channels
-            Speaker sourceSpeaker = ChannelFactory.GetDefaultMapping(audio.FmtSubChunk.Channels);
+            Speakers sourceSpeaker = ChannelFactory.GetDefaultMapping(audio.FmtSubChunk.Channels);
             var channelMapping = channelMappings.First(x => x.Speaker == sourceSpeaker);
             var samples = audio.GetAudioSamplesAsync(cancellationToken);
             var converter = converterResolver[targetSpeaker].Invoke(channelMapping);

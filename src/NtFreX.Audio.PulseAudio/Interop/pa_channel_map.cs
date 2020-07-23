@@ -2,7 +2,6 @@
 
 namespace NtFreX.Audio.PulseAudio.Interop
 {
-
     /// <summary>
     /// A channel map which can be used to attach labels to specific channels of a stream.
     /// </summary>
@@ -23,6 +22,6 @@ namespace NtFreX.Audio.PulseAudio.Interop
         /// Channel labels.
         /// </summary>
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = PA_CHANNELS_MAX)]
-        public pa_channel_position[] map;
+        public pa_channel_position[]? map;
     }
 }

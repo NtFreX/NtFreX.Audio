@@ -20,8 +20,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
                 2, // left
                 3, // right
                 5, // center
-                1 // low frequency
-            );
+                1 /* low frequency */ );
 
             var toMonoSample = sampleChannelMapping.ToMono(sample);
 
@@ -40,8 +39,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
                 2, // left
                 3, // right
                 5, // center
-                1  // low frequency
-            );
+                1 /* low frequency */ );
 
             var toStereoSample = sampleChannelMapping.ToStereo(sample);
 

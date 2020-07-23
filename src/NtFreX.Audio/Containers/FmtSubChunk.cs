@@ -95,7 +95,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckSizeMissmatch, nameof(ChunkSize));
             }
 
-            if (AudioFormat != AudioFormatType.PCM && AudioFormat != AudioFormatType.IEE_FLOAT)
+            if (AudioFormat != AudioFormatType.Pcm && AudioFormat != AudioFormatType.IeeFloat)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckFormatNotSupported, nameof(AudioFormat));
             }

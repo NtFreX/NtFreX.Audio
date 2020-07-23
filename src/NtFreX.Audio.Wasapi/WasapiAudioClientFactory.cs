@@ -34,7 +34,10 @@ namespace NtFreX.Audio.Wasapi
             var wrapper = multiMediaDevice.ToManaged();
             var managedFormat = format.ToManagedWaveFormat();
 
+#pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
             var audioClient = wrapper.Activate();
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
             var success = audioClient.TryInitialize(managedFormat, out var managedSupportedFormat);
 
             supportedFormat = managedSupportedFormat.ToAudioFormat();

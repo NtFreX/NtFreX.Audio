@@ -48,6 +48,11 @@ namespace NtFreX.Audio.Samplers
             return SampleInner(preparedAudio, factor, cancellationToken);
         }
 
+        public override string ToString()
+        {
+            return base.ToString() + $", sampleRate={sampleRate}";
+        }
+
         private WaveEnumerableAudioContainer SampleInner([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
@@ -56,11 +61,6 @@ namespace NtFreX.Audio.Samplers
                 .WithDataSubChunk(x => x
                     .WithChunkSize((uint)newDataSize)
                     .WithData(WaveStretcher.StretchAsync(audio, factor, cancellationToken)));
-        }
-
-        public override string ToString()
-        {
-            return base.ToString() + $", sampleRate={sampleRate}";
         }
     }
 }

@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Sampler.Console
             var audio = await AudioEnvironment.Serializer.FromFileAsync(file, cancellationToken).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
 
-            return AudioEnvironment.Converter.Convert<WaveStreamAudioContainer>(audio);
+            return await AudioEnvironment.Converter.ConvertAsync<WaveStreamAudioContainer>(audio, cancellationToken).ConfigureAwait(false);
         }
     }
 }
