@@ -47,7 +47,20 @@ var newAudio = await AudioEnvironment.Sampler
 
 The sampler is not executed until the new audio is moved into an in memory container or written into another stream.
 Other samplers are available under `AudioEnvironment.Sampler`.
-Audio samplers can only be used with wave pcm data.
+Audio samplers can only be used with wave data.
+
+Other samplers are:
+
+ - BitsPerSampleAudioSampler
+ - SampleRateAudioSampler
+ - ChannelAudioSampler
+ - FromMonoAudioSampler
+ - ToMonoAudioSampler
+ - ShiftWaveAudioSampler
+ - SpeedAudioSampler
+ - VolumeAudioSampler
+ - FloatToPcmAudioSampler
+ - PcmToFloatAudioSampler
 
 **Audio render**
 
