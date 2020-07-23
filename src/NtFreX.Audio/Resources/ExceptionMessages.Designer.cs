@@ -97,7 +97,7 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Only pcm containers no compression are supported.
+        ///   Looks up a localized string similar to The given audio format is not supported.
         /// </summary>
         internal static string FmtSubChunckFormatNotSupported {
             get {
@@ -106,7 +106,7 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Only pcm containers with a fmt chunk size of 16 are supported.
+        ///   Looks up a localized string similar to The given audio has a faulty fmt chunk size. Only size of 16 are supported.
         /// </summary>
         internal static string FmtSubChunckSizeMissmatch {
             get {
