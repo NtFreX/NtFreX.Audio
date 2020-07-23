@@ -6,8 +6,6 @@ namespace NtFreX.Audio.Alsa.Interop
 {
     internal partial class Alsa
     {
-        private const string LibcLibrary = "libc";
-
         private const string AlsaLibrary = "libasound";
     }
 }
