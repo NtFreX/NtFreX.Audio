@@ -6,6 +6,7 @@
     /// </summary>
     internal struct pa_sample_spec
     {
+#pragma warning disable CS0649 //TODO: enable
         /// <summary>
         /// The sample format.
         /// </summary>
@@ -22,5 +23,6 @@
         /// (1 for mono, 2 for stereo, ...)
         /// </summary>
         public byte channels;
+#pragma warning restore CS0649
     }
 }

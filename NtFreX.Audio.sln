@@ -19,9 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7BA896D0-53D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{22C239CA-135A-4CA3-98C0-4D86F7AE4134}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.AdapterInfrastructure", "src\NtFreX.Audio.AdapterInfrastructure\NtFreX.Audio.AdapterInfrastructure.csproj", "{F792463A-52EE-4797-8E11-0C31D80773F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.AdapterInfrastructure", "src\NtFreX.Audio.AdapterInfrastructure\NtFreX.Audio.AdapterInfrastructure.csproj", "{F792463A-52EE-4797-8E11-0C31D80773F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.Infrastructure", "src\NtFreX.Audio.Infrastructure\NtFreX.Audio.Infrastructure.csproj", "{47624CA5-B7A5-4195-8D09-93A718313C12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Infrastructure", "src\NtFreX.Audio.Infrastructure\NtFreX.Audio.Infrastructure.csproj", "{47624CA5-B7A5-4195-8D09-93A718313C12}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adapters", "adapters", "{B5ECA57C-BF9A-4073-82FA-B4A67BC625DA}"
 EndProject
