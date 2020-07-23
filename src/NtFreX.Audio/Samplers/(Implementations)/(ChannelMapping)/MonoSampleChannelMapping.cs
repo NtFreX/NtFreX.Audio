@@ -6,9 +6,6 @@ namespace NtFreX.Audio.Samplers
     internal sealed class MonoSampleChannelMapping : SampleChannelMapping
     {
         public override Speaker Speaker => Speaker.Mono;
-        public override byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
-        {
-            return sample;
-        }
+        public override Sample GetFrontCenter(Sample[] sample) => sample[0];
     }
 }

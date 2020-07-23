@@ -2,7 +2,7 @@
 ![Build and test](https://github.com/NtFreX/NtFreX.Audio/workflows/Build%20and%20test/badge.svg)
 ![Publish to nuget](https://github.com/NtFreX/NtFreX.Audio/workflows/Publish%20to%20nuget/badge.svg)
 
-This .net core library provides functionality to read audio containers, sample wave pcm data, convert between audio formats and play/record wave pcm data.
+This .net core library provides functionality to read audio containers, sample wave data, convert between audio formats and play/record wave data.
 The entry point should most of the time be the `AudioEnvironment` class.
 
 This is a takeout of the library architecture. A speciality of this library is the WaveEnumerableAudioContainer which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
@@ -73,12 +73,11 @@ var audioPlatform = AudioEnvironment.Platform.Get();
 using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 
 var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-var pcmFormat = new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, AudioFormatType.PCM);
 
 using var sink = new FileAudioSink(file);
-await sink.InitializeAsync(pcmFormat).ConfigureAwait(false);
+await sink.InitializeAsync(format).ConfigureAwait(false);
 
-(var context, var client) = await device.CaptureAsync(pcmFormat, sink, cancellationToken).ConfigureAwait(false);
+(var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
 
 await Task.Delay(time).ConfigureAwait(false);
 
@@ -92,7 +91,7 @@ sink.Finish();
 
 You need to install the `NtFreX.Audio` nuget package and then addtional nuget packages depending on the platforms you want to use.
 
- - For windows the `NtFreX.Audio.Wasapi` package
+ - For Windows the `NtFreX.Audio.Wasapi` package
  - For Linux the `NtFreX.Audio.PulseAudio` package
 
 ## TODO
@@ -101,6 +100,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
  - [ ] performance
  - [ ] api refinement
  - [ ] remove AsyncEnumerator dependency
+ - [ ] warnings and todos
  - [ ] Wave audio container
    - [x] basis
    - [x] streamable
@@ -164,7 +164,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [ ] pulse audio
    - [ ] ...
  - [ ] audio formats and containers
-   - [ ] IEEE FLOAT
+   - [x] IEEE FLOAT
    - [ ] ...
  - [ ] audio converters
    - [ ] mp3 (https://docs.microsoft.com/en-us/windows/win32/medfound/windows-media-mp3-decoder)

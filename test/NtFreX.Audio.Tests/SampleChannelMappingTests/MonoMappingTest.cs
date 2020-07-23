@@ -14,12 +14,12 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
         public void SampleToStereoTest(uint bitsPerSample)
         {
             var sampleChannelMapping = new MonoSampleChannelMapping();
-            byte[] sample = BuildChannelSamples(
+            var sample = BuildChannelSamples(
                 (ushort)bitsPerSample,
                 2 // center
             );
 
-            var toStereoSample = sampleChannelMapping.ToStereo(sample, (ushort)bitsPerSample);
+            var toStereoSample = sampleChannelMapping.ToStereo(sample);
 
             AssertChannelAverage(0, toStereoSample, (ushort)bitsPerSample, 2);
             AssertChannelAverage(1, toStereoSample, (ushort)bitsPerSample, 2);

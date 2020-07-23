@@ -1,5 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -73,18 +73,18 @@ namespace NtFreX.Audio.Sampler.Console
             return DrawSvg(channelSamples.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 }, waveAudioContainer.FmtSubChunk.BitsPerSample / 8);
         }
 
-        static async Task<IEnumerable<long[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
+        static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            var channels = new List<long>[waveAudioContainer.FmtSubChunk.Channels];
+            var channels = new List<Sample>[waveAudioContainer.FmtSubChunk.Channels];
             var currentChannel = 0;
             await foreach (var value in waveAudioContainer.GetAudioSamplesAsync().ConfigureAwait(false))
             {
                 if (channels[currentChannel] == null)
                 {
-                    channels[currentChannel] = new List<long>();
+                    channels[currentChannel] = new List<Sample>();
                 }
 
-                channels[currentChannel].Add(value.ToInt64());
+                channels[currentChannel].Add(value);
 
                 if (++currentChannel >= waveAudioContainer.FmtSubChunk.Channels)
                 {
@@ -106,7 +106,7 @@ namespace NtFreX.Audio.Sampler.Console
             return html.ToString();
         }
 
-        static string DrawSvg(long[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
+        static string DrawSvg(Sample[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
         {
             var width = data[0].Length / skip; // TODO: replace with file length
             var height = 100;
@@ -123,7 +123,7 @@ namespace NtFreX.Audio.Sampler.Console
             return image.ToString();
         }
 
-        static string DrawPath(long[] data, string color, float opacity, float height, int byteCount, int skip)
+        static string DrawPath(Sample[] data, string color, float opacity, float height, int byteCount, int skip)
         {
             var middle = height / 2.0f;
 
@@ -133,7 +133,7 @@ namespace NtFreX.Audio.Sampler.Console
             path.AppendLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {middle}");
             for (int i = 0; i * skip < data.Length; i++)
             {
-                var averageData = data.Skip(i * skip).Take(skip).Average();
+                var averageData = data.Skip(i * skip).Take(skip).Average().Value;
                 path.AppendLine($"L{i} {middle - (averageData / modifier * 100)} ");
             }
             path.AppendLine("\" />");

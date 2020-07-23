@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -41,9 +42,9 @@ namespace NtFreX.Audio.Samplers
         }
 
         [return: NotNull]
-        private async IAsyncEnumerable<byte[]> MultiplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        private async IAsyncEnumerable<Sample> MultiplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var samples = audio.DataSubChunk.Data;
+            var samples = audio.GetAudioSamplesAsync(cancellationToken);
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 for (var i = 0; i < targetChannels; i++)

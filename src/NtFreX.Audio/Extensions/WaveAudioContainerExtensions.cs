@@ -23,13 +23,13 @@ namespace NtFreX.Audio.Extensions
             throw new ArgumentException("The given wave container type is not supported", nameof(audio));
         }
 
-        public static AudioFormat ToFormat(this IWaveAudioContainer audio)
-        {
-            return new AudioFormat(
-                audio.FmtSubChunk.SampleRate,
-                audio.FmtSubChunk.BitsPerSample,
-                audio.FmtSubChunk.Channels,
-                audio.FmtSubChunk.AudioFormat);
-        }
+        //public static AudioFormat ToFormat(this IWaveAudioContainer audio)
+        //{
+        //    return new AudioFormat(
+        //        audio.FmtSubChunk.SampleRate,
+        //        audio.FmtSubChunk.BitsPerSample,
+        //        audio.FmtSubChunk.Channels,
+        //        audio.FmtSubChunk.AudioFormat);
+        //}
     }
 }

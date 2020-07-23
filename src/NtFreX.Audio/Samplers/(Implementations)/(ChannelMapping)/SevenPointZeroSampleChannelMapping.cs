@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using System.Linq;
 
 namespace NtFreX.Audio.Samplers
 {
@@ -7,33 +6,12 @@ namespace NtFreX.Audio.Samplers
     {
         public override Speaker Speaker => Speaker.SevenPointZero;
 
-        public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(1 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(2 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetBackLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(3 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetBackRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(4 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetSideLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(5 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetSideRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(6 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
+        public override Sample GetFrontLeft(Sample[] sample) => sample[0];
+        public override Sample GetFrontRight(Sample[] sample) => sample[1];
+        public override Sample GetFrontCenter(Sample[] sample) => sample[2];
+        public override Sample GetBackLeft(Sample[] sample) => sample[3];
+        public override Sample GetBackRight(Sample[] sample) => sample[4];
+        public override Sample GetSideLeft(Sample[] sample) => sample[5];
+        public override Sample GetSideRight(Sample[] sample) => sample[6];
     }
 }

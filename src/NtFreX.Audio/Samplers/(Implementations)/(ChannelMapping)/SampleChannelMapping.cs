@@ -1,478 +1,508 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
-using System.Linq;
 
 namespace NtFreX.Audio.Samplers
 {
-
     internal abstract class SampleChannelMapping
     {
         public abstract Speaker Speaker { get; }
 
         protected SampleChannelMapping() { }
 
-        public virtual byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetFrontRight(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
-        {
-            //TODO: fix overflow for 64bit audio
-            return ((GetFrontLeft(sample, bitsPerSample).ToInt64() + GetFrontRight(sample, bitsPerSample).ToInt64()) / 2).ToByteArray(bitsPerSample / 8);
-
-        }
-        public virtual byte[] GetLowFrequency(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetBackLeft(byte[] sample, ushort bitsPerSample) => GetFrontLeft(sample, bitsPerSample);
-        public virtual byte[] GetBackRight(byte[] sample, ushort bitsPerSample) => GetFrontRight(sample, bitsPerSample);
-        public virtual byte[] GetFrontLeftOfCenter(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetFrontRightOfCenter(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetBackCenter(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetSideLeft(byte[] sample, ushort bitsPerSample) => GetFrontLeft(sample, bitsPerSample);
-        public virtual byte[] GetSideRight(byte[] sample, ushort bitsPerSample) => GetFrontRight(sample, bitsPerSample);
-        public virtual byte[] GetTopCenter(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetTopLeft(byte[] sample, ushort bitsPerSample) => GetFrontLeft(sample, bitsPerSample);
-        public virtual byte[] GetTopRight(byte[] sample, ushort bitsPerSample) => GetFrontRight(sample, bitsPerSample);
-        public virtual byte[] GetTopFrontLeft(byte[] sample, ushort bitsPerSample) => GetFrontLeft(sample, bitsPerSample);
-        public virtual byte[] GetTopFrontCenter(byte[] sample, ushort bitsPerSample) => GetFrontCenter(sample, bitsPerSample);
-        public virtual byte[] GetTopFrontRight(byte[] sample, ushort bitsPerSample) => GetFrontRight(sample, bitsPerSample);
-        public virtual byte[] GetTopBackLeft(byte[] sample, ushort bitsPerSample) => GetBackLeft(sample, bitsPerSample);
-        public virtual byte[] GetTopBackCenter(byte[] sample, ushort bitsPerSample) => GetBackCenter(sample, bitsPerSample);
-        public virtual byte[] GetTopBackRight(byte[] sample, ushort bitsPerSample) => GetBackRight(sample, bitsPerSample);
+        public virtual Sample GetFrontLeft(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetFrontRight(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetFrontCenter(Sample[] sample) => new Sample[] { GetFrontLeft(sample), GetFrontRight(sample) }.Average();
+        public virtual Sample GetLowFrequency(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetBackLeft(Sample[] sample) => GetFrontLeft(sample);
+        public virtual Sample GetBackRight(Sample[] sample) => GetFrontRight(sample);
+        public virtual Sample GetFrontLeftOfCenter(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetFrontRightOfCenter(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetBackCenter(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetSideLeft(Sample[] sample) => GetFrontLeft(sample);
+        public virtual Sample GetSideRight(Sample[] sample) => GetFrontRight(sample);
+        public virtual Sample GetTopCenter(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetTopLeft(Sample[] sample) => GetFrontLeft(sample);
+        public virtual Sample GetTopRight(Sample[] sample) => GetFrontRight(sample);
+        public virtual Sample GetTopFrontLeft(Sample[] sample) => GetFrontLeft(sample);
+        public virtual Sample GetTopFrontCenter(Sample[] sample) => GetFrontCenter(sample);
+        public virtual Sample GetTopFrontRight(Sample[] sample) => GetFrontRight(sample);
+        public virtual Sample GetTopBackLeft(Sample[] sample) => GetBackLeft(sample);
+        public virtual Sample GetTopBackCenter(Sample[] sample) => GetBackCenter(sample);
+        public virtual Sample GetTopBackRight(Sample[] sample) => GetBackRight(sample);
        
-        public virtual byte[] ToMono(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToMono(Sample[] sample)
         {
-            //TODO: OVERFLOW!!!!!!
-            var total = GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetLowFrequency(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64();
+            var total = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackLeft(sample),
+               GetBackRight(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopFrontRight(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return (total / 17).ToByteArray(bitsPerSample / 8);
+            return new Sample[] { total };
         }
-        public virtual byte[] ToOnePointOne(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToOnePointOne(Sample[] sample)
         {
-            var center = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 17;
+            var center = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetBackLeft(sample),
+               GetBackRight(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopFrontRight(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return center.ToByteArray(bitsPerSample / 8)
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { center, GetLowFrequency(sample) };
         }
-        public virtual byte[] ToStereo(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToStereo(Sample[] sample)
         {
-            var left = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetLowFrequency(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64()) / 11;
+            var left = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackLeft(sample),
+               GetFrontLeftOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample)
+            }.Average();
 
-            var right = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetLowFrequency(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 11;
+            var right = new Sample[] {
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackRight(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return left.ToByteArray(bitsPerSample / 8).Concat(right.ToByteArray(bitsPerSample / 8)).ToArray();
+            return new Sample[] { left, right };
         }
-        public virtual byte[] ToTwoPointOne(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToTwoPointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 12;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 12;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, GetLowFrequency(sample) };
         }
-        public virtual byte[] ToThreePointZero(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToThreePointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter };
         }
-        public virtual byte[] ToThreePointOne(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToThreePointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample) };
         }
-        public virtual byte[] ToQuad(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToQuad(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64() +
-               GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(backLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(backRight.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, backLeft, backRight };
         }
-        public virtual byte[] ToSurround(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backCenter = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 10;
+            var backCenter = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(backCenter.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, backCenter };
         }
-        public virtual byte[] ToFivePointZero(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToFivePointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-              GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+              GetFrontLeft(sample),
+              GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-              GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+              GetFrontRight(sample),
+              GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-              GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-              GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-              GetTopCenter(sample, bitsPerSample).ToInt64() +
-              GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+              GetFrontCenter(sample),
+              GetFrontLeftOfCenter(sample),
+              GetFrontRightOfCenter(sample),
+              GetTopCenter(sample),
+              GetTopFrontCenter(sample)
+            }.Average();
 
-            var sideLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-              GetBackCenter(sample, bitsPerSample).ToInt64() +
-              GetSideLeft(sample, bitsPerSample).ToInt64() +
-              GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-              GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 5;
+            var sideLeft = new Sample[] {
+              GetBackLeft(sample),
+              GetBackCenter(sample),
+              GetSideLeft(sample),
+              GetTopBackCenter(sample),
+              GetTopBackLeft(sample)
+            }.Average();
 
-            var sideRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 5;
+            var sideRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(sideLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(sideRight.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, sideLeft, sideRight };
         }
-        public virtual byte[] ToFivePointOne(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToFivePointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .Concat(backLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(backRight.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight };
         }
-        public virtual byte[] ToSevenPointZero(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToSevenPointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 4;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 4;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(backLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(backRight.ToByteArray(bitsPerSample / 8))
-                .Concat(GetSideLeft(sample, bitsPerSample))
-                .Concat(GetSideRight(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, backLeft, backRight, GetSideLeft(sample), GetSideRight(sample) };
         }
-        public virtual byte[] ToSevenPointOne(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToSevenPointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 3;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .Concat(backLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(backRight.ToByteArray(bitsPerSample / 8))
-                .Concat(GetFrontLeftOfCenter(sample, bitsPerSample))
-                .Concat(GetFrontRightOfCenter(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight, GetFrontLeftOfCenter(sample), GetFrontRightOfCenter(sample) };
         }
      
-        public virtual byte[] ToFivePointOneSurround(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToFivePointOneSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var sideLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideLeft(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 5;
+            var sideLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var sideRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetSideRight(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 5;
+            var sideRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .Concat(sideLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(sideRight.ToByteArray(bitsPerSample / 8))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), sideLeft, sideRight };
         }
-        public virtual byte[] ToSevenPointOneSurround(byte[] sample, ushort bitsPerSample)
+        public virtual Sample[] ToSevenPointOneSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample, bitsPerSample).ToInt64() +
-               GetTopFrontLeft(sample, bitsPerSample).ToInt64()) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample, bitsPerSample).ToInt64() +
-               GetTopFrontRight(sample, bitsPerSample).ToInt64()) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetTopCenter(sample, bitsPerSample).ToInt64() +
-               GetTopFrontCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontLeftOfCenter(sample, bitsPerSample).ToInt64() +
-               GetFrontRightOfCenter(sample, bitsPerSample).ToInt64()) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackLeft(sample, bitsPerSample).ToInt64()) / 4;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample, bitsPerSample).ToInt64() +
-               GetBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackCenter(sample, bitsPerSample).ToInt64() +
-               GetTopBackRight(sample, bitsPerSample).ToInt64()) / 4;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return frontLeft.ToByteArray(bitsPerSample / 8)
-                .Concat(frontRight.ToByteArray(bitsPerSample / 8))
-                .Concat(frontCenter.ToByteArray(bitsPerSample / 8))
-                .Concat(GetLowFrequency(sample, bitsPerSample))
-                .Concat(backLeft.ToByteArray(bitsPerSample / 8))
-                .Concat(backRight.ToByteArray(bitsPerSample / 8))
-                .Concat(GetSideLeft(sample, bitsPerSample))
-                .Concat(GetSideRight(sample, bitsPerSample))
-                .ToArray();
+            return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight, GetSideLeft(sample), GetSideRight(sample) };
         }
-
     }
 }

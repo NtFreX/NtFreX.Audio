@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Samplers;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,7 +28,7 @@ namespace NtFreX.Audio.Sampler.Console
             var runCommand = "run";
             while (true)
             {
-                var samplers = GetAudioSamplerNames();
+                var samplers = GetAudioSamplers();
                 for (var i = 0; i < samplers.Length; i++)
                 {
                     System.Console.WriteLine($"  {i + 1} - {GetDisplayName(samplers[i])}");
@@ -51,8 +52,9 @@ namespace NtFreX.Audio.Sampler.Console
                     try
                     {
                         //TODO: convert to correct parameter type
-                        var args = parts.Skip(1).Select(x => x.Contains('.') ? (object)double.Parse(x) : (object)uint.Parse(x)).ToArray();
-                        pipe.Add(x => (AudioSampler)typeof(AudioSamplerFactory).GetMethod(samplers[number - 1]).Invoke(x, args));
+                        var parameters = samplers[number - 1].GetParameters();
+                        var args = parts.Skip(1).Select((x, i) => Convert.ChangeType(x.Contains('.', StringComparison.Ordinal) ? decimal.Parse(x, CultureInfo.InvariantCulture) : long.Parse(x, CultureInfo.InvariantCulture), parameters[i].ParameterType, CultureInfo.InvariantCulture)).ToArray();
+                        pipe.Add(x => (AudioSampler) samplers[number - 1].Invoke(x, args));
                     }
                     catch (Exception exce)
                     {
@@ -96,17 +98,10 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.WriteLine();
         }
 
-        private static ParameterInfo[] GetParameters(string name)
-            => typeof(AudioSamplerFactory).GetMethod(name)?.GetParameters() ?? Array.Empty<ParameterInfo>();
+        private static string GetDisplayName(MethodInfo sampler)
+            => $"{sampler?.Name} ({string.Join(", ", sampler?.GetParameters().Select(p => p.Name + ":" + p.ParameterType.Name) ?? Array.Empty<string>())})";
 
-        private static string GetDisplayName(string name)
-        {
-            //TODO: Correct resolving in case of overload
-            var method = typeof(AudioSamplerFactory).GetMethods().FirstOrDefault(x => x.Name == name);
-            return $"{method?.Name} ({string.Join(", ", method?.GetParameters().Select(p => p.Name + ":" + p.ParameterType.Name) ?? Array.Empty<string>())})";
-        }
-
-        private static string[] GetAudioSamplerNames()
-            => typeof(AudioSamplerFactory).GetMethods().Where(x => !x.IsStatic && !string.IsNullOrEmpty(x.Name) && x.Name.Contains("Sampler", StringComparison.Ordinal)).Select(x => x.Name).ToArray();
+        private static MethodInfo[] GetAudioSamplers()
+            => typeof(AudioSamplerFactory).GetMethods().Where(x => !x.IsStatic && !string.IsNullOrEmpty(x.Name) && x.Name.Contains("Sampler", StringComparison.Ordinal)).ToArray();
     }
 }

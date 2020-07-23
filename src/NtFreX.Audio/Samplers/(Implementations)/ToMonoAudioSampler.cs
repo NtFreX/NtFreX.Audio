@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -25,29 +24,25 @@ namespace NtFreX.Audio.Samplers
                 return Task.FromResult(audio);
             }
 
-            var monoData =
-                InterleaveChannelData(audio, cancellationToken)
-                    .SelectAsync(x => x.ToByteArray(audio.FmtSubChunk.BitsPerSample / 8));
-
             return Task.FromResult(audio
                     .WithFmtSubChunk(x => x
                         .WithChannels(1))
                     .WithDataSubChunk(x => x
                         .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.Channels)
-                        .WithData(monoData)));
+                        .WithData(InterleaveChannelData(audio, cancellationToken))));
         }
 
-        [return:NotNull] private static async IAsyncEnumerable<long> InterleaveChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        [return:NotNull] private static async IAsyncEnumerable<Sample> InterleaveChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            var temp = new long[audio.FmtSubChunk.Channels];
+            var temp = new Sample[audio.FmtSubChunk.Channels];
             var counter = 0;
-            var samples = audio.DataSubChunk.Data;
+            var samples = audio.GetAudioSamplesAsync(cancellationToken);
             await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
-                temp[counter++] = value.ToInt64();
+                temp[counter++] = value;
                 if (counter == audio.FmtSubChunk.Channels)
                 {
-                    yield return (long)temp.Average();
+                    yield return temp.Average();
                     counter = 0;
                 }
             }
