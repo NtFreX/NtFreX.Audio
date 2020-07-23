@@ -31,7 +31,7 @@ Other methods which resolve/write an `IStreamAudioContainer` are:
 
  - AudioEnvironment.Serializer.FromDataAsync
  - AudioEnvironment.Serializer.FromStreamAsync
- - AudioEnvironment.Serializer.ToStreamSync
+ - AudioEnvironment.Serializer.ToStreamAsync
  - AudioEnvironment.Serializer.ToFileAsync
  - AudioEnvironment.Serializer.ToDataAsync
 
