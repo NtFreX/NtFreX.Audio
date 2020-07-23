@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public sealed class FmtSubChunk : IFmtSubChunk
+    public sealed class FmtSubChunk : ISubChunk
     {
         public const string ChunkIdentifier = "fmt ";
 
@@ -95,8 +95,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckSizeMissmatch, nameof(ChunkSize));
             }
 
-            // TODO: validate/support ieefloat
-            if (AudioFormat != AudioFormatType.PCM)
+            if (AudioFormat != AudioFormatType.PCM && AudioFormat != AudioFormatType.IEE_FLOAT)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckFormatNotSupported, nameof(AudioFormat));
             }

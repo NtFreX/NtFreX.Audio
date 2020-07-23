@@ -27,13 +27,13 @@ namespace NtFreX.Audio.Tests
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
-            var oldData = await audio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false);
-            var newData = await newAudio.DataSubChunk.Data.ToArrayAsync().ConfigureAwait(false);
+            var oldData = await audio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
+            var newData = await newAudio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
 
             float factor = toSampleRate / (float)fromSampleRate;
             int expectedNewSize = (int)(audio.DataSubChunk.ChunkSize * factor);
-            var expectedNewDataSize = (uint)(oldData.SelectMany(x => x).Count() * factor);
-            var newDataSize = newData.SelectMany(x => x).Count();
+            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Bits / 8) * factor);
+            var newDataSize = newData.Sum(x => x.Bits / 8);
 
             Assert.AreEqual(expectedNewDataSize, newDataSize);
             Assert.AreEqual(expectedNewDataSize, newAudio.DataSubChunk.ChunkSize);

@@ -92,7 +92,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / format.Format.SamplesPerSec;
             await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
             {
-                realBuffer.AddRange(buffer);
+                realBuffer.AddRange(buffer.AsByteArray());
 
                 while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                 {

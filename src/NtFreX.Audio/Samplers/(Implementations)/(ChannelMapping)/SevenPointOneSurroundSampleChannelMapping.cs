@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using System.Linq;
 
 namespace NtFreX.Audio.Samplers
 {
@@ -7,37 +6,13 @@ namespace NtFreX.Audio.Samplers
     {
         public override Speaker Speaker => Speaker.SevenPointOneSurround;
 
-        public override byte[] GetFrontLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(1 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontCenter(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(2 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetLowFrequency(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(3 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetBackLeft(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(4 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetBackRight(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(5 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontLeftOfCenter(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(6 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
-        public override byte[] GetFrontRightOfCenter(byte[] sample, ushort bitsPerSample)
-        {
-            return sample.Skip(7 * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray();
-        }
+        public override Sample GetFrontLeft(Sample[] sample) => sample[0];
+        public override Sample GetFrontRight(Sample[] sample) => sample[1];
+        public override Sample GetFrontCenter(Sample[] sample) => sample[2];
+        public override Sample GetLowFrequency(Sample[] sample) => sample[3];
+        public override Sample GetBackLeft(Sample[] sample) => sample[4];
+        public override Sample GetBackRight(Sample[] sample) => sample[5];
+        public override Sample GetFrontLeftOfCenter(Sample[] sample) => sample[6];
+        public override Sample GetFrontRightOfCenter(Sample[] sample) => sample[7];
     }
 }

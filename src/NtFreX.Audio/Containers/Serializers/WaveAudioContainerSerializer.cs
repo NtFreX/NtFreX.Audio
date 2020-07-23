@@ -27,12 +27,12 @@ namespace NtFreX.Audio.Containers.Serializers
         }
 
         [return: NotNull]
-        public static async Task WriteDataAsync([NotNull] IAsyncEnumerable<byte[]> data, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task WriteDataAsync([NotNull] IAsyncEnumerable<Sample> data, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var bufferSize = StreamFactory.GetBufferSize();
             var bufferIndex = 0;
             var buffer = new byte[bufferSize];
-            await foreach (var value in data.ConfigureAwait(false).WithCancellation(cancellationToken))
+            await foreach (var value in data.SelectAsync(x => x.AsByteArray()).ConfigureAwait(false).WithCancellation(cancellationToken))
             {
                 if (bufferSize < bufferIndex + value.Length)
                 {

@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Math;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Math;
 using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;

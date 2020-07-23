@@ -1,4 +1,4 @@
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
 using System;
 

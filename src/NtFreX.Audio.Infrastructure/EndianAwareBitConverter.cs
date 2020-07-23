@@ -1,14 +1,21 @@
-﻿using NtFreX.Audio.Resources;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
-namespace NtFreX.Audio.Math
+namespace NtFreX.Audio.Infrastructure
 {
     public static class EndianAwareBitConverter
     {
+        [return: NotNull]
+        public static byte[] ToByteArray(this float value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+
+        [return: NotNull]
+        public static byte[] ToByteArray(this double value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+
         [return: NotNull] public static byte[] ToByteArray(this long value, int targetLength, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(ParseByLength(value, targetLength), isLittleEndian);
 
@@ -23,6 +30,20 @@ namespace NtFreX.Audio.Math
         [return: NotNull] public static byte[] ToByteArray([NotNull] this string value, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(Encoding.ASCII.GetBytes(value), isLittleEndian);
 
+        public static double ToFloat([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            _ = value ?? throw new ArgumentNullException(nameof(value));
+
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToSingle(switched);
+        }
+        public static double ToDouble([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            _ = value ?? throw new ArgumentNullException(nameof(value));
+
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToDouble(switched);
+        }
         public static long ToInt64([NotNull] this byte[] value, bool isLittleEndian = true)
         {
             _ = value ?? throw new ArgumentNullException(nameof(value));
@@ -82,7 +103,7 @@ namespace NtFreX.Audio.Math
                 2 => BitConverter.GetBytes((short)value),
                 4 => BitConverter.GetBytes((int)value),
                 8 => BitConverter.GetBytes(value),
-                _ => throw new ArgumentException(ExceptionMessages.TargetLengthNotSupported, nameof(targetLength)),
+                _ => throw new ArgumentException("The given target length is not supported", nameof(targetLength)),
             };
         }
         private static long ParseByLength([NotNull] this byte[] value, bool isLittleEndian = true)
@@ -94,7 +115,7 @@ namespace NtFreX.Audio.Math
                 2 => BitConverter.ToInt16(switched),
                 4 => BitConverter.ToInt32(switched),
                 8 => BitConverter.ToInt64(switched),
-                _ => throw new ArgumentException(ExceptionMessages.ArrayLengthNotSupported, nameof(value)),
+                _ => throw new ArgumentException("The given array is not in a supported length", nameof(value)),
             };
         }
     }

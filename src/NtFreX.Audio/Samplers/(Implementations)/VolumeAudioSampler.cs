@@ -26,7 +26,7 @@ namespace NtFreX.Audio.Samplers
             var min = max * -1;
 
             //TODO: smooth normalize when reaching max signal?
-            var samples = audio.DataSubChunk.Data.SelectAsync(x => MathHelper.LimitTo(max, min, (long) (x.ToInt64() * volumeFactor)).ToByteArray(audio.FmtSubChunk.BitsPerSample / 8));
+            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => x * volumeFactor);
 
             return Task.FromResult(audio.WithDataSubChunk(x => x.WithData(samples)));
         }
