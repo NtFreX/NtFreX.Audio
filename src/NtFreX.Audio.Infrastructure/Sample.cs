@@ -5,7 +5,10 @@ namespace NtFreX.Audio.Infrastructure
     public struct Sample
     {
         public AudioFormatType Type { get; }
+
+        //TODO: remove from here?
         public ushort Bits { get; }
+        //TODO: support float
         public long Value { get; }
 
         private byte[] cache;
