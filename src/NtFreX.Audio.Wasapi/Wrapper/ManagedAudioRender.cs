@@ -14,10 +14,10 @@ namespace NtFreX.Audio.Wasapi.Wrapper
     /// </summary>
     internal class ManagedAudioRender : IDisposable
     {
-        public const int REFTIMES_PER_SEC = 10000000;
-        public const int REFTIMES_PER_MILLISEC = 10000;
+        public const int RefimesPerSec = 10000000;
+        public const int RefTimesPerMilisec = 10000;
 
-        private const int EVENT_DELAY = 100;
+        private const int EventDelay = 100;
 
         private readonly ManagedAudioClient managedAudioClient;
         private readonly ManagedAudioClock managedAudioClock;
@@ -75,7 +75,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                     EndOfPositionReached?.Invoke(this, EventArgs.Empty);
                 }
 
-                await Task.Delay(EVENT_DELAY, cancellationToken).ConfigureAwait(false);
+                await Task.Delay(EventDelay, cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -89,7 +89,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var format = managedAudioClient.InitializedFormat.Unmanaged;
             var hasStarted = false;
             var realBuffer = new List<byte>();
-            var hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / format.Format.SamplesPerSec;
+            var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
             await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
             {
                 realBuffer.AddRange(buffer.AsByteArray());
@@ -106,7 +106,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                     else
                     {
                         // Fill buffer when audio client request new data
-                        await Task.Delay((int)(hnsActualDuration / REFTIMES_PER_MILLISEC / 2), cancellationToken).ConfigureAwait(false);
+                        await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
 
                         // See how much buffer space is available.
                         var numFramesPadding = managedAudioClient.GetCurrentPadding();
@@ -119,7 +119,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             while (realBuffer.Count > 0)
             {
                 // Fill buffer when audio client request new data
-                await Task.Delay((int)(hnsActualDuration / REFTIMES_PER_MILLISEC / 2), cancellationToken).ConfigureAwait(false);
+                await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
 
                 // See how much buffer space is available.
                 var numFramesPadding = managedAudioClient.GetCurrentPadding();

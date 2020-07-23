@@ -65,7 +65,7 @@ namespace NtFreX.Audio.Sampler.Console
             return spectrum.ToString();
         }
         */
-        static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer)
+        private static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
 
@@ -73,7 +73,7 @@ namespace NtFreX.Audio.Sampler.Console
             return DrawSvg(channelSamples.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 }, waveAudioContainer.FmtSubChunk.BitsPerSample / 8);
         }
 
-        static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
+        private static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
             var channels = new List<Sample>[waveAudioContainer.FmtSubChunk.Channels];
             var currentChannel = 0;
@@ -94,7 +94,7 @@ namespace NtFreX.Audio.Sampler.Console
             return channels.Select(x => x.ToArray());
         }
 
-        static string Html(params string[] elements)
+        private static string Html(params string[] elements)
         {
             var html = new StringBuilder();
             html.AppendLine("<html><head></head><body>");
@@ -106,7 +106,7 @@ namespace NtFreX.Audio.Sampler.Console
             return html.ToString();
         }
 
-        static string DrawSvg(Sample[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
+        private static string DrawSvg(Sample[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
         {
             var width = data[0].Length / skip; // TODO: replace with file length
             var height = 100;
@@ -123,7 +123,7 @@ namespace NtFreX.Audio.Sampler.Console
             return image.ToString();
         }
 
-        static string DrawPath(Sample[] data, string color, float opacity, float height, int byteCount, int skip)
+        private static string DrawPath(Sample[] data, string color, float opacity, float height, int byteCount, int skip)
         {
             var middle = height / 2.0f;
 

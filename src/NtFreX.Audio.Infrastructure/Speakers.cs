@@ -6,7 +6,9 @@ namespace NtFreX.Audio.Infrastructure
     /// ksmedia.h
     /// </summary>
     [Flags]
-    public enum Speaker: uint
+#pragma warning disable CA1028 // Enum Storage should be Int32 => compatibility with ksmedia.h
+    public enum Speakers : uint
+#pragma warning restore CA1028 // Enum Storage should be Int32
     {
         FrontLeft = 0x1,
         FrontRight = 0x2,

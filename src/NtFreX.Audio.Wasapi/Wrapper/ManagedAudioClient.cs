@@ -90,7 +90,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 return false;
             }
 
-            var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, ManagedAudioRender.REFTIMES_PER_SEC, 0, audioFormat.Ptr, Guid.Empty);
+            var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, ManagedAudioRender.RefimesPerSec, 0, audioFormat.Ptr, Guid.Empty);
             if (initializeResult != HResult.S_OK)
             {
                 throw new Exception("Could not intitialize the audio client");

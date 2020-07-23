@@ -2,10 +2,9 @@
 
 namespace NtFreX.Audio.Samplers
 {
-
     internal sealed class FivePointOneSurroundSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => Speaker.FivePointOneSurround;
+        public override Speakers Speaker => Speakers.FivePointOneSurround;
 
         public override Sample GetFrontLeft(Sample[] sample) => sample[0];
         public override Sample GetFrontRight(Sample[] sample) => sample[1];

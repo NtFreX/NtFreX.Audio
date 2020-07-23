@@ -6,7 +6,7 @@ namespace NtFreX.Audio.Samplers
     public sealed class AudioSamplerFactory
     {
 #pragma warning disable CA1822 // Mark members as static => Instance used by AudioEnvironment
-        public AudioSampler ChannelAudioSampler(Speaker speaker) => new ChannelAudioSampler(speaker);
+        public AudioSampler ChannelAudioSampler(Speakers speaker) => new ChannelAudioSampler(speaker);
         public AudioSampler ChannelAudioSampler(ushort channels) => new ChannelAudioSampler(channels);
         public AudioSampler ToMonoAudioSampler() => new ToMonoAudioSampler();
         public AudioSampler FromMonoAudioSampler(int taretChannels) => new FromMonoAudioSampler(taretChannels);

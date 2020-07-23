@@ -38,10 +38,10 @@ namespace NtFreX.Audio.Wasapi.Interop
         }
 
         public SamplesDefintion Samples;
-        public Speaker ChannelMask;
+        public Speakers ChannelMask;
         public Guid SubFormat;
 
-        public WaveFormatDefinition(ushort channels, uint sampleRate, ushort bitsPerSample, Speaker speaker, Guid format)
+        public WaveFormatDefinition(ushort channels, uint sampleRate, ushort bitsPerSample, Speakers speaker, Guid format)
         {
             Format = new FormatDefinition
             {
