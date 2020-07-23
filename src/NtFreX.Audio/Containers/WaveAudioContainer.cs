@@ -13,23 +13,23 @@ namespace NtFreX.Audio.Containers
     {
         public IReadOnlyList<UnknownSubChunk> UnknownSubChuncks { [return: NotNull] get; private set; }
         public RiffChunkDescriptor RiffChunkDescriptor { [return: NotNull] get; private set; }
-        public FmtSubChunk FmtSubChunk { [return: NotNull] get; protected set; }
+        public FmtSubChunk FmtSubChunk { [return: NotNull] get; private set; }
         public TData DataSubChunk { [return: NotNull] get; private set; }
-
-        IFmtSubChunk IWaveAudioContainer.FmtSubChunk => FmtSubChunk;
-
+        public IAudioFormat Format { get; private set; }
+       
         protected WaveAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] TData dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
         {
             RiffChunkDescriptor = riffChunkDescriptor;
             FmtSubChunk = fmtSubChunk;
             DataSubChunk = dataSubChunk;
             UnknownSubChuncks = riffSubChuncks;
+            Format = new FmtAudioFormat(() => FmtSubChunk.SampleRate, () => FmtSubChunk.BitsPerSample, () => FmtSubChunk.Channels, () => FmtSubChunk.AudioFormat);
         }
 
         [return: NotNull]
         public TimeSpan GetLength()
             => TimeSpan.FromSeconds(DataSubChunk.ChunkSize / (FmtSubChunk.ByteRate * 1.0f));
-        
+
         public bool IsDataLittleEndian()
             => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.ChunkIdentifierRIFF;
 

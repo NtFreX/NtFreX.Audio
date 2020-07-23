@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public sealed class FmtSubChunk : IFmtSubChunk
+    public sealed class FmtSubChunk : ISubChunk
     {
         public const string ChunkIdentifier = "fmt ";
 

@@ -1,4 +1,4 @@
-﻿namespace NtFreX.Audio.Infrastructure
+﻿namespace NtFreX.Audio.Containers
 {
     public interface ISubChunk
     {

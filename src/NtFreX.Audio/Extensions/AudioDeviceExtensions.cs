@@ -14,7 +14,7 @@ namespace NtFreX.Audio.Extensions
             var audioPlatform = AudioEnvironment.Platform.Get();
 
             IAudioClient? audioClient;
-            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.ToFormat(), device, out audioClient, out var supportedFormat) || audioClient == null)
+            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out audioClient, out var supportedFormat) || audioClient == null)
             {
                 // TODO convert everyting nessesary (formatType)
                 audio = await new AudioSamplerPipe()
@@ -26,7 +26,7 @@ namespace NtFreX.Audio.Extensions
                     .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
                     .ConfigureAwait(false);
 
-                if (!audioPlatform.AudioClientFactory.TryInitialize(audio.ToFormat(), device, out audioClient, out _) || audioClient == null)
+                if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out audioClient, out _) || audioClient == null)
                 {
                     throw new Exception("The given audio is not supported");
                 }

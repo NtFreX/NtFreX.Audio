@@ -7,7 +7,7 @@ namespace NtFreX.Audio.Infrastructure
 {
     public interface IWaveAudioContainer : IAudioContainer
     {
-        IFmtSubChunk FmtSubChunk { [return: NotNull] get; }
+        IAudioFormat Format { get; }
 
         IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default);
     }

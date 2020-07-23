@@ -6,7 +6,7 @@ namespace NtFreX.Audio.Wasapi
 {
     internal static class AudioFormatExtensions
     {
-        public static ManagedWaveFormat ToManagedWaveFormat(this AudioFormat audioFormat)
+        public static ManagedWaveFormat ToManagedWaveFormat(this IAudioFormat audioFormat)
         {
             var format = new Interop.WaveFormatDefinition(
                 audioFormat.Channels,

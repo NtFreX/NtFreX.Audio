@@ -22,7 +22,7 @@ namespace NtFreX.Audio.Wasapi
             return mixFormat?.ToAudioFormat() ?? throw new Exception();
         }
 
-        public bool TryInitialize(AudioFormat format, IAudioDevice device, out IAudioClient? client, out AudioFormat supportedFormat)
+        public bool TryInitialize(IAudioFormat format, IAudioDevice device, out IAudioClient? client, out IAudioFormat supportedFormat)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
