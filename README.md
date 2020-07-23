@@ -139,7 +139,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
    - [x] basis
    - [ ] wasapi
      - [ ] control
-     - [y] channel mapping
+     - [x] channel mapping
      - [x] dispose
      - [ ] events
    - [ ] pulse audio
