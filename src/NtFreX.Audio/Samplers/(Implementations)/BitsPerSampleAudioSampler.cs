@@ -29,9 +29,9 @@ namespace NtFreX.Audio.Samplers
             //TODO: make this work correctly with and from all sample rates
             // HINT: doubling bits per sample and not changing data will double speed
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
-            var factor = System.Math.Pow(8, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
+            var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
             //TODO: switch bits of sample nicer
-            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample((isNewBigger ? x * factor : x / factor).Value, bitsPerSample, audio.FmtSubChunk.AudioFormat));
+            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample(x.Value, bitsPerSample, audio.Format.Type)).SelectAsync(x => isNewBigger ? x * factor : x / factor);
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x
