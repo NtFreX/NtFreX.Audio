@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -42,12 +43,14 @@ namespace NtFreX.Audio.Containers
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
             {
                 tempBuffer.AddRange(buffer);
-                while(tempBuffer.Count > samplesSize)
+                while(tempBuffer.Count >= samplesSize)
                 {
                     yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat);
                     tempBuffer.RemoveRange(0, samplesSize);
                 }
             }
+
+            Debug.Assert(tempBuffer.Count == 0, $"Temp buffer should be completly returned and emptied but is {tempBuffer.Count} long");
         }
     }
 }
