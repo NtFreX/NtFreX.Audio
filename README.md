@@ -35,7 +35,7 @@ Other methods which resolve/write an `IStreamAudioContainer` are:
  - AudioEnvironment.Serializer.ToFileAsync
  - AudioEnvironment.Serializer.ToDataAsync
 
-There are serval extension methods which make use of those methods.
+There are serval extension methods which make use of those methods. If you want to build your own container you can use the `WaveEnumerableAudioContainerBuilder`.
 
 **Audio sampling**
 
