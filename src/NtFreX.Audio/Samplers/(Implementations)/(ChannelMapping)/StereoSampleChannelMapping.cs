@@ -12,9 +12,9 @@ namespace NtFreX.Audio.Samplers
 
         public override Sample[] ToMono(Sample[] sample)
         {
-            var total = GetFrontLeft(sample) + GetFrontRight(sample);
+            var center = new Sample[] { GetFrontLeft(sample), GetFrontRight(sample) }.Average();
 
-            return new Sample[] { total / 2 };
+            return new Sample[] { center };
         }
     }
 }

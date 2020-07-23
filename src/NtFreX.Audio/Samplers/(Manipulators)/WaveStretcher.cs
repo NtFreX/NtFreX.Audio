@@ -35,7 +35,7 @@ namespace NtFreX.Audio.Samplers
                 {
                     if (positionReached)
                     {
-                        yield return (value + previous) / 2;
+                        yield return new Sample[] { value, previous }.Average();
                         counter -= sizeOfParts;
                     }
 

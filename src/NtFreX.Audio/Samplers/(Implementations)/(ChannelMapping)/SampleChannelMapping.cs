@@ -10,11 +10,7 @@ namespace NtFreX.Audio.Samplers
 
         public virtual Sample GetFrontLeft(Sample[] sample) => GetFrontCenter(sample);
         public virtual Sample GetFrontRight(Sample[] sample) => GetFrontCenter(sample);
-        public virtual Sample GetFrontCenter(Sample[] sample)
-        {
-            //TODO: fix overflow for 64bit audio
-            return (GetFrontLeft(sample) + GetFrontRight(sample)) / 2;
-        }
+        public virtual Sample GetFrontCenter(Sample[] sample) => new Sample[] { GetFrontLeft(sample), GetFrontRight(sample) }.Average();
         public virtual Sample GetLowFrequency(Sample[] sample) => GetFrontCenter(sample);
         public virtual Sample GetBackLeft(Sample[] sample) => GetFrontLeft(sample);
         public virtual Sample GetBackRight(Sample[] sample) => GetFrontRight(sample);
@@ -35,377 +31,476 @@ namespace NtFreX.Audio.Samplers
        
         public virtual Sample[] ToMono(Sample[] sample)
         {
-            //TODO: OVERFLOW!!!!!!
-            var total = GetFrontLeft(sample) +
-               GetFrontRight(sample) +
-               GetFrontCenter(sample) +
-               GetLowFrequency(sample) +
-               GetBackLeft(sample) +
-               GetBackRight(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetSideRight(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontLeft(sample) +
-               GetTopFrontRight(sample) +
-               GetTopBackLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample);
+            var total = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackLeft(sample),
+               GetBackRight(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopFrontRight(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            return new Sample[] { total / 17 };
+            return new Sample[] { total };
         }
         public virtual Sample[] ToOnePointOne(Sample[] sample)
         {
-            var center = (GetFrontLeft(sample) +
-               GetFrontRight(sample) +
-               GetFrontCenter(sample) +
-               GetBackLeft(sample) +
-               GetBackRight(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetSideRight(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontLeft(sample) +
-               GetTopFrontRight(sample) +
-               GetTopBackLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 17;
+            var center = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetBackLeft(sample),
+               GetBackRight(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopFrontRight(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { center, GetLowFrequency(sample) };
         }
         public virtual Sample[] ToStereo(Sample[] sample)
         {
-            var left = (GetFrontLeft(sample) +
-               GetFrontCenter(sample) +
-               GetLowFrequency(sample) +
-               GetBackLeft(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontLeft(sample) +
-               GetTopBackLeft(sample) +
-               GetTopBackCenter(sample)) / 11;
+            var left = new Sample[] {
+               GetFrontLeft(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackLeft(sample),
+               GetFrontLeftOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopCenter(sample),
+               GetTopFrontLeft(sample),
+               GetTopBackLeft(sample),
+               GetTopBackCenter(sample)
+            }.Average();
 
-            var right = (GetFrontRight(sample) +
-               GetFrontCenter(sample) +
-               GetLowFrequency(sample) +
-               GetBackRight(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 11;
+            var right = new Sample[] {
+               GetFrontRight(sample),
+               GetFrontCenter(sample),
+               GetLowFrequency(sample),
+               GetBackRight(sample),
+               GetFrontRightOfCenter(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopCenter(sample),
+               GetTopFrontRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { left, right };
         }
         public virtual Sample[] ToTwoPointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample) +
-               GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample) +
-               GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 12;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample) +
-               GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample) +
-               GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 12;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, GetLowFrequency(sample) };
         }
         public virtual Sample[] ToThreePointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample) +
-               GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample) +
-               GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter };
         }
         public virtual Sample[] ToThreePointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample) +
-               GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample) +
-               GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample) };
         }
         public virtual Sample[] ToQuad(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample) +
-               GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 7;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample) +
-               GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 7;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample),
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, backLeft, backRight };
         }
         public virtual Sample[] ToSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backCenter = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample) +
-               GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 10;
+            var backCenter = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample),
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, backCenter };
         }
         public virtual Sample[] ToFivePointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-              GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+              GetFrontLeft(sample),
+              GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-              GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+              GetFrontRight(sample),
+              GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-              GetFrontLeftOfCenter(sample) +
-              GetFrontRightOfCenter(sample) +
-              GetTopCenter(sample) +
-              GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+              GetFrontCenter(sample),
+              GetFrontLeftOfCenter(sample),
+              GetFrontRightOfCenter(sample),
+              GetTopCenter(sample),
+              GetTopFrontCenter(sample)
+            }.Average();
 
-            var sideLeft = (GetBackLeft(sample) +
-              GetBackCenter(sample) +
-              GetSideLeft(sample) +
-              GetTopBackCenter(sample) +
-              GetTopBackLeft(sample)) / 5;
+            var sideLeft = new Sample[] {
+              GetBackLeft(sample),
+              GetBackCenter(sample),
+              GetSideLeft(sample),
+              GetTopBackCenter(sample),
+              GetTopBackLeft(sample)
+            }.Average();
 
-            var sideRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 5;
+            var sideRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, sideLeft, sideRight };
         }
         public virtual Sample[] ToFivePointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight };
         }
         public virtual Sample[] ToSevenPointZero(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 4;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 4;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, backLeft, backRight, GetSideLeft(sample), GetSideRight(sample) };
         }
         public virtual Sample[] ToSevenPointOne(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 3;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 5;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 5;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight, GetFrontLeftOfCenter(sample), GetFrontRightOfCenter(sample) };
         }
      
         public virtual Sample[] ToFivePointOneSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample)
+            }.Average();
 
-            var sideLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetSideLeft(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 5;
+            var sideLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetSideLeft(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var sideRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetSideRight(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 5;
+            var sideRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetSideRight(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), sideLeft, sideRight };
         }
         public virtual Sample[] ToSevenPointOneSurround(Sample[] sample)
         {
-            var frontLeft = (GetFrontLeft(sample) +
-               GetTopFrontLeft(sample)) / 2;
+            var frontLeft = new Sample[] {
+               GetFrontLeft(sample),
+               GetTopFrontLeft(sample)
+            }.Average();
 
-            var frontRight = (GetFrontRight(sample) +
-               GetTopFrontRight(sample)) / 2;
+            var frontRight = new Sample[] {
+               GetFrontRight(sample),
+               GetTopFrontRight(sample)
+            }.Average();
 
-            var frontCenter = (GetFrontCenter(sample) +
-               GetTopCenter(sample) +
-               GetTopFrontCenter(sample) +
-               GetFrontLeftOfCenter(sample) +
-               GetFrontRightOfCenter(sample)) / 5;
+            var frontCenter = new Sample[] {
+               GetFrontCenter(sample),
+               GetTopCenter(sample),
+               GetTopFrontCenter(sample),
+               GetFrontLeftOfCenter(sample),
+               GetFrontRightOfCenter(sample)
+            }.Average();
 
-            var backLeft = (GetBackLeft(sample) +
-               GetBackCenter(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackLeft(sample)) / 4;
+            var backLeft = new Sample[] {
+               GetBackLeft(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackLeft(sample)
+            }.Average();
 
-            var backRight = (GetBackRight(sample) +
-               GetBackCenter(sample) +
-               GetTopBackCenter(sample) +
-               GetTopBackRight(sample)) / 4;
+            var backRight = new Sample[] {
+               GetBackRight(sample),
+               GetBackCenter(sample),
+               GetTopBackCenter(sample),
+               GetTopBackRight(sample)
+            }.Average();
 
             return new Sample[] { frontLeft, frontRight, frontCenter, GetLowFrequency(sample), backLeft, backRight, GetSideLeft(sample), GetSideRight(sample) };
         }
