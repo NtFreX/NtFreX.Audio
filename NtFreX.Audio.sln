@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NtFreX.Audio.Infrastructure
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adapters", "adapters", "{B5ECA57C-BF9A-4073-82FA-B4A67BC625DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NtFreX.Audio.Alsa", "src\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj", "{23A17BF2-C808-4999-ACFB-806B73EB4502}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{47624CA5-B7A5-4195-8D09-93A718313C12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47624CA5-B7A5-4195-8D09-93A718313C12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47624CA5-B7A5-4195-8D09-93A718313C12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23A17BF2-C808-4999-ACFB-806B73EB4502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23A17BF2-C808-4999-ACFB-806B73EB4502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23A17BF2-C808-4999-ACFB-806B73EB4502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23A17BF2-C808-4999-ACFB-806B73EB4502}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +78,7 @@ Global
 		{F792463A-52EE-4797-8E11-0C31D80773F3} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
 		{47624CA5-B7A5-4195-8D09-93A718313C12} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
 		{B5ECA57C-BF9A-4073-82FA-B4A67BC625DA} = {7BA896D0-53DE-432F-B594-6C5857ACC811}
+		{23A17BF2-C808-4999-ACFB-806B73EB4502} = {B5ECA57C-BF9A-4073-82FA-B4A67BC625DA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F119CBCB-237A-4C8D-A302-A4ACA18D6116}

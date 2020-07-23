@@ -20,17 +20,10 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            // TODO: make work with factor bigger then 2 or smaller then 0.5
-            var currentSpeedFactor = speedFactor;
-            var newDataSize = System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0);
-            while (currentSpeedFactor > 0)
-            {
-                audio = audio.WithDataSubChunk(x => x.WithData(WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken)));
-                currentSpeedFactor -= 2;
-            }
-
             return Task.FromResult(audio
-                .WithDataSubChunk(x => x.WithChunkSize((uint)newDataSize)));
+                .WithDataSubChunk(x => x
+                    .WithChunkSize((uint)System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0))
+                    .WithData(WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken))));
         }
 
         public override string ToString()
