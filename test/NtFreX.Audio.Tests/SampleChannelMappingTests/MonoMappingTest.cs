@@ -16,8 +16,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             var sampleChannelMapping = new MonoSampleChannelMapping();
             var sample = BuildChannelSamples(
                 (ushort)bitsPerSample,
-                2 // center
-            );
+                2 /*center*/ );
 
             var toStereoSample = sampleChannelMapping.ToStereo(sample);
 

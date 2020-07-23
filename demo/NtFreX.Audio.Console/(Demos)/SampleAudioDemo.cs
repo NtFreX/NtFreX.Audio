@@ -54,7 +54,7 @@ namespace NtFreX.Audio.Sampler.Console
                         //TODO: convert to correct parameter type
                         var parameters = samplers[number - 1].GetParameters();
                         var args = parts.Skip(1).Select((x, i) => Convert.ChangeType(x.Contains('.', StringComparison.Ordinal) ? decimal.Parse(x, CultureInfo.InvariantCulture) : long.Parse(x, CultureInfo.InvariantCulture), parameters[i].ParameterType, CultureInfo.InvariantCulture)).ToArray();
-                        pipe.Add(x => (AudioSampler) samplers[number - 1].Invoke(x, args));
+                        pipe.Add(x => (samplers[number - 1].Invoke(x, args) ?? throw new Exception()) as AudioSampler ?? throw new Exception());
                     }
                     catch (Exception exce)
                     {

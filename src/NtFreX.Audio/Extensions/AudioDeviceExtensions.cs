@@ -11,15 +11,16 @@ namespace NtFreX.Audio.Extensions
     {
         public static async Task<(IRenderContext Context, IAudioClient Client)> RenderAsync(this IAudioDevice device, IWaveAudioContainer audio, CancellationToken cancellationToken)
         {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
             var audioPlatform = AudioEnvironment.Platform.Get();
 
-            IAudioClient? audioClient;
-            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out audioClient, out var supportedFormat) || audioClient == null)
+            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
             {
                 // TODO convert everyting nessesary (formatType)
                 audio = await new AudioSamplerPipe()
                     .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
-                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate)) 
+                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
                     // TODO: better channel sampler
                     .Add(x => x.ToMonoAudioSampler())
                     .Add(x => x.FromMonoAudioSampler(supportedFormat.Channels))

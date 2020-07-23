@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Wasapi.Interop
         /// Return code Description:
         /// E_POINTER    = Parameter ppDevice is NULL.
         /// E_INVALIDARG = Parameter nDevice is not a valid device number.
-        ///</returns>
+        /// </returns>
         [PreserveSig]
         HResult Item([In] int deviceIndex, [Out] out IMMDevice device);
     }

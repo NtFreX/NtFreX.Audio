@@ -25,7 +25,6 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
 
             Assert.AreEqual(targetChannels, newAudio.FmtSubChunk.Channels);
-
         }
 
         [TestCase(1U, 2U)]

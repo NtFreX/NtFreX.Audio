@@ -9,8 +9,8 @@ namespace NtFreX.Audio.Wasapi
         // https://de.wikipedia.org/wiki/RIFF_WAVE
         private static readonly Dictionary<AudioFormatType, Guid> MediaTypes = new Dictionary<AudioFormatType, Guid>()
         {
-            { AudioFormatType.PCM, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_PCM },
-            { AudioFormatType.IEE_FLOAT, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT }
+            { AudioFormatType.Pcm, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_PCM },
+            { AudioFormatType.IeeFloat, Interop.MediaType.STATIC_KSDATAFORMAT_SUBTYPE_IEEE_FLOAT }
         };
 
         public static Guid GetMediaType(AudioFormatType mediaType)

@@ -2,10 +2,9 @@
 
 namespace NtFreX.Audio.Samplers
 {
-
     internal sealed class StereoSampleChannelMapping : SampleChannelMapping
     {
-        public override Speaker Speaker => Speaker.Stereo;
+        public override Speakers Speaker => Speakers.Stereo;
 
         public override Sample GetFrontLeft(Sample[] sample) => sample[0];
         public override Sample GetFrontRight(Sample[] sample) => sample[1];

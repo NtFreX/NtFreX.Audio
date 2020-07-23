@@ -35,7 +35,7 @@ namespace NtFreX.Audio.Wasapi.Interop
         /// Pointer to the endpoint ID string that identifies the audio endpoint device. This parameter points to a null-terminated, 
         /// wide-character string containing the endpoint ID. The string remains valid for the duration of the call.
         /// </param>
-        /// <returns></returns>
+        /// <returns>Unkonwn</returns>
         [PreserveSig]
         HResult OnDeviceAdded([In, MarshalAs(UnmanagedType.LPWStr)] string deviceId);
 
@@ -77,21 +77,21 @@ namespace NtFreX.Audio.Wasapi.Interop
         [PreserveSig]
         HResult OnDefaultDeviceChanged([In] DataFlow dataFlow, [In] Role role, [In, MarshalAs(UnmanagedType.LPWStr)] string deviceId);
 
-        /// <summary>
-        /// The OnPropertyValueChanged method indicates that the value of a property belonging to an audio endpoint device has changed.
-        /// </summary>
-        /// <param name="deviceId">
-        /// Pointer to the endpoint ID string that identifies the audio endpoint device. This parameter points to a null-terminated, 
-        /// wide-character string containing the endpoint ID. The string remains valid for the duration of the call.
-        /// </param>
-        /// <param name="key">
-        /// A PROPERTYKEY structure that specifies the property. The structure contains the property-set GUID and an index identifying a 
-        /// property within the set. The structure is passed by value. It remains valid for the duration of the call. For more information
-        /// about PROPERTYKEY, see the Windows SDK documentation.
-        /// </param>
-        /// <returns>
-        /// If the method succeeds, it returns S_OK. If it fails, it returns an error code.
-        /// </returns>
+        ///// <summary>
+        ///// The OnPropertyValueChanged method indicates that the value of a property belonging to an audio endpoint device has changed.
+        ///// </summary>
+        ///// <param name="deviceId">
+        ///// Pointer to the endpoint ID string that identifies the audio endpoint device. This parameter points to a null-terminated, 
+        ///// wide-character string containing the endpoint ID. The string remains valid for the duration of the call.
+        ///// </param>
+        ///// <param name="key">
+        ///// A PROPERTYKEY structure that specifies the property. The structure contains the property-set GUID and an index identifying a 
+        ///// property within the set. The structure is passed by value. It remains valid for the duration of the call. For more information
+        ///// about PROPERTYKEY, see the Windows SDK documentation.
+        ///// </param>
+        ///// <returns>
+        ///// If the method succeeds, it returns S_OK. If it fails, it returns an error code.
+        ///// </returns>
         //[PreserveSig]
         //HResult OnPropertyValueChanged([In, MarshalAs(UnmanagedType.LPWStr)] string deviceId, [In] PropertyKey key);
     }
