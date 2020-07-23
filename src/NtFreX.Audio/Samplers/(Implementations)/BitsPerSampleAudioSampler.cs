@@ -31,7 +31,7 @@ namespace NtFreX.Audio.Samplers
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
             var factor = System.Math.Pow(8, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
             //TODO: switch bits of sample nicer
-            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => Sample.FromValue((isNewBigger ? x * factor : x / factor).AsInt64(), bitsPerSample, audio.FmtSubChunk.AudioFormat));
+            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample((isNewBigger ? x * factor : x / factor).Value, bitsPerSample, audio.FmtSubChunk.AudioFormat));
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x

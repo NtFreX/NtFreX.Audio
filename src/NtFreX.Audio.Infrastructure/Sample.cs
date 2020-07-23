@@ -1,47 +1,71 @@
-﻿namespace NtFreX.Audio.Infrastructure
+﻿using System.Globalization;
+
+namespace NtFreX.Audio.Infrastructure
 {
     public struct Sample
     {
-        private readonly byte[] value;
-
         public AudioFormatType Type { get; }
-
         public ushort Bits { get; }
+        public long Value { get; }
+
+        private byte[] cache;
 
         public Sample(byte[] value, ushort bits, AudioFormatType type)
         {
             Bits = bits;
             Type = type;
 
-            this.value = value;
+            this.cache = value;
+            this.Value = value.ToInt64();
         }
 
-        public byte[] AsByteArray() => value;
-        public long AsInt64() => value.ToInt64();
+        public Sample(long value, ushort bits, AudioFormatType type)
+        {
+            Bits = bits;
+            Type = type;
 
-        public override string ToString() => AsInt64().ToString();
+            this.cache = null;
+            this.Value = value;
+        }
 
-        public static Sample FromValue(long value, ushort bits, AudioFormatType type) => new Sample(value.ToByteArray(bits / 8), bits, type);
-        public static Sample Zero(ushort bits, AudioFormatType type) => new Sample(new byte[bits / 8], bits, type);
+        public byte[] AsByteArray()
+        {
+            if(cache == null)
+            {
+                cache = Value.ToByteArray(Bits / 8);
+            }
+            return cache;
+        }
+
+        public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+
+        public static Sample Zero(ushort bits, AudioFormatType type) => new Sample(0, bits, type);
 
         //TODO: fix overflow for 64bit audio => limit?
         //TODO: validate bitness? validate type?
         //TODO: conversion improvement!
         public static Sample operator +(Sample a, Sample b)
-            => new Sample((a.AsInt64() + b.AsInt64()).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, a.Value + b.Value), a.Bits, a.Type);
         public static Sample operator -(Sample a, Sample b)
-            => new Sample((a.AsInt64() - b.AsInt64()).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, a.Value - b.Value), a.Bits, a.Type);
         public static Sample operator +(Sample a, double b)
-            => new Sample(((long) (a.AsInt64() + b)).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, (long) (a.Value + b)), a.Bits, a.Type);
         public static Sample operator -(Sample a, double b)
-            => new Sample(((long) (a.AsInt64() - b)).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, (long) (a.Value - b)), a.Bits, a.Type);
         public static Sample operator /(Sample a, double b)
-            => new Sample(((long)(a.AsInt64() / b)).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, (long)(a.Value / b)), a.Bits, a.Type);
         public static Sample operator *(Sample a, double b)
-            => new Sample(((long)(a.AsInt64() * b)).ToByteArray(a.Bits / 8), a.Bits, a.Type);
+            => new Sample(LimitTo(a.Bits, (long)(a.Value * b)), a.Bits, a.Type);
         public static bool operator <(Sample a, Sample b)
-            => a.AsInt64() < b.AsInt64();
+            => a.Value < b.Value;
         public static bool operator >(Sample a, Sample b)
-            => a.AsInt64() > b.AsInt64();
+            => a.Value > b.Value;
+
+        private static long LimitTo(ushort bits, long value)
+        {
+            var max = (long)System.Math.Pow(256, bits / 8) / 2;
+            var min = max * -1;
+            return value < 0 ? System.Math.Max(min, value) : System.Math.Min(max, value);
+        }
     }
 }

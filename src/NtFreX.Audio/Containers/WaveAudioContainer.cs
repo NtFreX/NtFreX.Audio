@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,11 +38,14 @@ namespace NtFreX.Audio.Containers
         public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var samplesSize = FmtSubChunk.BitsPerSample / 8;
+            var tempBuffer = new List<byte>();
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
             {
-                for (var i = 0; i < buffer.Length; i += samplesSize)
+                tempBuffer.AddRange(buffer);
+                while(tempBuffer.Count > samplesSize)
                 {
-                    yield return new Sample(buffer.AsMemory(i, samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat);
+                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat);
+                    tempBuffer.RemoveRange(0, samplesSize);
                 }
             }
         }
