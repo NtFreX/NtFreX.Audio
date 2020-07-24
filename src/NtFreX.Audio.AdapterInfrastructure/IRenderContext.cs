@@ -7,5 +7,10 @@ namespace NtFreX.Audio.AdapterInfrastructure
         Observable<EventArgs> EndOfDataReached { get; }
         Observable<EventArgs> EndOfPositionReached { get; }
         Observable<EventArgs<double>> PositionChanged { get; }
+
+        void Stop();
+        void Start();
+
+        TimeSpan GetPosition();
     }
 }

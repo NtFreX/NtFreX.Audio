@@ -90,6 +90,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 return false;
             }
 
+            // TODO: loopback recording support https://docs.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording
             var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, ManagedAudioRender.RefimesPerSec, 0, audioFormat.Ptr, Guid.Empty);
             if (initializeResult != HResult.S_OK)
             {

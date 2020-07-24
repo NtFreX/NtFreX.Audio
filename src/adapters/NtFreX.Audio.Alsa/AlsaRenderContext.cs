@@ -18,5 +18,8 @@ namespace NtFreX.Audio.Alsa
         }
 
         public void Dispose() { }
+
+        public void Stop() => managedAlsaAudioRender.Stop();
+        public void Start() => managedAlsaAudioRender.Start();
     }
 }

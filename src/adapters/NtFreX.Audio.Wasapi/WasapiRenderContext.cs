@@ -9,9 +9,7 @@ namespace NtFreX.Audio.Wasapi
         private readonly ManagedAudioRender managedAudioRender;
 
         public Observable<EventArgs> EndOfDataReached { get; } = new Observable<EventArgs>();
-
         public Observable<EventArgs> EndOfPositionReached { get; } = new Observable<EventArgs>();
-
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
 
         internal WasapiRenderContext(ManagedAudioRender managedAudioRender)
@@ -31,13 +29,12 @@ namespace NtFreX.Audio.Wasapi
             managedAudioRender.Dispose();
         }
 
-        private void OnPositionChanged(object sender, EventArgs<double> args)
-            => PositionChanged.Invoke(sender, args);
+        public void Stop() => managedAudioRender.Stop();
+        public void Start() => managedAudioRender.Start();
+        public TimeSpan GetPosition() => managedAudioRender.GetPosition();
 
-        private void OnEndOfDataReached(object sender, EventArgs args)
-            => EndOfDataReached.Invoke(sender, args);
-
-        private void OnEndOfPositionReached(object sender, EventArgs args)
-            => EndOfPositionReached.Invoke(sender, args);
+        private void OnPositionChanged(object sender, EventArgs<double> args) => PositionChanged.Invoke(sender, args);
+        private void OnEndOfDataReached(object sender, EventArgs args) => EndOfDataReached.Invoke(sender, args);
+        private void OnEndOfPositionReached(object sender, EventArgs args) => EndOfPositionReached.Invoke(sender, args);
     }
 }

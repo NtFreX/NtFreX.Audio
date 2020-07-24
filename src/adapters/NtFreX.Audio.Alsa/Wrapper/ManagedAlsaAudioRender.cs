@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Alsa.Wrapper
@@ -14,6 +15,9 @@ namespace NtFreX.Audio.Alsa.Wrapper
 
             pumpTask = Task.Run(PumpAudioAsync, cancellationToken);
         }
+
+        public void Stop() => throw new NotImplementedException();
+        public void Start() => throw new NotImplementedException();
 
         private Task PumpAudioAsync() => Task.CompletedTask;
     }
