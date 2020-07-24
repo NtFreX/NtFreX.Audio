@@ -8,6 +8,8 @@ This .net core library provides functionality to
  - sample wave data
  - convert between audio formats
  - play/record wave data
+
+## Architecture
  
 The entry point should most of the time be the `AudioEnvironment` class.
 
