@@ -15,7 +15,8 @@ namespace NtFreX.Audio.Infrastructure
             {
                 sum += new BigInteger(sample.Value);
             }
-            return new Sample((long)(sum / data.Length), data[0].Bits, data[0].Type);
+            //TODO: validate bits type and littleendian!
+            return new Sample((long)(sum / data.Length), data[0].Bits, data[0].Type, data[0].IsLittleEndian);
         }
     }
 }
