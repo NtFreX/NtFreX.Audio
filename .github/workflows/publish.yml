@@ -31,7 +31,7 @@ jobs:
       - name: Push generated package to GitHub registry
         run: |
           dotnet nuget add source https://nuget.pkg.github.com/NtFreX/index.json --name "Github" --username "NtFreX" --password ${{secrets.GITHUB_TOKEN}}
-          dotnet nuget push ./src/NtFreX.Audio/out/NtFreX.Audio.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true --source "Github"
+          dotnet nuget push ./src/NtFreX.Audio/out/NtFreX.Audio.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true --source "Github" -k ${{secrets.GITHUB_TOKEN}}
     
       - name: Push generated package to GitHub registry
         run: |
