@@ -30,8 +30,9 @@ namespace NtFreX.Audio.Samplers
             // HINT: doubling bits per sample and not changing data will double speed
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
             var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
+            var isLittleEndian = audio.IsDataLittleEndian();
             //TODO: switch bits of sample nicer
-            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample(x.Value, bitsPerSample, audio.Format.Type)).SelectAsync(x => isNewBigger ? x * factor : x / factor);
+            var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample(x.Value, new SampleDefinition(x.Definition.Type, bitsPerSample, x.Definition.IsLittleEndian))).SelectAsync(x => UpOrDown(audio, x, isNewBigger, factor));
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x
@@ -45,5 +46,10 @@ namespace NtFreX.Audio.Samplers
         {
             return base.ToString() + $", bitsPerSample={bitsPerSample}";
         }
+
+        private static Sample UpOrDown(WaveEnumerableAudioContainer audio, Sample sample, bool isNewBigger, double factor)
+            => audio.Format.Type == AudioFormatType.Pcm ? isNewBigger ? sample * factor : sample / factor :
+               audio.Format.Type == AudioFormatType.IeeFloat ? sample :
+               throw new Exception();
     }
 }

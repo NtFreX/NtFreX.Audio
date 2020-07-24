@@ -12,7 +12,12 @@ namespace NtFreX.Audio.Sampler.Console
             var audio = await AudioEnvironment.Serializer.FromFileAsync(file, cancellationToken).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
 
-            return await AudioEnvironment.Converter.ConvertAsync<WaveStreamAudioContainer>(audio, cancellationToken).ConfigureAwait(false);
+            var waveAudio = await AudioEnvironment.Converter.ConvertAsync<WaveStreamAudioContainer>(audio, cancellationToken).ConfigureAwait(false);
+            System.Console.WriteLine($"  SampleRate = {waveAudio.Format.SampleRate}");
+            System.Console.WriteLine($"  BitsPerSample = {waveAudio.Format.BitsPerSample}");
+            System.Console.WriteLine($"  Channels = {waveAudio.Format.Channels}");
+            System.Console.WriteLine($"  Type = {waveAudio.Format.Type}");
+            return waveAudio;
         }
     }
 }

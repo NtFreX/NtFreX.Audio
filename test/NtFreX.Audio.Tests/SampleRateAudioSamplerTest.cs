@@ -32,8 +32,8 @@ namespace NtFreX.Audio.Tests
 
             float factor = toSampleRate / (float)fromSampleRate;
             int expectedNewSize = (int)(audio.DataSubChunk.ChunkSize * factor);
-            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Bits / 8) * factor);
-            var newDataSize = newData.Sum(x => x.Bits / 8);
+            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Definition.Bits / 8) * factor);
+            var newDataSize = newData.Sum(x => x.Definition.Bits / 8);
 
             Assert.AreEqual(expectedNewDataSize, newDataSize);
             Assert.AreEqual(expectedNewDataSize, newAudio.DataSubChunk.ChunkSize);

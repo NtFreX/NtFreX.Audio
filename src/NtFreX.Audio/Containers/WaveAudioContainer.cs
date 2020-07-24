@@ -39,13 +39,14 @@ namespace NtFreX.Audio.Containers
         public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var samplesSize = FmtSubChunk.BitsPerSample / 8;
+            var isLittleEndian = IsDataLittleEndian();
             var tempBuffer = new List<byte>();
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
             {
                 tempBuffer.AddRange(buffer);
                 while(tempBuffer.Count >= samplesSize)
                 {
-                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat);
+                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), new SampleDefinition(FmtSubChunk.AudioFormat, FmtSubChunk.BitsPerSample, isLittleEndian));
                     tempBuffer.RemoveRange(0, samplesSize);
                 }
             }
