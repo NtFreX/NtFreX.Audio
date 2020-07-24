@@ -68,6 +68,5 @@ namespace NtFreX.Audio.Samplers
             => IsValidSourceSpeaker(source) && IsValidTargetSpeaker(target);
         public bool CanMap(ushort source, ushort target)
             => IsValidSourceSpeaker(source) && IsValidTargetSpeaker(target);
-
     }
 }
