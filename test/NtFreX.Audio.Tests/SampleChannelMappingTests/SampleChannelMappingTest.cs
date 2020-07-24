@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             var newData = await newAudio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
 
             Assert.AreEqual(audio.DataSubChunk.ChunkSize * factor, newAudio.DataSubChunk.ChunkSize);
-            Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.Sum(x => x.Bits / 8));
+            Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.Sum(x => x.Definition.Bits / 8));
         }
 
         [TestCase(2U, 1U)]

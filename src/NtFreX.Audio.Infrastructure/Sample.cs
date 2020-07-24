@@ -7,60 +7,51 @@ namespace NtFreX.Audio.Infrastructure
 {
     public struct Sample : IEquatable<Sample>
     {
-        public AudioFormatType Type { get; }
-
-        //TODO: remove from here?
-        public ushort Bits { get; }
         public double Value { get; }
-        public bool IsLittleEndian { get; }
+        public SampleDefinition Definition { get; }
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly
         private byte[]? cache;
 #pragma warning restore SA1011 // Closing square brackets should be spaced correctly
 
-        public Sample(byte[] value, ushort bits, AudioFormatType type, bool isLittleEndian)
+        public Sample(byte[] value, SampleDefinition definition)
         {
-            Bits = bits;
-            Type = type;
-            IsLittleEndian = isLittleEndian;
+            Definition = definition;
 
             this.cache = value;
-            this.Value = type == AudioFormatType.Pcm ? value.ToInt64(IsLittleEndian) : 
-                         type == AudioFormatType.IeeFloat && bits == 64 ? value.ToDouble(IsLittleEndian) :
-                         type == AudioFormatType.IeeFloat && bits == 32 ? value.ToFloat(IsLittleEndian) :
-                         type == AudioFormatType.IeeFloat && bits == 16 ? value.ToInt16(IsLittleEndian) / 32768f :
+            this.Value = definition.Type == AudioFormatType.Pcm ? value.ToInt64(definition.IsLittleEndian) :
+                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 64 ? value.ToDouble(definition.IsLittleEndian) :
+                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 32 ? value.ToFloat(definition.IsLittleEndian) :
+                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 16 ? value.ToInt16(definition.IsLittleEndian) / 32768f :
                          throw new NotImplementedException();
         }
 
-        public Sample(double value, ushort bits, AudioFormatType type, bool isLittleEndian)
+        public Sample(double value, SampleDefinition definition)
         {
-            Bits = bits;
-            Type = type;
-            IsLittleEndian = isLittleEndian;
+            Definition = definition;
 
             this.cache = null;
             this.Value = value;
         }
 
-        public static Sample Zero(ushort bits, AudioFormatType type, bool isLittleEndian) => new Sample(0, bits, type, isLittleEndian);
+        public static Sample Zero(SampleDefinition definition) => new Sample(0, definition);
 
-        //TODO: fix overflow for 64bit audio => limit?
-        //TODO: validate bitness? validate type? validate endianness?
+        //TODO: is limit a good idea?
         //TODO: conversion improvement!
         public static Sample operator +(Sample a, Sample b)
-            => new Sample(LimitTo(a.Bits, a.Value + b.Value), a.Bits, a.Type, a.IsLittleEndian);
+            => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value + b.Value), a.Definition) : throw new Exception();
         public static Sample operator -(Sample a, Sample b)
-            => new Sample(LimitTo(a.Bits, a.Value - b.Value), a.Bits, a.Type, a.IsLittleEndian);
+            => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value - b.Value), a.Definition) : throw new Exception();
         public static Sample operator +(Sample a, double b)
-            => new Sample(LimitTo(a.Bits, (long) (a.Value + b)), a.Bits, a.Type, a.IsLittleEndian);
+            => new Sample(LimitTo(a.Definition.Bits, (long) (a.Value + b)), a.Definition);
         public static Sample operator -(Sample a, double b)
-            => new Sample(LimitTo(a.Bits, (long) (a.Value - b)), a.Bits, a.Type, a.IsLittleEndian);
+            => new Sample(LimitTo(a.Definition.Bits, (long) (a.Value - b)), a.Definition);
         public static Sample operator /(Sample a, double b)
-            => new Sample(LimitTo(a.Bits, (long)(a.Value / b)), a.Bits, a.Type, a.IsLittleEndian);
+            => new Sample(LimitTo(a.Definition.Bits, (long)(a.Value / b)), a.Definition);
         public static Sample operator *(Sample a, double b)
-            => new Sample(LimitTo(a.Bits, (long)(a.Value * b)), a.Bits, a.Type, a.IsLittleEndian);
-        public static bool operator <(Sample a, Sample b) => a.Value < b.Value;
-        public static bool operator >(Sample a, Sample b) => a.Value > b.Value;
+            => new Sample(LimitTo(a.Definition.Bits, (long)(a.Value * b)), a.Definition);
+        public static bool operator <(Sample a, Sample b) => a.Definition == b.Definition ? a.Value < b.Value : throw new Exception();
+        public static bool operator >(Sample a, Sample b) => a.Definition == b.Definition ? a.Value > b.Value : throw new Exception();
         public static bool operator ==(Sample left, Sample right) => left.Equals(right);
         public static bool operator !=(Sample left, Sample right) => !(left == right);
 
@@ -73,23 +64,23 @@ namespace NtFreX.Audio.Infrastructure
         {
             if (cache == null)
             {
-                if (Type == AudioFormatType.Pcm)
+                if (Definition.Type == AudioFormatType.Pcm)
                 {
-                    cache = ((long)Value).ToByteArray(Bits / 8, IsLittleEndian);
+                    cache = ((long)Value).ToByteArray(Definition.Bits / 8, Definition.IsLittleEndian);
                 }
-                else if (Type == AudioFormatType.IeeFloat && Bits == 16)
+                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 16)
                 {
                     // This is no supported according to https://de.wikipedia.org/wiki/Gleitkommazahlen_in_digitaler_Audioanwendung
                     // https://markheath.net/post/convert-16-bit-pcm-to-ieee-float
-                    cache = ((short)(Value * 32768f)).ToByteArray(IsLittleEndian);
+                    cache = ((short)(Value * 32768f)).ToByteArray(Definition.IsLittleEndian);
                 }
-                else if (Type == AudioFormatType.IeeFloat && Bits == 32)
+                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 32)
                 {
-                    cache = ((float)Value).ToByteArray(IsLittleEndian);
+                    cache = ((float)Value).ToByteArray(Definition.IsLittleEndian);
                 }
-                else if (Type == AudioFormatType.IeeFloat && Bits == 64)
+                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 64)
                 {
-                    cache = Value.ToByteArray(IsLittleEndian);
+                    cache = Value.ToByteArray(Definition.IsLittleEndian);
                 }
                 else
                 {
@@ -125,7 +116,7 @@ namespace NtFreX.Audio.Infrastructure
         }
 
         public bool Equals([AllowNull] Sample other) 
-            => other.AsByteArray().SequenceEqual(AsByteArray()) && Bits == other.Bits && IsLittleEndian == other.IsLittleEndian && Type == other.Type;
+            => Definition == other.Definition && other.AsByteArray().SequenceEqual(AsByteArray());
 
         private static double LimitTo(ushort bits, double value)
         {

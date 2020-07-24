@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Tests
             var newData = await newAudio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
 
             Assert.AreEqual(audio.DataSubChunk.ChunkSize*2, newAudio.DataSubChunk.ChunkSize);
-            Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.Sum(x => x.Bits / 8));
+            Assert.AreEqual(newAudio.DataSubChunk.ChunkSize, newData.Sum(x => x.Definition.Bits / 8));
         }
 
         [Test]

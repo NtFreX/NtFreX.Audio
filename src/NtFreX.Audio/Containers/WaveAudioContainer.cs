@@ -46,7 +46,7 @@ namespace NtFreX.Audio.Containers
                 tempBuffer.AddRange(buffer);
                 while(tempBuffer.Count >= samplesSize)
                 {
-                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), FmtSubChunk.BitsPerSample, FmtSubChunk.AudioFormat, isLittleEndian);
+                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), new SampleDefinition(FmtSubChunk.AudioFormat, FmtSubChunk.BitsPerSample, isLittleEndian));
                     tempBuffer.RemoveRange(0, samplesSize);
                 }
             }
