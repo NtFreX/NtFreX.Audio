@@ -2,10 +2,16 @@
 ![Build and test](https://github.com/NtFreX/NtFreX.Audio/workflows/Build%20and%20test/badge.svg)
 ![Publish to nuget](https://github.com/NtFreX/NtFreX.Audio/workflows/Publish%20to%20nuget/badge.svg)
 
-This .net core library provides functionality to read audio containers, sample wave data, convert between audio formats and play/record wave data.
+This .net core library provides functionality to 
+
+ - read audio containers
+ - sample wave data
+ - convert between audio formats
+ - play/record wave data
+ 
 The entry point should most of the time be the `AudioEnvironment` class.
 
-This is a takeout of the library architecture. A speciality of this library is the WaveEnumerableAudioContainer which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
+This is a takeout of the library architecture. A speciality of this library is the `WaveEnumerableAudioContainer` which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
 
 ![img](./resources/doc/architecture.jpg)
 
@@ -29,11 +35,11 @@ using var convertedAudio = AudioEnvironment.Converter.Convert<WaveStreamAudioCon
 
 Other methods which resolve/write an `IStreamAudioContainer` are:
 
- - AudioEnvironment.Serializer.FromDataAsync
- - AudioEnvironment.Serializer.FromStreamAsync
- - AudioEnvironment.Serializer.ToStreamAsync
- - AudioEnvironment.Serializer.ToFileAsync
- - AudioEnvironment.Serializer.ToDataAsync
+ - `AudioEnvironment.Serializer.FromDataAsync`
+ - `AudioEnvironment.Serializer.FromStreamAsync`
+ - `AudioEnvironment.Serializer.ToStreamAsync`
+ - `AudioEnvironment.Serializer.ToFileAsync`
+ - `AudioEnvironment.Serializer.ToDataAsync`
 
 There are serval extension methods which make use of those methods. If you want to build your own container you can use the `WaveEnumerableAudioContainerBuilder`.
 
@@ -51,16 +57,16 @@ Audio samplers can only be used with wave data.
 
 Other samplers are:
 
- - BitsPerSampleAudioSampler
- - SampleRateAudioSampler
- - ChannelAudioSampler
- - FromMonoAudioSampler
- - ToMonoAudioSampler
- - ShiftWaveAudioSampler
- - SpeedAudioSampler
- - VolumeAudioSampler
- - FloatToPcmAudioSampler
- - PcmToFloatAudioSampler
+ - `BitsPerSampleAudioSampler`
+ - `SampleRateAudioSampler`
+ - `ChannelAudioSampler`
+ - `FromMonoAudioSampler`
+ - `ToMonoAudioSampler`
+ - `ShiftWaveAudioSampler`
+ - `SpeedAudioSampler`
+ - `VolumeAudioSampler`
+ - `FloatToPcmAudioSampler`
+ - `PcmToFloatAudioSampler`
 
 **Audio render**
 
