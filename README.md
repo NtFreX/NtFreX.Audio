@@ -109,10 +109,7 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
 
 ## TODO
 
- - [ ] tests
- - [ ] performance
  - [ ] api refinement
- - [ ] remove AsyncEnumerator dependency
  - [ ] warnings and todos
    - [ ] why are some headers big endian instead of little endian as doc says? (WaveAudioContainerSerializer)
    - [ ] cleanup EndianAwareBitConverter
