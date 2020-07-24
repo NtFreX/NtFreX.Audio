@@ -67,3 +67,7 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Design", "CA1060:Move pinvokes to native methods class", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
 [assembly: SuppressMessage("Globalization", "CA2101:Specify marshaling for P/Invoke string arguments", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+
+// NtFreX.Audio.Performance
+[assembly: SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "performance", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Performance")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "performance", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Performance")]
