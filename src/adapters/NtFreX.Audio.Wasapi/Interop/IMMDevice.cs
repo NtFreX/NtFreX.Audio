@@ -11,8 +11,9 @@ namespace NtFreX.Audio.Wasapi.Interop
         [PreserveSig]
         HResult Activate([In] Guid iid, [In] ClsCtx clsctx, [In] IntPtr activationParams, [Out, MarshalAs(UnmanagedType.IUnknown)] out object interfacePointer);
 
-        // [PreserveSig]
-        // HResult OpenPropertyStore([In] StorageAccess access, [Out] out IPropertyStore propertystore);
+        [PreserveSig]
+        HResult OpenPropertyStore([In] object access, [Out] out object propertystore);
+
         [PreserveSig]
         HResult GetId([Out, MarshalAs(UnmanagedType.LPWStr)] out string deviceId);
 
