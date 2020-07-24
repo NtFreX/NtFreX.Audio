@@ -74,12 +74,12 @@ Other samplers are:
 var audioPlatform = AudioEnvironment.Platform.Get();
 using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-(var context, var client) = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
+(var context, var client) = await device.RenderAsync(audio, cancellationToken);
 
 var totalLength = audio.GetLength().TotalSeconds;
 context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
 
-await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
+await context.EndOfPositionReached.WaitForNextEvent();
 
 context.Dispose();
 client.Dispose();
@@ -94,11 +94,11 @@ using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
 
 using var sink = new FileAudioSink(file);
-await sink.InitializeAsync(format).ConfigureAwait(false);
+await sink.InitializeAsync(format);
 
-(var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
+(var context, var client) = await device.CaptureAsync(format, sink, cancellationToken);
 
-await Task.Delay(time).ConfigureAwait(false);
+await Task.Delay(time);
 
 context.Dispose();
 client.Dispose();
