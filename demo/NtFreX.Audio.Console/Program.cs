@@ -30,6 +30,7 @@ namespace NtFreX.Audio.Sampler.Console
         {
             using var cancellationTokenSource = new CancellationTokenSource();
 
+            System.Console.ForegroundColor = ConsoleColor.Green;
             System.Console.WriteLine();
             System.Console.WriteLine(@" ________   _________  ________ ________  _______      ___    ___ ________  ___  ___  ________  ___  ________     ");
             System.Console.WriteLine(@"|\   ___  \|\___   ___\\  _____\\   __  \|\  ___ \    |\  \  /  /|\   __  \|\  \|\  \|\   ___ \|\  \|\   __  \    ");
@@ -42,6 +43,7 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.WriteLine();
             System.Console.WriteLine();
 
+            System.Console.ForegroundColor = ConsoleColor.Gray;
             System.Console.WriteLine("Test audio files:");
             foreach(var file in SampleAudios)
             {
@@ -58,7 +60,8 @@ namespace NtFreX.Audio.Sampler.Console
             const string exitKey = "x";
             while (true)
             {
-                System.Console.WriteLine("Choose the demo you want to run");
+                System.Console.ForegroundColor = ConsoleColor.White;
+                System.Console.WriteLine("Choose the demo you want to run:");
                 for (var i = 0; i < Demos.Length; i++)
                 {
                     System.Console.WriteLine($"  {i + 1} - {Demos[i].Name} ({Demos[i].Description})");
