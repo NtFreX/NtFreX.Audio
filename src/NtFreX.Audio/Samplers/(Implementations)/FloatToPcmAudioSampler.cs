@@ -15,6 +15,10 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+            if (audio.Format.Type == AudioFormatType.Pcm)
+            {
+                return Task.FromResult(audio);
+            }
             if (audio.Format.Type != AudioFormatType.IeeFloat)
             {
                 throw new ArgumentException("The given format must be float", nameof(audio));

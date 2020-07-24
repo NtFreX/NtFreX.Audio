@@ -14,7 +14,11 @@ namespace NtFreX.Audio.Samplers
         public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
-
+            
+            if (audio.Format.Type == AudioFormatType.IeeFloat)
+            {
+                return Task.FromResult(audio);
+            }
             if (audio.Format.Type != AudioFormatType.Pcm)
             {
                 throw new ArgumentException("The given format must be pcm", nameof(audio));
