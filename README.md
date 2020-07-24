@@ -27,7 +27,7 @@ For a demo look into the demo/NtFrex.Audio.Console project.
 
 ```
 var filePath = "myAudio.wave";
-using IStreamAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath, cancellationToken);
+using IStreamAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath);
 
 // other audio types are currently not supported
 using var convertedAudio = AudioEnvironment.Converter.Convert<WaveStreamAudioContainer>(audio);
@@ -74,7 +74,7 @@ Other samplers are:
 var audioPlatform = AudioEnvironment.Platform.Get();
 using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-(var context, var client) = await device.RenderAsync(audio, cancellationToken);
+(var context, var client) = await device.RenderAsync(audio);
 
 var totalLength = audio.GetLength().TotalSeconds;
 context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
@@ -96,7 +96,7 @@ var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
 using var sink = new FileAudioSink(file);
 await sink.InitializeAsync(format);
 
-(var context, var client) = await device.CaptureAsync(format, sink, cancellationToken);
+(var context, var client) = await device.CaptureAsync(format, sink);
 
 await Task.Delay(time);
 
