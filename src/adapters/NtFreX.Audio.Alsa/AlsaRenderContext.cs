@@ -21,5 +21,10 @@ namespace NtFreX.Audio.Alsa
 
         public void Stop() => managedAlsaAudioRender.Stop();
         public void Start() => managedAlsaAudioRender.Start();
+
+        public TimeSpan GetPosition()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
