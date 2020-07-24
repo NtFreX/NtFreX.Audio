@@ -4,7 +4,7 @@ namespace NtFreX.Audio.Samplers
 {
     internal abstract class SampleChannelMapping
     {
-        public abstract Speaker Speaker { get; }
+        public abstract Speakers Speaker { get; }
 
         protected SampleChannelMapping() { }
 

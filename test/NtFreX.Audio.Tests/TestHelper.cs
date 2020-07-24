@@ -18,7 +18,7 @@ namespace NtFreX.Audio.Tests
             var totalSamples = sampleRate * sampleCount * channels;
             return new WaveEnumerableAudioContainer(
                    new RiffChunkDescriptor(riffChunkId, 0, RiffChunkDescriptor.WAVE),
-                   new FmtSubChunk("fmt ", 16, AudioFormatType.PCM, channels, sampleRate, bitsPerSample),
+                   new FmtSubChunk("fmt ", 16, AudioFormatType.Pcm, channels, sampleRate, bitsPerSample),
                    new EnumerableDataSubChunk(
                        "data",
                        (uint)byteCount,
@@ -31,7 +31,7 @@ namespace NtFreX.Audio.Tests
             var buffer = new Sample[channelSamples.Length];
             for (var i = 0; i < channelSamples.Length; i++)
             {
-                buffer[i] = new Sample(channelSamples[i].ToByteArray(bitsPerSample / 8), bitsPerSample, AudioFormatType.PCM);
+                buffer[i] = new Sample(channelSamples[i].ToByteArray(bitsPerSample / 8), new SampleDefinition(AudioFormatType.Pcm, bitsPerSample, isLittleEndian: true));
             }
             return buffer;
         }

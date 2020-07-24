@@ -13,8 +13,8 @@ namespace NtFreX.Audio.Wasapi.Wrapper
     /// </summary>
     internal class ManagedAudioCapture : IDisposable
     {
-        public const int REFTIMES_PER_SEC = 10000000;
-        public const int REFTIMES_PER_MILLISEC = 10000;
+        public const int RefTimesPerSec = 10000000;
+        public const int RefTimesPerMilisec = 10000;
 
         private readonly ManagedWaveFormat managedWaveFormat;
         private readonly ManagedAudioClient managedAudioClient;
@@ -42,6 +42,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         public void Dispose()
         {
+            managedWaveFormat.Dispose();
             managedAudioClient.Stop();
             Marshal.ReleaseComObject(audioCaptureClient);
             _ = audioPump.ContinueWith(x => x.Dispose(), TaskScheduler.Default);
@@ -50,14 +51,14 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         private async Task PumpAudioAsync()
         {
-            var hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / managedWaveFormat.Unmanaged.Format.SamplesPerSec;
+            var hnsActualDuration = (double)RefTimesPerSec * bufferFrameCount / managedWaveFormat.Unmanaged.Format.SamplesPerSec;
 
             managedAudioClient.Start();
 
             while(!isDisposed)
             {
                 // Sleep for half the buffer duration.
-                await Task.Delay((int)(hnsActualDuration / REFTIMES_PER_MILLISEC / 2), cancellationToken).ConfigureAwait(false);
+                await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
 
                 audioCaptureClient.GetNextPacketSize(out var numFramesInNextPackage).ThrowIfNotSucceded();
 

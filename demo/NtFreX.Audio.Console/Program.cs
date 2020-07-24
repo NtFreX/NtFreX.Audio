@@ -22,6 +22,7 @@ namespace NtFreX.Audio.Sampler.Console
             new RenderAudioDemo(),
             new CaptureAudioDemo(),
             new SampleAudioDemo(),
+            new GetDefaulRenderDeviceDemo(),
             new DrawDiagramsDemo()
         };
 

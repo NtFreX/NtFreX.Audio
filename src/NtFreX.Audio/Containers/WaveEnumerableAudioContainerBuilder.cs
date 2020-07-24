@@ -1,6 +1,6 @@
 ﻿using Dasync.Collections;
-using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
+using System;
 using System.Collections.Generic;
 
 namespace NtFreX.Audio.Containers
@@ -9,6 +9,9 @@ namespace NtFreX.Audio.Containers
     {
         public static WaveEnumerableAudioContainer Build(AudioFormat format, byte[] data)
         {
+            _ = format ?? throw new ArgumentNullException(nameof(format));
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+
             //TODO: fix riff chunk size and make constant for fmt size and ids
             return new WaveEnumerableAudioContainer(
                    new RiffChunkDescriptor(RiffChunkDescriptor.ChunkIdentifierRIFF, 5057218, RiffChunkDescriptor.WAVE),

@@ -32,3 +32,38 @@ using System.Diagnostics.CodeAnalysis;
 // TODO: readd the following messages
 [assembly: SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "just cause 2")]
 [assembly: SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "just cause 2")]
+
+// NtFreX.Audio.PulseAudio.Interop
+[assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:Elements should be ordered by access", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1307:AccessibleFieldsMustBeginWithUpperCaseLetter", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1310:Field names should not contain underscore", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1400:AccessModifierMustBeDeclared", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1401:FieldsMustBePrivate", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.LayoutRules", "SA1514:ElementDocumentationHeaderMustBePrecededByBlankLine", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1616:Element return value documentation should have text", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.SpacingRules", "SA1011:Closing square brackets should be spaced correctly", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+
+[assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "just cause 2", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+
+[assembly: SuppressMessage("Microsoft.Performance", "CA1812:AvoidUninstantiatedInternalClasses", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("Naming", "CA1712:Do not prefix enum values with type name", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("Design", "CA1060:Move pinvokes to native methods class", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+[assembly: SuppressMessage("Globalization", "CA2101:Specify marshaling for P/Invoke string arguments", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.PulseAudio.Interop")]
+
+// NtFreX.Audio.Alsa
+[assembly: SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa")]
+[assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1202:ElementsMustBeOrderedByAccess", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa")]
+
+[assembly: SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa")]
+
+// NtFreX.Audio.Alsa.Interop
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1615:Element return value should be documented", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1611:Element parameters should be documented", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1604:Element documentation should have summary", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1601:PartialElementsMustBeDocumented", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+
+[assembly: SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+
+[assembly: SuppressMessage("Design", "CA1060:Move pinvokes to native methods class", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]
+[assembly: SuppressMessage("Globalization", "CA2101:Specify marshaling for P/Invoke string arguments", Justification = "interop", Scope = "namespaceanddescendants", Target = "NtFreX.Audio.Alsa.Interop")]

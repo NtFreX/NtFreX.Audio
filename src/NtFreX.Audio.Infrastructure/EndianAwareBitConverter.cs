@@ -8,6 +8,14 @@ namespace NtFreX.Audio.Infrastructure
 {
     public static class EndianAwareBitConverter
     {
+        [return: NotNull]
+        public static byte[] ToByteArray(this float value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+
+        [return: NotNull]
+        public static byte[] ToByteArray(this double value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+
         [return: NotNull] public static byte[] ToByteArray(this long value, int targetLength, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(ParseByLength(value, targetLength), isLittleEndian);
 
@@ -22,6 +30,20 @@ namespace NtFreX.Audio.Infrastructure
         [return: NotNull] public static byte[] ToByteArray([NotNull] this string value, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(Encoding.ASCII.GetBytes(value), isLittleEndian);
 
+        public static double ToFloat([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            _ = value ?? throw new ArgumentNullException(nameof(value));
+
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToSingle(switched);
+        }
+        public static double ToDouble([NotNull] this byte[] value, bool isLittleEndian = true)
+        {
+            _ = value ?? throw new ArgumentNullException(nameof(value));
+
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToDouble(switched);
+        }
         public static long ToInt64([NotNull] this byte[] value, bool isLittleEndian = true)
         {
             _ = value ?? throw new ArgumentNullException(nameof(value));

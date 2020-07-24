@@ -130,10 +130,10 @@
     <value>The value has to contain the letters 'data' (0x64617461 big-endian form)</value>
   </data>
   <data name="FmtSubChunckFormatNotSupported" xml:space="preserve">
-    <value>Only pcm containers no compression are supported</value>
+    <value>The given audio format is not supported</value>
   </data>
   <data name="FmtSubChunckSizeMissmatch" xml:space="preserve">
-    <value>Only pcm containers with a fmt chunk size of 16 are supported</value>
+    <value>The given audio has a faulty fmt chunk size. Only size of 16 are supported</value>
   </data>
   <data name="FmtSubChunkIdMissmatch" xml:space="preserve">
     <value>The value has to contain the letters 'fmt' (0x666d7420 big-endian form)</value>

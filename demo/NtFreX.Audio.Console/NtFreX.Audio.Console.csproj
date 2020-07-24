@@ -7,8 +7,9 @@
 
   <ItemGroup>
     <!--TODO: include platform assembly only on matching config => validate if working -->
-    <ProjectReference Include="..\..\src\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />
-    <ProjectReference Include="..\..\src\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''" />
+    <!--<ProjectReference Include="..\..\src\adapters\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />-->
+    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />
+    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''" />
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
   </ItemGroup>
 
