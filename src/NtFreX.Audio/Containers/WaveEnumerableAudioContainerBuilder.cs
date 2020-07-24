@@ -14,10 +14,10 @@ namespace NtFreX.Audio.Containers
 
             //TODO: fix riff chunk size and make constant for fmt size and ids
             return new WaveEnumerableAudioContainer(
-                   new RiffChunkDescriptor(RiffChunkDescriptor.ChunkIdentifierRIFF, 5057218, RiffChunkDescriptor.WAVE),
-                   new FmtSubChunk("fmt ", 16, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
+                   new RiffChunkDescriptor(RiffChunkDescriptor.ChunkIdentifierRIFF, /* size of file minus 8: 36 + data in default case */ (uint) (36 + data.Length), RiffChunkDescriptor.WAVE),
+                   new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
                    new EnumerableDataSubChunk(
-                       "data",
+                       DataSubChunk.ChunkIdentifer,
                        (uint)data.Length,
                        GroupByLength(data, format.BitsPerSample / 8).ToAsyncEnumerable()),
                    new List<UnknownSubChunk>());

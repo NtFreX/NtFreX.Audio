@@ -51,7 +51,6 @@ namespace NtFreX.Audio.Sampler.Console
                 {
                     try
                     {
-                        //TODO: convert to correct parameter type
                         var parameters = samplers[number - 1].GetParameters();
                         var args = parts.Skip(1).Select((x, i) => Convert.ChangeType(x.Contains('.', StringComparison.Ordinal) ? decimal.Parse(x, CultureInfo.InvariantCulture) : long.Parse(x, CultureInfo.InvariantCulture), parameters[i].ParameterType, CultureInfo.InvariantCulture)).ToArray();
                         pipe.Add(x => (samplers[number - 1].Invoke(x, args) ?? throw new Exception()) as AudioSampler ?? throw new Exception());
@@ -71,25 +70,7 @@ namespace NtFreX.Audio.Sampler.Console
                 File.Delete(target);
             }
 
-            // TODO: make pipe configurable through console input
             using var convertedAudio = await pipe
-                //.Add(x => x.ChannelAudioSampler(2))
-                //.Add(x => x.MonoAudioSampler())
-                //.Add(x => x.MonoToStereoAudioSampler())
-                //.Add(x => x.SpeedAudioSampler(4))
-                //.Add(x => x.SampleRateAudioSampler(44100))
-                //.Add(x => x.BitsPerSampleAudioSampler(32)).Add(x => x.VolumeAudioSampler(256)) //HINT: changing height of wave a second time helps
-                //.Add(x => x.VolumeAudioSampler(1.0/256)).Add(x => x.BitsPerSampleAudioSampler(16)) //HINT: changing height of wave a second time helps
-                //.Add(x => x.BitsPerSampleAudioSampler(8)) //HINT: changing height of wave a second time helps
-                //.Add(x => x.VolumeAudioSampler(0.5))
-                //.Add(x => x.ShiftWaveAudioSampler(8000))
-                //.Add(x => x.BitsPerSampleAudioSampler(64))
-                //.Add(x => x.BitsPerSampleAudioSampler(32))
-                //.Add(x => x.BitsPerSampleAudioSampler(16))
-                //.Add(x => x.BitsPerSampleAudioSampler(8))
-                //.Add(x => x.ShiftWaveAudioSampler(-64))
-                //.Add(x => x.VolumeAudioSampler(2))
-                //.Add(x => x.VolumeAudioSampler(8))
                 .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
                 .LogProgress(ConsoleProgressBar.LogProgress, cancellationToken)
                 .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)

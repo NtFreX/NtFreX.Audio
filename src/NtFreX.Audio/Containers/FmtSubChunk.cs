@@ -10,6 +10,11 @@ namespace NtFreX.Audio.Containers
         public const string ChunkIdentifier = "fmt ";
 
         /// <summary>
+        /// This is the size of the rest of the Subchunk which follows the chunkSize property.
+        /// </summary>
+        public const int FmtChunkSize = 16;
+
+        /// <summary>
         /// Contains the letters "fmt" (0x666d7420 big-endian form).
         /// </summary>
         public string ChunkId { get; }
@@ -89,8 +94,7 @@ namespace NtFreX.Audio.Containers
                 throw new ArgumentException(ExceptionMessages.FmtSubChunkIdMissmatch, nameof(ChunkId));
             }
 
-            // TODO: chunk size should be 24
-            if (ChunkSize != 16)
+            if (ChunkSize != FmtChunkSize)
             {
                 throw new ArgumentException(ExceptionMessages.FmtSubChunckSizeMissmatch, nameof(ChunkSize));
             }

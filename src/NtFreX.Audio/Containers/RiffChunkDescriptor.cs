@@ -1,5 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
@@ -42,13 +41,12 @@ namespace NtFreX.Audio.Containers
         private void ThrowIfInvalid()
         {
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
-            if (ChunkId != ChunkIdentifierRIFF)
+            if (ChunkId != ChunkIdentifierRIFF && ChunkId != ChunkIdentifierRIFX)
             {
                 // TODO: support RIFX => The default byte ordering assumed for WAVE data files is little-endian. Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkId, nameof(ChunkId));
             }
 
-            // TODO: validate chunk size should be 12 and not 5057218
             if (Format != WAVE)
             {
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkFormat, nameof(ChunkId));
