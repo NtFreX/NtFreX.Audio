@@ -6,8 +6,11 @@ using System.Text;
 
 namespace NtFreX.Audio.Samplers
 {
-    public class ChannelMappingFactory
+    internal class ChannelMappingFactory
     {
+        public static ChannelMappingFactory Instance { get; } = new ChannelMappingFactory();
+        private ChannelMappingFactory() { }
+
         //valid source
         private readonly SampleChannelMapping[] channelMappings = new SampleChannelMapping[]
         {
@@ -45,9 +48,11 @@ namespace NtFreX.Audio.Samplers
             { Speakers.SevenPointOneSurround, x => x.ToSevenPointOneSurround }
         };
 
-        public void GetChannelMapping(Speakers speaker)
-        {
-        }
+        public SampleChannelMapping GetChannelMapping(Speakers speaker)
+            => channelMappings.First(x => x.Speaker == speaker);
+
+        public Func<Sample[], Sample[]> GetSampleConverter(Speakers speaker, SampleChannelMapping channelMapping)
+            => converterResolver[speaker].Invoke(channelMapping);
 
         public bool IsValidTargetSpeaker(ushort targetSpeaker)
             => IsValidTargetSpeaker(ChannelFactory.GetDefaultMapping(targetSpeaker));
