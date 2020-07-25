@@ -118,7 +118,7 @@ namespace NtFreX.Audio.Containers.Serializers
                        blockAlign: data.TakeUShort(32)*/
                        bitsPerSample: await (await stream.SkipAsync(6, cancellationToken).ConfigureAwait(false)).ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false));
                 }
-                else if(chunckId == RiffChunkDescriptor.ChunkIdentifierRIFF)
+                else if(chunckId == RiffChunkDescriptor.ChunkIdentifierRIFF || chunckId == RiffChunkDescriptor.ChunkIdentifierRIFX)
                 {
                     riff = new RiffChunkDescriptor(
                        chunkId: chunckId,
