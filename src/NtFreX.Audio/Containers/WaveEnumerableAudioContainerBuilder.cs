@@ -1,5 +1,6 @@
 ﻿using Dasync.Collections;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
 
@@ -7,14 +8,19 @@ namespace NtFreX.Audio.Containers
 {
     public static class WaveEnumerableAudioContainerBuilder
     {
-        public static WaveEnumerableAudioContainer Build(AudioFormat format, byte[] data)
+        public static WaveEnumerableAudioContainer Build(AudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
+        {
+            var data = WaveBuilder.Silence(format, lengthInSeconds, isLittleEndian);
+            return Build(format, data, isLittleEndian);
+        }
+
+        public static WaveEnumerableAudioContainer Build(AudioFormat format, byte[] data, bool isLittleEndian = true)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
-            //TODO: fix riff chunk size and make constant for fmt size and ids
             return new WaveEnumerableAudioContainer(
-                   new RiffChunkDescriptor(RiffChunkDescriptor.ChunkIdentifierRIFF, /* size of file minus 8: 36 + data in default case */ (uint) (36 + data.Length), RiffChunkDescriptor.WAVE),
+                   new RiffChunkDescriptor(isLittleEndian ? RiffChunkDescriptor.ChunkIdentifierRIFF : RiffChunkDescriptor.ChunkIdentifierRIFX, /* size of file minus 8: 36 + data in default case */ (uint) (36 + data.Length), RiffChunkDescriptor.WAVE),
                    new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
                    new EnumerableDataSubChunk(
                        DataSubChunk.ChunkIdentifer,

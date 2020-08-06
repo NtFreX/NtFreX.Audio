@@ -37,7 +37,6 @@ namespace NtFreX.Audio.Infrastructure
         public static Sample Zero(SampleDefinition definition) => new Sample(0, definition);
 
         //TODO: is limit a good idea?
-        //TODO: conversion improvement!
         public static Sample operator +(Sample a, Sample b)
             => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value + b.Value), a.Definition) : throw new Exception();
         public static Sample operator -(Sample a, Sample b)

@@ -13,7 +13,7 @@ namespace NtFreX.Audio.Wasapi
                 throw new ArgumentException($"Only {typeof(MultiMediaDevice).FullName} are supported", nameof(device));
             }
 
-            //TODO dot not dispose client only to get mix format?
+            // TODO: dot not dispose client only to get mix format?
             var wrapper = multiMediaDevice.ToManaged();
             using var audioClient = wrapper.Activate();
 

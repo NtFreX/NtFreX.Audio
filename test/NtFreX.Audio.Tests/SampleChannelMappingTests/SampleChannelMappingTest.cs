@@ -1,4 +1,6 @@
 ﻿using Dasync.Collections;
+using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Samplers;
 using NUnit.Framework;
 using System.Linq;
@@ -19,7 +21,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
         {
             ushort sourceChannels = (ushort)srcChannel;
             ushort targetChannels = (ushort)trgChannel;
-            var audio = TestHelper.Build(10, 16, 44100, channels: sourceChannels);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -34,7 +36,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
         {
             ushort sourceChannels = (ushort)srcChannel;
             ushort targetChannels = (ushort)trgChannel;
-            var audio = TestHelper.Build(10, 16, 44100, channels: sourceChannels);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
             var factor = targetChannels / (double) sourceChannels;
 
@@ -56,7 +58,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             ushort sourceChannels = (ushort) srcChannel;
             ushort targetChannels = (ushort) trgChannel;
 
-            var audio = TestHelper.Build(10, 16, 44100, channels: sourceChannels);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

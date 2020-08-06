@@ -1,5 +1,6 @@
 ﻿using Dasync.Collections;
 using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Samplers;
 using NUnit.Framework;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
         {
-            var audio = TestHelper.Build(10, 32, (uint) fromSampleRate);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint) fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -46,7 +47,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(int fromSampleRate, int toSampleRate)
         {
-            var audio = TestHelper.Build(10, 32, (uint)fromSampleRate);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint)fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler((uint)toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
