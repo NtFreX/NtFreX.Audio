@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Sampler.Console
+namespace NtFreX.Audio.Console
 {
     // TODO: cleanup improve
     internal class DrawDiagramsDemo : IDemo

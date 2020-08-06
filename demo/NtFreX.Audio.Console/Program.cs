@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Sampler.Console
+namespace NtFreX.Audio.Console
 {
     public sealed class Program
     {
@@ -19,6 +19,7 @@ namespace NtFreX.Audio.Sampler.Console
             new RenderAudioDemo(),
             new CaptureAudioDemo(),
             new SampleAudioDemo(),
+            new SinGeneratorDemo(),
             new GetDefaulRenderDeviceDemo(),
             new DrawDiagramsDemo()
         };
