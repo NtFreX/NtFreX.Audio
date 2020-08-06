@@ -25,13 +25,18 @@ namespace NtFreX.Audio.Sampler.Console
             var totalLength = audio.GetLength().TotalSeconds;
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
 
-            await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
+            try
+            {
+                await context.EndOfPositionReached.WaitForNextEvent(cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                await context.DisposeAsync().ConfigureAwait(false);
+                client.Dispose();
 
-            context.Dispose();
-            client.Dispose();
-
-            System.Console.WriteLine();
-            System.Console.WriteLine("  Audio device has been disposed");
+                System.Console.WriteLine();
+                System.Console.WriteLine("  Audio device has been disposed");
+            }
         }
     }
 }

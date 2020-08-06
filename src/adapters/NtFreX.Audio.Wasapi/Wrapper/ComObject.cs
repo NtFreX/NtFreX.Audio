@@ -1,5 +1,4 @@
-﻿using NtFreX.Audio.Wasapi.Interop;
-using System;
+﻿using System;
 
 namespace NtFreX.Audio.Wasapi.Wrapper
 {

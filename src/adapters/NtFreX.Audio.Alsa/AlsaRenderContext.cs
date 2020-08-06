@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Alsa.Wrapper;
 using System;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Alsa
 {
@@ -17,7 +18,7 @@ namespace NtFreX.Audio.Alsa
             this.managedAlsaAudioRender = managedAlsaAudioRender;
         }
 
-        public void Dispose() { }
+        public ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
 
         public void Stop() => managedAlsaAudioRender.Stop();
         public void Start() => managedAlsaAudioRender.Start();

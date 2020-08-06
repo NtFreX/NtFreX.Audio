@@ -42,13 +42,13 @@ namespace NtFreX.Audio.Devices
         }
 
         /// <summary>
-        /// Writes the total data size back into the header
+        /// Writes the total data size back into the wave riff header
         /// </summary>
         public void Finish()
         {
             var sizeBuffer = BitConverter.GetBytes(size);
 
-            // TODO: find data pos some way other
+            // TODO: find data pos some way other and also update riff file total size
             Stream.Seek(40, SeekOrigin.Begin);
             Stream.Write(sizeBuffer, 0, sizeBuffer.Length);
         }

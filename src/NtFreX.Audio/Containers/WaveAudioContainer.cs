@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Containers
             var isLittleEndian = IsDataLittleEndian();
             var definition = new SampleDefinition(FmtSubChunk.AudioFormat, FmtSubChunk.BitsPerSample, isLittleEndian);
             var tempBuffer = new List<byte>();
-            await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
+            await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 tempBuffer.AddRange(buffer);
                 while(tempBuffer.Count >= samplesSize)

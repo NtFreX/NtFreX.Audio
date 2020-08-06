@@ -1,9 +1,11 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Wasapi.Wrapper;
 using System;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Wasapi
 {
+    //TODO: cancelable
     public sealed class WasapiRenderContext : IRenderContext
     {
         private readonly ManagedAudioRender managedAudioRender;
@@ -16,25 +18,26 @@ namespace NtFreX.Audio.Wasapi
         {
             this.managedAudioRender = managedAudioRender;
 
-            managedAudioRender.EndOfDataReached.Subscribe(OnEndOfDataReached);
-            managedAudioRender.EndOfPositionReached.Subscribe(OnEndOfPositionReached);
-            managedAudioRender.PositionChanged.Subscribe(OnPositionChanged);
+            managedAudioRender.EndOfDataReached.Subscribe(async (obj, args) => await EndOfDataReached.InvokeAsync(obj, args).ConfigureAwait(false));
+            managedAudioRender.EndOfPositionReached.Subscribe(async (obj, args) => await EndOfPositionReached.InvokeAsync(obj, args).ConfigureAwait(false));
+            managedAudioRender.PositionChanged.Subscribe(async (obj, args) => await PositionChanged.InvokeAsync(obj, args).ConfigureAwait(false));
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            managedAudioRender.EndOfDataReached.Unsubscribe(OnEndOfDataReached);
-            managedAudioRender.EndOfPositionReached.Unsubscribe(OnEndOfPositionReached);
-            managedAudioRender.PositionChanged.Unsubscribe(OnPositionChanged);
-            managedAudioRender.Dispose();
+            await managedAudioRender.DisposeAsync().ConfigureAwait(false);
+
+            EndOfDataReached.Dispose();
+            PositionChanged.Dispose();
+            EndOfPositionReached.Dispose();
         }
 
         public void Stop() => managedAudioRender.Stop();
         public void Start() => managedAudioRender.Start();
         public TimeSpan GetPosition() => managedAudioRender.GetPosition();
 
-        private void OnPositionChanged(object sender, EventArgs<double> args) => PositionChanged.Invoke(sender, args);
-        private void OnEndOfDataReached(object sender, EventArgs args) => EndOfDataReached.Invoke(sender, args);
-        private void OnEndOfPositionReached(object sender, EventArgs args) => EndOfPositionReached.Invoke(sender, args);
+        private async Task OnPositionChanged(object sender, EventArgs<double> args) => await PositionChanged.InvokeAsync(sender, args).ConfigureAwait(false);
+        private async Task OnEndOfDataReached(object sender, EventArgs args) => await EndOfDataReached.InvokeAsync(sender, args).ConfigureAwait(false);
+        private async Task OnEndOfPositionReached(object sender, EventArgs args) => await EndOfPositionReached.InvokeAsync(sender, args).ConfigureAwait(false);
     }
 }

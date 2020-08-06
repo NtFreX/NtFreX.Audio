@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Wasapi.Wrapper;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Wasapi
 {
@@ -15,9 +16,9 @@ namespace NtFreX.Audio.Wasapi
 
         public AudioFormat GetFormat() => managedAudioCapturer.GetFormat();
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            managedAudioCapturer.Dispose();
+            await managedAudioCapturer.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

@@ -36,15 +36,20 @@ namespace NtFreX.Audio.Sampler.Console
 
             (var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
 
-            await Task.Delay(time).ConfigureAwait(false);
+            try
+            {
+                await Task.Delay(time, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                await context.DisposeAsync().ConfigureAwait(false);
+                client.Dispose();
 
-            context.Dispose();
-            client.Dispose();
+                sink.Finish();
 
-            sink.Finish();
-
-            System.Console.WriteLine();
-            System.Console.WriteLine("  Audio device has been disposed");
+                System.Console.WriteLine();
+                System.Console.WriteLine("  Audio device has been disposed");
+            }
         }
     }
 }

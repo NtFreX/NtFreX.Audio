@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
     /// <summary>
     /// https://docs.microsoft.com/en-us/windows/win32/coreaudio/rendering-a-stream
     /// </summary>
-    internal class ManagedAudioRender : IDisposable
+    internal class ManagedAudioRender : IAsyncDisposable
     {
         public const int RefimesPerSec = 10000000;
         public const int RefTimesPerMilisec = 10000;
@@ -34,6 +34,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         public Observable<EventArgs> EndOfDataReached { get; } = new Observable<EventArgs>();
         public Observable<EventArgs> EndOfPositionReached { get; } = new Observable<EventArgs>();
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
+        public Observable<EventArgs> RenderCanceled { get; } = new Observable<EventArgs>();
 
         internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IWaveAudioContainer audio, CancellationToken cancellationToken)
         {
@@ -44,20 +45,35 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             this.cancellationToken = cancellationToken;
             this.audio = audio;
 
-            eventPump = Task.Run(PumpEventsAsync, cancellationToken);
-            audioPump = Task.Run(PumpAudioAsync, cancellationToken);
+            var taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
+            eventPump = Task.Factory.StartNew(PumpEventsAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
+            audioPump = Task.Factory.StartNew(PumpAudioAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
         }
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
-            //TODO: cleanup all the stuff
-            //task.Dispose();
+            if (isDisposed)
+            {
+                return;
+            }
+
+            isDisposed = true;
+
+            await audioPump.IgnoreCancelationError().ConfigureAwait(false);
+            await eventPump.IgnoreCancelationError().ConfigureAwait(false);
+
             managedAudioClock.Dispose();
             managedAudioClient.Stop();
             Marshal.ReleaseComObject(audioRenderClient);
-            _ = audioPump.ContinueWith(x => x.Dispose(), TaskScheduler.Default);
-            _ = eventPump.ContinueWith(x => x.Dispose(), TaskScheduler.Default);
-            isDisposed = true;
+
+            audioPump.Dispose();
+            eventPump.Dispose();
+
+            RenderExceptionOccured.Dispose();
+            EndOfDataReached.Dispose();
+            EndOfPositionReached.Dispose();
+            PositionChanged.Dispose();
+            RenderCanceled.Dispose();
         }
 
         public void Stop() => managedAudioClient.Stop();
@@ -67,15 +83,15 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private async Task PumpEventsAsync()
         {
             var totalLength = audio.GetLength().TotalSeconds;
-            while(!isDisposed)
+            while(!isDisposed && !cancellationToken.IsCancellationRequested)
             {
                 var position = managedAudioClock.GetPosition();
-                PositionChanged?.Invoke(this, new EventArgs<double>(position));
+                await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
                 // TODO: find out why pos bigger total pos
                 if(position >= totalLength)
                 {
-                    EndOfPositionReached?.Invoke(this, EventArgs.Empty);
+                    await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
                 }
 
                 await Task.Delay(EventDelay, cancellationToken).ConfigureAwait(false);
@@ -134,11 +150,15 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 // Wait for last data in buffer to play before stopping.
                 await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
 
-                EndOfDataReached?.Invoke(this, EventArgs.Empty);
+                await EndOfDataReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
+            }
+            catch(OperationCanceledException)
+            {
+                await RenderCanceled.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
             }
             catch(Exception exce)
             {
-                RenderExceptionOccured.Invoke(this, new EventArgs<Exception>(exce));
+                await RenderExceptionOccured.InvokeAsync(this, new EventArgs<Exception>(exce)).ConfigureAwait(false);
             }
         }
 
