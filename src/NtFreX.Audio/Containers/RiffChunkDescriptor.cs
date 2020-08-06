@@ -43,7 +43,6 @@ namespace NtFreX.Audio.Containers
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly
             if (ChunkId != ChunkIdentifierRIFF && ChunkId != ChunkIdentifierRIFX)
             {
-                // TODO: support RIFX => The default byte ordering assumed for WAVE data files is little-endian. Files written using the big-endian byte ordering scheme have the identifier RIFX instead of RIFF.
                 throw new ArgumentException(ExceptionMessages.InvalidRiffChunkId, nameof(ChunkId));
             }
 

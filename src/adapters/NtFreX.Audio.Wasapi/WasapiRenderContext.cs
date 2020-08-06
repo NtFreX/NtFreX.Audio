@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Wasapi
 {
-    //TODO: cancelable
     public sealed class WasapiRenderContext : IRenderContext
     {
         private readonly ManagedAudioRender managedAudioRender;

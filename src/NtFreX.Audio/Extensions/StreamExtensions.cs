@@ -21,7 +21,6 @@ namespace NtFreX.Audio.Extensions
             }
             else
             {
-                //TODO: use buffer size factory?
                 await stream.ReadAsync(new byte[length], 0, length, cancellationToken).ConfigureAwait(false);
             }
             return stream;

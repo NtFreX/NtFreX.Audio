@@ -85,7 +85,6 @@ namespace NtFreX.Audio.Containers.Serializers
 
         [return: NotNull] public override async Task<WaveStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            //TODO: fix all the casting
             StreamDataSubChunk? data = null;
             FmtSubChunk? fmt = null;
             RiffChunkDescriptor? riff = null;
@@ -103,7 +102,7 @@ namespace NtFreX.Audio.Containers.Serializers
                           data: stream);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-                    //TODO: does this line mean we read the whole stream here?
+                    //TODO: does this line mean we read the whole stream here (non seekable stream)?
                     await stream.SkipAsync((int)data.ChunkSize, cancellationToken).ConfigureAwait(false);
                 }
                 else if (chunckId == FmtSubChunk.ChunkIdentifier)

@@ -17,15 +17,7 @@ namespace NtFreX.Audio.Extensions
 
             if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
             {
-                // TODO convert everyting nessesary (formatType)
-                audio = await new AudioSamplerPipe()
-                    .Add(x => x.BitsPerSampleAudioSampler(supportedFormat.BitsPerSample))
-                    .Add(x => x.SampleRateAudioSampler(supportedFormat.SampleRate))
-                    // TODO: better channel sampler
-                    .Add(x => x.ToMonoAudioSampler())
-                    .Add(x => x.FromMonoAudioSampler(supportedFormat.Channels))
-                    .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
-                    .ConfigureAwait(false);
+                audio = await SampleAsync(audio, supportedFormat, cancellationToken).ConfigureAwait(false);
 
                 if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out audioClient, out _) || audioClient == null)
                 {
@@ -47,6 +39,35 @@ namespace NtFreX.Audio.Extensions
 
             var context = await audioClient.CaptureAsync(sink, cancellationToken).ConfigureAwait(false);
             return (context, audioClient);
+        }
+
+        private static async Task<IWaveAudioContainer> SampleAsync(IWaveAudioContainer source, IAudioFormat targetFormat, CancellationToken cancellationToken)
+        {
+            var pipe = new AudioSamplerPipe()
+                    .Add(x => x.BitsPerSampleAudioSampler(targetFormat.BitsPerSample))
+                    .Add(x => x.SampleRateAudioSampler(targetFormat.SampleRate))
+                    // TODO: better channel sampler
+                    .Add(x => x.ToMonoAudioSampler())
+                    .Add(x => x.FromMonoAudioSampler(targetFormat.Channels));
+
+            if (source.Format.Type != targetFormat.Type)
+            {
+                pipe.Add(factory => GetFormatTypeSampler(source.Format.Type, targetFormat.Type, factory));
+            }
+
+            return await pipe
+                .RunAsync(source.AsEnumerable(cancellationToken), cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        private static AudioSampler GetFormatTypeSampler(AudioFormatType sourceType, AudioFormatType targetType, AudioSamplerFactory audioSamplerFactory)
+        {
+            return (sourceType, targetType) switch
+            {
+                (AudioFormatType.Pcm, AudioFormatType.IeeFloat) => audioSamplerFactory.PcmToFloatAudioSampler(),
+                (AudioFormatType.IeeFloat, AudioFormatType.Pcm) => audioSamplerFactory.FloatToPcmAudioSampler(),
+                _ => throw new ArgumentException("The given format type is not supported"),
+            };
         }
     }
 }

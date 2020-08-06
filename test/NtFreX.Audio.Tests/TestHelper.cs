@@ -1,29 +1,12 @@
 ﻿using Dasync.Collections;
-using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace NtFreX.Audio.Tests
 {
     internal static class TestHelper
     {
-        public static WaveEnumerableAudioContainer Build(int sampleCount, ushort bitsPerSample, uint sampleRate, ushort channels = 1, string riffChunkId = RiffChunkDescriptor.ChunkIdentifierRIFF)
-        {
-            //TODO use WaveEnumerableAudioContainerBuilder delete this
-            var byteCount = sampleRate * sampleCount * bitsPerSample / 8 * channels;
-            var totalSamples = sampleRate * sampleCount * channels;
-            return new WaveEnumerableAudioContainer(
-                   new RiffChunkDescriptor(riffChunkId, /* size of file minus 8: 36 + data in default case */ (uint) (36 + byteCount), RiffChunkDescriptor.WAVE),
-                   new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, AudioFormatType.Pcm, channels, sampleRate, bitsPerSample),
-                   new EnumerableDataSubChunk(
-                       DataSubChunk.ChunkIdentifer,
-                       (uint)byteCount,
-                       Enumerable.Repeat(0L, (int)totalSamples).Select(x => x.ToByteArray(bitsPerSample / 8)).ToAsyncEnumerable()),
-                   new List<UnknownSubChunk>());
-        }
-
         public static Sample[] BuildChannelSamples(ushort bitsPerSample, params long[] channelSamples)
         {
             var buffer = new Sample[channelSamples.Length];

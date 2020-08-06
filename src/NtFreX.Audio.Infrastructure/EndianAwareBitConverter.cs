@@ -93,13 +93,13 @@ namespace NtFreX.Audio.Infrastructure
         [return: NotNull] public static byte[] SwitchEndianness([NotNull] this byte[] value)
             => value.Reverse().ToArray();
 
-        // TODO: make this stuff work
+        // TODO: make this stuff work (nicer)
         [return: NotNull]
         private static byte[] ParseByLength(this long value, int targetLength)
         {
             return targetLength switch
             {
-                1 => new[] { (byte)value }, //new[] { value >= 0 ? (byte) (value + 128) : (byte)((128 + value) * -1) },
+                1 => new[] { (byte)value },
                 2 => BitConverter.GetBytes((short)value),
                 4 => BitConverter.GetBytes((int)value),
                 8 => BitConverter.GetBytes(value),
@@ -111,7 +111,7 @@ namespace NtFreX.Audio.Infrastructure
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
             return value.Length switch
             {
-                1 => (sbyte)value[0], //value[0] < 128 ? (128 - value[0]) * -1 : value[0] - 128,
+                1 => (sbyte)value[0],
                 2 => BitConverter.ToInt16(switched),
                 4 => BitConverter.ToInt32(switched),
                 8 => BitConverter.ToInt64(switched),

@@ -133,7 +133,7 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value has to contain the letters &apos;RIFF&apos; (0x52494646 big-endian form).
+        ///   Looks up a localized string similar to The value has to contain the letters &apos;RIFF&apos; or &apos;RIFX&apos;.
         /// </summary>
         internal static string InvalidRiffChunkId {
             get {

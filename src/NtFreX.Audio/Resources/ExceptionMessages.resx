@@ -142,7 +142,7 @@
     <value>The value has to contain the letters 'WAVE' (0x57415645 big-endian form)</value>
   </data>
   <data name="InvalidRiffChunkId" xml:space="preserve">
-    <value>The value has to contain the letters 'RIFF' (0x52494646 big-endian form)</value>
+    <value>The value has to contain the letters 'RIFF' or 'RIFX'</value>
   </data>
   <data name="NoAudioDeviceForPlatform" xml:space="preserve">
     <value>No audio device handler for the current platform has been found.</value>
