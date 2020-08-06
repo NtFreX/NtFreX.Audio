@@ -30,9 +30,9 @@ namespace NtFreX.Audio.Console
             System.Console.Write("Enter the length: ");
             var length = int.Parse(System.Console.ReadLine(), NumberFormatInfo.InvariantInfo);
 
-            var sampleRate = 44100;
-            var format = new AudioFormat((uint)sampleRate, 64, 1, AudioFormatType.IeeFloat);
-            var data = WaveBuilder.Sin(format, frequency * sampleRate, length);
+            uint sampleRate = 44100;
+            var format = new AudioFormat(sampleRate, 64, 1, AudioFormatType.IeeFloat);
+            var data = WaveBuilder.Sin(sampleRate, frequency, length);
             using var audio = await WaveEnumerableAudioContainerBuilder
                 .Build(format, data)
                 .ToFileAsync(file, FileMode.CreateNew, cancellationToken).ConfigureAwait(false);
