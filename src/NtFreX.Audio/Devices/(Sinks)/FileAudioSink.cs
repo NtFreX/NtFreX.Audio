@@ -10,6 +10,7 @@ namespace NtFreX.Audio.Devices
 
         public void Dispose()
         {
+            Stream.Flush();
             Stream.Dispose();
         }
     }

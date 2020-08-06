@@ -2,7 +2,7 @@
 
 namespace NtFreX.Audio.AdapterInfrastructure
 {
-    public interface IRenderContext : IDisposable 
+    public interface IRenderContext : IAsyncDisposable 
     {
         Observable<EventArgs> EndOfDataReached { get; }
         Observable<EventArgs> EndOfPositionReached { get; }

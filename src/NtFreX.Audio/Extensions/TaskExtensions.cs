@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Samplers;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -46,7 +45,7 @@ namespace NtFreX.Audio.Extensions
         }
 
         [return: NotNull]
-        public static async Task DisposeAsync<T>([NotNull] Task<T> task)
+        public static async Task DisposeAsync<T>([NotNull] this Task<T> task)
             where T: IDisposable
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));

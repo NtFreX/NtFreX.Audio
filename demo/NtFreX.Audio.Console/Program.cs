@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,10 +27,87 @@ namespace NtFreX.Audio.Sampler.Console
             new DrawDiagramsDemo()
         };
 
+        private const string ExitKey = "x";
+
         public static async Task Main()
         {
-            using var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSources = new Stack<CancellationTokenSource>();
 
+            PrintTitle();
+            PrintSampleAudioFiles();
+
+            System.Console.ForegroundColor = ConsoleColor.White;
+            System.Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
+            {
+                if(cancellationTokenSources.TryPeek(out var tokenSource))
+                {
+                    tokenSource.Cancel();
+                }
+                e.Cancel = true;
+            };
+
+            while (true)
+            {
+                PrintDemos();
+
+                var input = System.Console.ReadLine();
+                if (input == ExitKey)
+                {
+                    break;
+                }
+
+                if (!int.TryParse(input, out var number) || number <= 0 || number > Demos.Length)
+                {
+                    System.Console.WriteLine("Invalid input");
+                }
+                else
+                {
+                    try
+                    {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        cancellationTokenSources.Push(new CancellationTokenSource());
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+                        await Demos[number - 1].RunAsync(cancellationTokenSources.Peek().Token).ConfigureAwait(false);
+                    }
+                    catch (Exception exce)
+                    {
+                        LogException(exce);
+                    }
+                }
+            }
+
+            foreach(var cancelationTokenSource in cancellationTokenSources)
+            {
+                cancelationTokenSource.Dispose();
+            }
+        }
+
+        private static void PrintDemos()
+        {
+            System.Console.WriteLine();
+            System.Console.WriteLine("==================================================================================================================");
+            System.Console.WriteLine("Choose the demo you want to run:");
+            for (var i = 0; i < Demos.Length; i++)
+            {
+                System.Console.WriteLine($"  {i + 1} - {Demos[i].Name} ({Demos[i].Description})");
+            }
+            System.Console.WriteLine($"  {ExitKey} - Quit application");
+        }
+
+        private static void PrintSampleAudioFiles()
+        {
+            System.Console.ForegroundColor = ConsoleColor.Gray;
+            System.Console.WriteLine("Test audio files:");
+            foreach (var file in SampleAudios)
+            {
+                System.Console.WriteLine($"  - {file}");
+            }
+            System.Console.WriteLine();
+        }
+
+        private static void PrintTitle()
+        {
             System.Console.ForegroundColor = ConsoleColor.Green;
             System.Console.WriteLine();
             System.Console.WriteLine(@" ________   _________  ________ ________  _______      ___    ___ ________  ___  ___  ________  ___  ________     ");
@@ -42,55 +120,13 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.WriteLine(@"                                                      |__|/ \|__|                                                 ");
             System.Console.WriteLine();
             System.Console.WriteLine();
+        }
 
-            System.Console.ForegroundColor = ConsoleColor.Gray;
-            System.Console.WriteLine("Test audio files:");
-            foreach(var file in SampleAudios)
-            {
-                System.Console.WriteLine($"  - {file}");
-            }
+        private static void LogException(Exception exce)
+        {
             System.Console.WriteLine();
-
-            System.Console.CancelKeyPress += (object sender, System.ConsoleCancelEventArgs e) =>
-            {
-                cancellationTokenSource.Cancel();
-                System.Environment.Exit(0);
-            };
-
-            const string exitKey = "x";
-            while (true)
-            {
-                System.Console.ForegroundColor = ConsoleColor.White;
-                System.Console.WriteLine("Choose the demo you want to run:");
-                for (var i = 0; i < Demos.Length; i++)
-                {
-                    System.Console.WriteLine($"  {i + 1} - {Demos[i].Name} ({Demos[i].Description})");
-                }
-                System.Console.WriteLine($"  {exitKey} - Quit application");
-
-                var input = cancellationTokenSource.IsCancellationRequested ? exitKey : System.Console.ReadLine();
-                if (input == exitKey)
-                {
-                    cancellationTokenSource.Cancel();
-                    break;
-                }
-
-                if (!int.TryParse(input, out var number) || number <= 0 || number > Demos.Length)
-                {
-                    System.Console.WriteLine("Invalid input");
-                }
-                else
-                {
-                    try
-                    {
-                        await Demos[number - 1].RunAsync(cancellationTokenSource.Token).ConfigureAwait(false);
-                    }
-                    catch (Exception exce)
-                    {
-                        System.Console.WriteLine(exce.Message);
-                    }
-                }
-            }
+            System.Console.WriteLine(exce.Message);
+            System.Console.WriteLine(exce.StackTrace);
         }
     }
 }
