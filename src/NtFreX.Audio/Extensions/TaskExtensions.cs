@@ -35,23 +35,5 @@ namespace NtFreX.Audio.Extensions
             var data = await audio.ConfigureAwait(false);
             return data.LogProgress(onProgress, cancellationToken);
         }
-
-        [return: MaybeNull]
-        public static async Task<TOutput?> CastAsync<TSource, TOutput>([NotNull] this Task<TSource> task)
-            where TOutput: class
-        {
-            _ = task ?? throw new ArgumentNullException(nameof(task));
-            return await task.ConfigureAwait(false) as TOutput;
-        }
-
-        [return: NotNull]
-        public static async Task DisposeAsync<T>([NotNull] this Task<T> task)
-            where T: IDisposable
-        {
-            _ = task ?? throw new ArgumentNullException(nameof(task));
-
-            var value = await task.ConfigureAwait(false);
-            value.Dispose();
-        }
     }
 }

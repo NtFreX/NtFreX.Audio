@@ -1,7 +1,7 @@
 ﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Resources;
 using System;
 using System.Buffers;

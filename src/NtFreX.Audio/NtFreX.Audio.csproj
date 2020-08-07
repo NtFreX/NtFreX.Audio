@@ -5,9 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
-    
+  <ItemGroup>    
     <ProjectReference Include="..\NtFreX.Audio.AdapterInfrastructure\NtFreX.Audio.AdapterInfrastructure.csproj" />
     <ProjectReference Include="..\NtFreX.Audio.Infrastructure\NtFreX.Audio.Infrastructure.csproj" />
   </ItemGroup>
