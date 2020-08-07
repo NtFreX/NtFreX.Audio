@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Extensions
+namespace NtFreX.Audio.Infrastructure.Threading
 {
     //TODO: where are my async extensions?
     public static class AsyncEnumerableExtensions

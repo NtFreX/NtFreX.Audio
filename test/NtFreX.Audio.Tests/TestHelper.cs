@@ -1,5 +1,4 @@
-﻿using Dasync.Collections;
-using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
 using System.Linq;
 

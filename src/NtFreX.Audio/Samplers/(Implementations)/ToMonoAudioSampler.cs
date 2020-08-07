@@ -24,11 +24,17 @@ namespace NtFreX.Audio.Samplers
                 return Task.FromResult(audio);
             }
 
+            // TODO: change riff chunk size automaticaly when data changes?
+            var newSize = audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.Channels;
+            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
+
             return Task.FromResult(audio
+                    .WithRiffChunkDescriptor(x => x
+                        .WithChunkSize(newTotalSize))
                     .WithFmtSubChunk(x => x
                         .WithChannels(1))
                     .WithDataSubChunk(x => x
-                        .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.Channels)
+                        .WithChunkSize(newSize)
                         .WithData(InterleaveChannelData(audio, cancellationToken))));
         }
 

@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Devices
 {
-    public class StreamAudioSink : IAudioSink
+    public class StreamWaveAudioSink : IAudioSink
     {
         private uint size = 0;
+        private bool isFinished = false;
 
         public Stream Stream { get; }
 
-        public StreamAudioSink(Stream stream)
+        public StreamWaveAudioSink(Stream stream)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
@@ -37,6 +38,11 @@ namespace NtFreX.Audio.Devices
 
         public void DataReceived(byte[] data)
         {
+            if(isFinished)
+            {
+                throw new Exception("The sink has allready been closed");
+            }
+
             size += (uint) (data == null ? 0 : data.Length);
             Stream.Write(data);
         }
@@ -46,11 +52,19 @@ namespace NtFreX.Audio.Devices
         /// </summary>
         public void Finish()
         {
-            var sizeBuffer = BitConverter.GetBytes(size);
+            isFinished = true;
 
-            // TODO: find data pos some way other and also update riff file total size
+            var dataSizeBuffer = BitConverter.GetBytes(size);
+            var totalSizeBuffer = BitConverter.GetBytes((uint) (size + WaveAudioContainer<DataSubChunk>.DefaultHeaderSize));
+
+            // TODO: find data pos some way other
+            // riff file size should allways be at 4
+            Stream.Seek(4, SeekOrigin.Begin);
+            Stream.Write(totalSizeBuffer, 0, totalSizeBuffer.Length);
+
+            // data size could be in another place as 40 when unknown sub chunks exist
             Stream.Seek(40, SeekOrigin.Begin);
-            Stream.Write(sizeBuffer, 0, sizeBuffer.Length);
+            Stream.Write(dataSizeBuffer, 0, dataSizeBuffer.Length);
         }
     }
 }

@@ -22,7 +22,7 @@ namespace NtFreX.Audio.Infrastructure
             this.Value = definition.Type == AudioFormatType.Pcm ? value.ToInt64(definition.IsLittleEndian) :
                          definition.Type == AudioFormatType.IeeFloat && definition.Bits == 64 ? value.ToDouble(definition.IsLittleEndian) :
                          definition.Type == AudioFormatType.IeeFloat && definition.Bits == 32 ? value.ToFloat(definition.IsLittleEndian) :
-                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 16 ? value.ToInt16(definition.IsLittleEndian) / 32768f :
+                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 16 ? value.ToInt16(definition.IsLittleEndian) / (short.MaxValue + 1f) :
                          throw new NotImplementedException();
         }
 
@@ -71,7 +71,7 @@ namespace NtFreX.Audio.Infrastructure
                 {
                     // This is no supported according to https://de.wikipedia.org/wiki/Gleitkommazahlen_in_digitaler_Audioanwendung
                     // https://markheath.net/post/convert-16-bit-pcm-to-ieee-float
-                    cache = ((short)(Value * 32768f)).ToByteArray(Definition.IsLittleEndian);
+                    cache = ((short)(Value * (short.MaxValue + 1f))).ToByteArray(Definition.IsLittleEndian);
                 }
                 else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 32)
                 {

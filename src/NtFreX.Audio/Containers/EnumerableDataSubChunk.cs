@@ -1,5 +1,5 @@
-﻿using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;

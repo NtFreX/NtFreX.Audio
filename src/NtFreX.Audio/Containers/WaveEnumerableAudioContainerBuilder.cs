@@ -1,5 +1,5 @@
-﻿using Dasync.Collections;
-using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace NtFreX.Audio.Containers
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
             return new WaveEnumerableAudioContainer(
-                   new RiffChunkDescriptor(isLittleEndian ? RiffChunkDescriptor.ChunkIdentifierRIFF : RiffChunkDescriptor.ChunkIdentifierRIFX, /* size of file minus 8: 36 + data in default case */ (uint) (36 + data.Length), RiffChunkDescriptor.WAVE),
+                   new RiffChunkDescriptor(isLittleEndian ? RiffChunkDescriptor.ChunkIdentifierRIFF : RiffChunkDescriptor.ChunkIdentifierRIFX, /* size of file minus 8: 36 + data in default case */ (uint) (WaveAudioContainer<DataSubChunk>.DefaultHeaderSize + data.Length), RiffChunkDescriptor.WAVE),
                    new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
                    new EnumerableDataSubChunk(
                        DataSubChunk.ChunkIdentifer,

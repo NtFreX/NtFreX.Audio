@@ -20,9 +20,14 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+            var newSize = (uint)System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0);
+            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
+
             return Task.FromResult(audio
+                .WithRiffChunkDescriptor(x => x
+                    .WithChunkSize(newTotalSize))
                 .WithDataSubChunk(x => x
-                    .WithChunkSize((uint)System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0))
+                    .WithChunkSize(newSize)
                     .WithData(WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken))));
         }
 

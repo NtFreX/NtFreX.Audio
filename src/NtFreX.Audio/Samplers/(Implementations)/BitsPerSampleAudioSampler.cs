@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -33,11 +33,16 @@ namespace NtFreX.Audio.Samplers
             var isLittleEndian = audio.IsDataLittleEndian();
             var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample(x.Value, new SampleDefinition(x.Definition.Type, bitsPerSample, x.Definition.IsLittleEndian))).SelectAsync(x => UpOrDown(audio, x, isNewBigger, factor));
 
+            var newSize = audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample;
+            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
+
             return Task.FromResult(audio
+                .WithRiffChunkDescriptor(x => x
+                    .WithChunkSize(newTotalSize))
                 .WithFmtSubChunk(x => x
                     .WithBitsPerSample(bitsPerSample))
                 .WithDataSubChunk(x => x
-                    .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample)
+                    .WithChunkSize(newSize)
                     .WithData(samples)));
         }
 
