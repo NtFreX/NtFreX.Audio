@@ -23,7 +23,7 @@ namespace NtFreX.Audio.Samplers
 
             var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
             var sizeOfParts = audio.DataSubChunk.ChunkSize / (double)System.Math.Abs(audio.DataSubChunk.ChunkSize - newDataSize);
-            var previous = Sample.Zero(new SampleDefinition(audio.FmtSubChunk.AudioFormat, audio.FmtSubChunk.BitsPerSample, audio.IsDataLittleEndian()));
+            var previous = Sample.Zero(new SampleDefinition(audio.FmtSubChunk.Type, audio.FmtSubChunk.BitsPerSample, audio.IsDataLittleEndian()));
             var counter = 1d;
             var total = 0L;
             await foreach (var value in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))

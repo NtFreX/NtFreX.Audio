@@ -59,7 +59,7 @@ namespace NtFreX.Audio.Containers.Serializers
                 .Concat(riff.Format.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(fmt.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
                 .Concat(fmt.ChunkSize.ToByteArray())
-                .Concat(((ushort)fmt.AudioFormat).ToByteArray())
+                .Concat(((ushort)fmt.Type).ToByteArray())
                 .Concat(fmt.Channels.ToByteArray())
                 .Concat(fmt.SampleRate.ToByteArray())
                 .Concat(fmt.ByteRate.ToByteArray())

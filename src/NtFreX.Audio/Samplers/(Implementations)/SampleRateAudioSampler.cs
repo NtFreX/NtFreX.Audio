@@ -55,11 +55,16 @@ namespace NtFreX.Audio.Samplers
 
         private WaveEnumerableAudioContainer SampleInner([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
+            var newSize = (uint) System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
+            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
+
             return audio
-                .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
+                .WithRiffChunkDescriptor(x => x
+                    .WithChunkSize(newTotalSize))
+                .WithFmtSubChunk(x => x
+                    .WithSampleRate(sampleRate))
                 .WithDataSubChunk(x => x
-                    .WithChunkSize((uint)newDataSize)
+                    .WithChunkSize(newSize)
                     .WithData(WaveStretcher.StretchAsync(audio, factor, cancellationToken)));
         }
     }

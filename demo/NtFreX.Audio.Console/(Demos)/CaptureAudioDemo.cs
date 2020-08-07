@@ -31,7 +31,7 @@ namespace NtFreX.Audio.Console
 
             var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
            
-            using var sink = new FileAudioSink(file);
+            using var sink = new FileWaveAudioSink(file);
             await sink.InitializeAsync(format).ConfigureAwait(false);
 
             (var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);

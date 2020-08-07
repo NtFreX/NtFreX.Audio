@@ -13,11 +13,14 @@ namespace NtFreX.Audio.Containers
     public abstract class WaveAudioContainer<TData> : IWaveAudioContainer
         where TData : DataSubChunk
     {
+        public static readonly int DefaultHeaderSize = 36;
+
         public IReadOnlyList<UnknownSubChunk> UnknownSubChuncks { [return: NotNull] get; private set; }
         public RiffChunkDescriptor RiffChunkDescriptor { [return: NotNull] get; private set; }
         public FmtSubChunk FmtSubChunk { [return: NotNull] get; private set; }
         public TData DataSubChunk { [return: NotNull] get; private set; }
-        public IAudioFormat Format { get; private set; }
+
+        public IAudioFormat Format => FmtSubChunk;
        
         protected WaveAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] TData dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
         {
@@ -25,7 +28,6 @@ namespace NtFreX.Audio.Containers
             FmtSubChunk = fmtSubChunk;
             DataSubChunk = dataSubChunk;
             UnknownSubChuncks = riffSubChuncks;
-            Format = new FmtAudioFormat(() => FmtSubChunk.SampleRate, () => FmtSubChunk.BitsPerSample, () => FmtSubChunk.Channels, () => FmtSubChunk.AudioFormat);
         }
 
         [return: NotNull]
@@ -40,7 +42,7 @@ namespace NtFreX.Audio.Containers
         {
             var samplesSize = FmtSubChunk.BitsPerSample / 8;
             var isLittleEndian = IsDataLittleEndian();
-            var definition = new SampleDefinition(FmtSubChunk.AudioFormat, FmtSubChunk.BitsPerSample, isLittleEndian);
+            var definition = new SampleDefinition(FmtSubChunk.Type, FmtSubChunk.BitsPerSample, isLittleEndian);
             var tempBuffer = new List<byte>();
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
