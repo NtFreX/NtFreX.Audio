@@ -72,7 +72,7 @@ namespace NtFreX.Audio.Console
 
             using var convertedAudio = await pipe
                 .RunAsync(audio.AsEnumerable(cancellationToken), cancellationToken)
-                .LogProgress(ConsoleProgressBar.LogProgress, cancellationToken)
+                .LogProgressAsync(ConsoleProgressBar.LogProgress, cancellationToken)
                 .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 

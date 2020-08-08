@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Extensions
         }
 
         [return: NotNull]
-        public static async Task<WaveEnumerableAudioContainer> LogProgress([NotNull] this Task<WaveEnumerableAudioContainer> audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task<WaveEnumerableAudioContainer> LogProgressAsync([NotNull] this Task<WaveEnumerableAudioContainer> audio, [NotNull] Action<double> onProgress, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
