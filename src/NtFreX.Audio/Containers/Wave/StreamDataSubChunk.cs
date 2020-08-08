@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Helpers;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Resources;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Threading;
 
 namespace NtFreX.Audio.Containers
 {
-    public sealed class StreamDataSubChunk : DataSubChunk, IDisposable
+    public sealed class StreamDataSubChunk : DataSubChunk<StreamDataSubChunk>, IDisposable
     {
         /// <summary>
         /// Start index of this package. 
@@ -84,8 +85,8 @@ namespace NtFreX.Audio.Containers
             Data.Dispose();
         }
 
-        [return: NotNull] internal StreamDataSubChunk WithChunkId([NotNull] string chunkId) => new StreamDataSubChunk(StartIndex, chunkId, ChunkSize, Data);
-        [return: NotNull] internal StreamDataSubChunk WithChunkSize(uint chunkSize) => new StreamDataSubChunk(StartIndex, ChunkId, chunkSize, Data);
-        [return: NotNull] internal StreamDataSubChunk WithData([NotNull] Stream data) => new StreamDataSubChunk(StartIndex, ChunkId, ChunkSize, data);
+        [return: NotNull] public override StreamDataSubChunk WithChunkId([NotNull] string chunkId) => new StreamDataSubChunk(StartIndex, chunkId, ChunkSize, Data);
+        [return: NotNull] public override StreamDataSubChunk WithChunkSize(uint chunkSize) => new StreamDataSubChunk(StartIndex, ChunkId, chunkSize, Data);
+        [return: NotNull] public StreamDataSubChunk WithData([NotNull] Stream data) => new StreamDataSubChunk(StartIndex, ChunkId, ChunkSize, data);
     }
 }

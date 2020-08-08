@@ -55,7 +55,7 @@ namespace NtFreX.Audio.Devices
             isFinished = true;
 
             var dataSizeBuffer = BitConverter.GetBytes(size);
-            var totalSizeBuffer = BitConverter.GetBytes((uint) (size + WaveAudioContainer<DataSubChunk>.DefaultHeaderSize));
+            var totalSizeBuffer = BitConverter.GetBytes((uint) (size + WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize));
 
             // TODO: find data pos some way other
             // riff file size should allways be at 4

@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,24 +11,23 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
-    public abstract class WaveAudioContainer<TData> : IWaveAudioContainer
-        where TData : DataSubChunk
+    public abstract class WaveAudioContainer<TData> : RiffContainer, IWaveAudioContainer
+        where TData : IDataSubChunk
     {
         public static readonly int DefaultHeaderSize = 36;
 
-        public IReadOnlyList<UnknownSubChunk> UnknownSubChuncks { [return: NotNull] get; private set; }
-        public RiffChunkDescriptor RiffChunkDescriptor { [return: NotNull] get; private set; }
+        public IReadOnlyList<UnknownSubChunk> UnknownSubChunks { [return: NotNull] get; private set; }
         public FmtSubChunk FmtSubChunk { [return: NotNull] get; private set; }
         public TData DataSubChunk { [return: NotNull] get; private set; }
 
         public IAudioFormat Format => FmtSubChunk;
        
-        protected WaveAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] TData dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
+        protected WaveAudioContainer([NotNull] IRiffSubChunk riffSubChunk, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] TData dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChunks)
+            : base(riffSubChunk, new ISubChunk[] { fmtSubChunk, dataSubChunk }.Concat(riffSubChunks).ToList())
         {
-            RiffChunkDescriptor = riffChunkDescriptor;
             FmtSubChunk = fmtSubChunk;
             DataSubChunk = dataSubChunk;
-            UnknownSubChuncks = riffSubChuncks;
+            UnknownSubChunks = riffSubChunks;
         }
 
         [return: NotNull]
@@ -35,7 +35,7 @@ namespace NtFreX.Audio.Containers
             => TimeSpan.FromSeconds(DataSubChunk.ChunkSize / (FmtSubChunk.ByteRate * 1.0f));
 
         public bool IsDataLittleEndian()
-            => RiffChunkDescriptor.ChunkId == RiffChunkDescriptor.ChunkIdentifierRIFF;
+            => RiffSubChunk.ChunkId == Containers.RiffSubChunk.ChunkIdentifierRIFF;
 
         [return: NotNull]
         public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)

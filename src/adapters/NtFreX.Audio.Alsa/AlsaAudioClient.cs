@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Alsa.Wrapper;
-using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;

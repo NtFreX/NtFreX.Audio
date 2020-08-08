@@ -56,11 +56,8 @@ namespace NtFreX.Audio.Samplers
         private WaveEnumerableAudioContainer SampleInner([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var newSize = (uint) System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
-            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
-
+            
             return audio
-                .WithRiffChunkDescriptor(x => x
-                    .WithChunkSize(newTotalSize))
                 .WithFmtSubChunk(x => x
                     .WithSampleRate(sampleRate))
                 .WithDataSubChunk(x => x

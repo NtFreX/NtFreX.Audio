@@ -1,4 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Diagnostics.CodeAnalysis;

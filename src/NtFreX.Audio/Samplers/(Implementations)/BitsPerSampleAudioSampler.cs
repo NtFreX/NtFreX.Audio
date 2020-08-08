@@ -34,11 +34,8 @@ namespace NtFreX.Audio.Samplers
             var samples = audio.GetAudioSamplesAsync().SelectAsync(x => new Sample(x.Value, new SampleDefinition(x.Definition.Type, bitsPerSample, x.Definition.IsLittleEndian))).SelectAsync(x => UpOrDown(audio, x, isNewBigger, factor));
 
             var newSize = audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample;
-            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
-
+            
             return Task.FromResult(audio
-                .WithRiffChunkDescriptor(x => x
-                    .WithChunkSize(newTotalSize))
                 .WithFmtSubChunk(x => x
                     .WithBitsPerSample(bitsPerSample))
                 .WithDataSubChunk(x => x
