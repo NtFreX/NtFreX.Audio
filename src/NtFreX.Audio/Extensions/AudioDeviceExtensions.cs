@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Samplers;
 using System;
 using System.Threading;

@@ -1,10 +1,11 @@
-﻿using NtFreX.Audio.Resources;
+﻿using NtFreX.Audio.Infrastructure.Container;
+using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public class RiffChunkDescriptor : ISubChunk
+    public class RiffSubChunk : ISubChunk<IRiffSubChunk>, IRiffSubChunk
     {
         public const string ChunkIdentifierRIFF = "RIFF";
         public const string ChunkIdentifierRIFX = "RIFX";
@@ -25,11 +26,11 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public string Format { get; }
 
-        [return: NotNull] public RiffChunkDescriptor WithChunkId([NotNull] string chunkId) => new RiffChunkDescriptor(chunkId, ChunkSize, Format);
-        [return: NotNull] public RiffChunkDescriptor WithChunkSize(uint chunkSize) => new RiffChunkDescriptor(ChunkId, chunkSize, Format);
-        [return: NotNull] public RiffChunkDescriptor WithFormat([NotNull] string format) => new RiffChunkDescriptor(ChunkId, ChunkSize, format);
+        [return: NotNull] public IRiffSubChunk WithChunkId([NotNull] string chunkId) => new RiffSubChunk(chunkId, ChunkSize, Format);
+        [return: NotNull] public IRiffSubChunk WithChunkSize(uint chunkSize) => new RiffSubChunk(ChunkId, chunkSize, Format);
+        [return: NotNull] public IRiffSubChunk WithFormat([NotNull] string format) => new RiffSubChunk(ChunkId, ChunkSize, format);
 
-        public RiffChunkDescriptor([NotNull] string chunkId, uint chunkSize, [NotNull] string format)
+        public RiffSubChunk([NotNull] string chunkId, uint chunkSize, [NotNull] string format)
         {
             ChunkId = chunkId;
             ChunkSize = chunkSize;

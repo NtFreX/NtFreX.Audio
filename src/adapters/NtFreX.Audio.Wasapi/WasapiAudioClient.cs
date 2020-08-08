@@ -1,5 +1,5 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
-using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Wasapi.Wrapper;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;

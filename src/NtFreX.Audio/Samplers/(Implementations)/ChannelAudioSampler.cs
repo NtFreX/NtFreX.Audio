@@ -68,11 +68,8 @@ namespace NtFreX.Audio.Samplers
             var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
             var factor = targetChannels / (double) audio.FmtSubChunk.Channels;
             var newSize = (uint) (factor * audio.DataSubChunk.ChunkSize);
-            var newTotalSize = audio.RiffChunkDescriptor.ChunkSize + (newSize - audio.DataSubChunk.ChunkSize);
 
             return Task.FromResult(audio
-                    .WithRiffChunkDescriptor(x => x
-                        .WithChunkSize(newTotalSize))
                     .WithFmtSubChunk(x => x
                         .WithChannels(targetChannels))
                     .WithDataSubChunk(x => x

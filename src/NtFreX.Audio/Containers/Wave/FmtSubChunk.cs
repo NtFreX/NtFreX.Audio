@@ -1,11 +1,12 @@
 ﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public sealed class FmtSubChunk : ISubChunk, IAudioFormat
+    public sealed class FmtSubChunk : ISubChunk<FmtSubChunk>, IAudioFormat
     {
         public const string ChunkIdentifier = "fmt ";
 

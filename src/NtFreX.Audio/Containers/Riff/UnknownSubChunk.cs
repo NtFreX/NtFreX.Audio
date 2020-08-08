@@ -1,10 +1,10 @@
-﻿using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Containers
 {
-    public class UnknownSubChunk : ISubChunk
+    public class UnknownSubChunk : ISubChunk<UnknownSubChunk>
     {
         public string ChunkId { get; }
 
@@ -18,5 +18,8 @@ namespace NtFreX.Audio.Containers
             ChunkSize = subchunkSize;
             SubchunkData = subchunkData;
         }
+
+        public UnknownSubChunk WithChunkId(string chunkId) => new UnknownSubChunk(chunkId, ChunkSize, SubchunkData);
+        public UnknownSubChunk WithChunkSize(uint chunkSize) => new UnknownSubChunk(ChunkId, chunkSize, SubchunkData);
     }
 }

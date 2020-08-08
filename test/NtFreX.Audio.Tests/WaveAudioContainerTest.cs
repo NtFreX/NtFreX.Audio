@@ -15,7 +15,7 @@ namespace NtFreX.Audio.Tests
             var format = new AudioFormat(44100, 32, 1, AudioFormatType.Pcm);
             var audio = WaveEnumerableAudioContainerBuilder.Build(format, lengthInSeconds: 10, isLittleEndian);
 
-            Assert.AreEqual(RiffChunkDescriptor.ChunkIdentifierRIFF, audio.RiffChunkDescriptor.ChunkId);
+            Assert.AreEqual(RiffSubChunk.ChunkIdentifierRIFF, audio.RiffSubChunk.ChunkId);
             Assert.IsTrue(audio.IsDataLittleEndian());
         }
 
@@ -26,7 +26,7 @@ namespace NtFreX.Audio.Tests
             var format = new AudioFormat(44100, 32, 1, AudioFormatType.Pcm);
             var audio = WaveEnumerableAudioContainerBuilder.Build(format, lengthInSeconds: 10, isLittleEndian);
 
-            Assert.AreEqual(RiffChunkDescriptor.ChunkIdentifierRIFX, audio.RiffChunkDescriptor.ChunkId);
+            Assert.AreEqual(RiffSubChunk.ChunkIdentifierRIFX, audio.RiffSubChunk.ChunkId);
             Assert.IsFalse(audio.IsDataLittleEndian());
         }
     }

@@ -1,5 +1,5 @@
-﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Containers.Serializers;
+﻿using NtFreX.Audio.Containers.Serializers;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -11,12 +11,12 @@ namespace NtFreX.Audio.Containers
 {
     public class WaveEnumerableAudioContainer : WaveAudioContainer<EnumerableDataSubChunk>
     {
-        [return: NotNull] internal WaveEnumerableAudioContainer WithRiffChunkDescriptor([NotNull] Func<RiffChunkDescriptor, RiffChunkDescriptor> riffChunkDescriptor) => new WaveEnumerableAudioContainer(riffChunkDescriptor(RiffChunkDescriptor), FmtSubChunk, DataSubChunk, UnknownSubChuncks);
-        [return: NotNull] internal WaveEnumerableAudioContainer WithFmtSubChunk([NotNull] Func<FmtSubChunk, FmtSubChunk> fmtSubChunk) => new WaveEnumerableAudioContainer(RiffChunkDescriptor, fmtSubChunk(FmtSubChunk), DataSubChunk, UnknownSubChuncks);
-        [return: NotNull] internal WaveEnumerableAudioContainer WithDataSubChunk([NotNull] Func<EnumerableDataSubChunk, EnumerableDataSubChunk> dataSubChunk) => new WaveEnumerableAudioContainer(RiffChunkDescriptor, FmtSubChunk, dataSubChunk(DataSubChunk), UnknownSubChuncks);
-        [return: NotNull] internal WaveEnumerableAudioContainer WithRiffSubChunks([NotNull] UnknownSubChunk[] riffSubChunks) => new WaveEnumerableAudioContainer(RiffChunkDescriptor, FmtSubChunk, DataSubChunk, riffSubChunks);
+        [return: NotNull] internal WaveEnumerableAudioContainer WithRiffSubChunk([NotNull] Func<IRiffSubChunk, IRiffSubChunk> riffSubChunk) => new WaveEnumerableAudioContainer(riffSubChunk(RiffSubChunk), FmtSubChunk, DataSubChunk, UnknownSubChunks);
+        [return: NotNull] internal WaveEnumerableAudioContainer WithFmtSubChunk([NotNull] Func<FmtSubChunk, FmtSubChunk> fmtSubChunk) => new WaveEnumerableAudioContainer(RiffSubChunk, fmtSubChunk(FmtSubChunk), DataSubChunk, UnknownSubChunks);
+        [return: NotNull] internal WaveEnumerableAudioContainer WithDataSubChunk([NotNull] Func<EnumerableDataSubChunk, EnumerableDataSubChunk> dataSubChunk) => new WaveEnumerableAudioContainer(RiffSubChunk, FmtSubChunk, dataSubChunk(DataSubChunk), UnknownSubChunks);
+        [return: NotNull] internal WaveEnumerableAudioContainer WithRiffSubChunks([NotNull] UnknownSubChunk[] riffSubChunks) => new WaveEnumerableAudioContainer(RiffSubChunk, FmtSubChunk, DataSubChunk, riffSubChunks);
 
-        public WaveEnumerableAudioContainer([NotNull] RiffChunkDescriptor riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] EnumerableDataSubChunk dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
+        public WaveEnumerableAudioContainer([NotNull] IRiffSubChunk riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] EnumerableDataSubChunk dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
             : base(riffChunkDescriptor, fmtSubChunk, dataSubChunk, riffSubChuncks) { }
 
         [return: NotNull]
@@ -28,11 +28,11 @@ namespace NtFreX.Audio.Containers
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
-            var length = await WaveAudioContainerSerializer.WriteHeadersAsync(RiffChunkDescriptor, FmtSubChunk, UnknownSubChuncks, DataSubChunk, stream, cancellationToken).ConfigureAwait(false);
+            var length = await WaveAudioContainerSerializer.WriteHeadersAsync(RiffSubChunk, FmtSubChunk, UnknownSubChunks, DataSubChunk, stream, cancellationToken).ConfigureAwait(false);
             await WaveAudioContainerSerializer.WriteDataAsync(GetAudioSamplesAsync(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-            return new WaveStreamAudioContainer(RiffChunkDescriptor, FmtSubChunk, new StreamDataSubChunk(length - Containers.DataSubChunk.ChunkHeaderSize, DataSubChunk.ChunkId, DataSubChunk.ChunkSize, stream), UnknownSubChuncks);
+            return new WaveStreamAudioContainer(RiffSubChunk, FmtSubChunk, new StreamDataSubChunk(length - DataSubChunk<ISubChunk>.ChunkHeaderSize, DataSubChunk.ChunkId, DataSubChunk.ChunkSize, stream), UnknownSubChunks);
 #pragma warning restore CA2000 // Dispose objects before losing scope
         }
     }

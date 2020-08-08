@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NtFreX.Audio.Infrastructure
+namespace NtFreX.Audio.Infrastructure.Container
 {
     public interface IStreamAudioContainer : IAudioContainer, IDisposable
     {
