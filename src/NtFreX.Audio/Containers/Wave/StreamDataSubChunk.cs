@@ -16,6 +16,7 @@ namespace NtFreX.Audio.Containers
         /// Start index of this package. 
         /// It is used to seek the given stream to the start of the audio.
         /// </summary>
+        //TODO: update startIndex when data before this chunk changes
         public long StartIndex { get; }
 
         /// <summary>
