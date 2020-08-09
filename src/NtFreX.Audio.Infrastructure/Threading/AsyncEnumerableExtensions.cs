@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure.Threading
 {
-    //TODO: where are my async extensions?
     public static class AsyncEnumerableExtensions
     {
         [return:NotNull] public static async Task<T[]> ToArrayAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default) 
