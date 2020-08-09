@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
 using NtFreX.Audio.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -11,6 +10,14 @@ namespace NtFreX.Audio.Extensions
 {
     public static class StreamExtensions
     {
+        /// <summary>
+        /// If the stream supports seeking this method will seek by the given length from the current position.
+        /// Else the stream is read by the given length and the data is discarded
+        /// </summary>
+        /// <param name="stream">The stream</param>
+        /// <param name="length">The length to skip from the current position</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns>The given stream</returns>
         [return:NotNull] public static async Task<Stream> SkipAsync([NotNull] this Stream stream, int length, [MaybeNull] CancellationToken cancellationToken = default)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
@@ -21,7 +28,7 @@ namespace NtFreX.Audio.Extensions
             }
             else
             {
-                await stream.ReadAsync(new byte[length], 0, length, cancellationToken).ConfigureAwait(false);
+                _ = await stream.ReadAsync(new byte[length], 0, length, cancellationToken).ConfigureAwait(false);
             }
             return stream;
         }
