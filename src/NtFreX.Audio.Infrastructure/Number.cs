@@ -17,7 +17,7 @@ namespace NtFreX.Audio.Infrastructure
                 2 => value.ToInt16(isLittleEndian),
                 4 => value.ToInt32(isLittleEndian),
                 8 => value.ToInt64(isLittleEndian),
-                _ => throw new ArgumentException("The given array is not in a supported length", nameof(value)),
+                _ => throw new ArgumentException($"Numbers with {value.Length * 8} bits are not supported.", nameof(value)),
             };
         }
 
@@ -29,7 +29,7 @@ namespace NtFreX.Audio.Infrastructure
                 2 => ((short)value).ToByteArray(isLittleEndian),
                 4 => ((int)value).ToByteArray(isLittleEndian),
                 8 => value.ToByteArray(isLittleEndian),
-                _ => throw new ArgumentException("The given bits is not supported", nameof(bits)),
+                _ => throw new ArgumentException($"Numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }
     }
