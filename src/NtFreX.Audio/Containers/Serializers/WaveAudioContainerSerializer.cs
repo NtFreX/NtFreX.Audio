@@ -103,8 +103,16 @@ namespace NtFreX.Audio.Containers.Serializers
                           data: stream);
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-                    //TODO: does this line mean we read the whole stream here (non seekable stream)?
-                    await stream.SkipAsync((int)data.ChunkSize, cancellationToken).ConfigureAwait(false);
+                    if (stream.CanSeek)
+                    {
+                        await stream.SkipAsync((int)data.ChunkSize, cancellationToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        // if the stream is non seekable we break here to ensure we do not read the whole stream
+                        // TODO: if any chunks follow after the data chunk they will be ignored
+                        break;
+                    }
                 }
                 else if (chunckId == FmtSubChunk.ChunkIdentifier)
                 {
