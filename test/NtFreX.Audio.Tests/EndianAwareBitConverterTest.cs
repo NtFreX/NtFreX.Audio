@@ -13,20 +13,6 @@ namespace NtFreX.Audio.Tests
         [TestCase(-100)]
         [TestCase(sbyte.MaxValue)]
         [TestCase(sbyte.MinValue)]
-        public void CanConvertFromInt8ToInt64(sbyte value)
-        {
-            var data = BitConverter.GetBytes(value);
-            var result = EndianAwareBitConverter.ToInt64(data);
-
-            Assert.AreEqual(result, value);
-        }
-
-        [TestCase(0)]
-        [TestCase(1)]
-        [TestCase(-1)]
-        [TestCase(-100)]
-        [TestCase(sbyte.MaxValue)]
-        [TestCase(sbyte.MinValue)]
         public void CanConvertToInt8(sbyte value)
         {
             var result = EndianAwareBitConverter.ToInt8(BitConverter.GetBytes(value));
