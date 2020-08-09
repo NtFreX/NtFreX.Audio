@@ -19,10 +19,8 @@ namespace NtFreX.Audio.Infrastructure
             Definition = definition;
 
             this.cache = value;
-            this.Value = definition.Type == AudioFormatType.Pcm ? value.ToInt64(definition.IsLittleEndian) :
-                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 64 ? value.ToDouble(definition.IsLittleEndian) :
-                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 32 ? value.ToFloat(definition.IsLittleEndian) :
-                         definition.Type == AudioFormatType.IeeFloat && definition.Bits == 16 ? value.ToInt16(definition.IsLittleEndian) / (short.MaxValue + 1f) :
+            this.Value = definition.Type == AudioFormatType.Pcm ? Number.FromGivenBits(value, definition.IsLittleEndian) :
+                         definition.Type == AudioFormatType.IeeFloat ? FloatingPointNumber.FromGivenBits(value, definition.IsLittleEndian) :
                          throw new NotImplementedException();
         }
 
@@ -65,21 +63,11 @@ namespace NtFreX.Audio.Infrastructure
             {
                 if (Definition.Type == AudioFormatType.Pcm)
                 {
-                    cache = ((long)Value).ToByteArray(Definition.Bits / 8, Definition.IsLittleEndian);
+                    cache = Number.ToRequiredBits(Definition.Bits, (long) Value, Definition.IsLittleEndian);
                 }
-                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 16)
+                else if (Definition.Type == AudioFormatType.IeeFloat)
                 {
-                    // This is no supported according to https://de.wikipedia.org/wiki/Gleitkommazahlen_in_digitaler_Audioanwendung
-                    // https://markheath.net/post/convert-16-bit-pcm-to-ieee-float
-                    cache = ((short)(Value * (short.MaxValue + 1f))).ToByteArray(Definition.IsLittleEndian);
-                }
-                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 32)
-                {
-                    cache = ((float)Value).ToByteArray(Definition.IsLittleEndian);
-                }
-                else if (Definition.Type == AudioFormatType.IeeFloat && Definition.Bits == 64)
-                {
-                    cache = Value.ToByteArray(Definition.IsLittleEndian);
+                    cache = FloatingPointNumber.ToRequiredBits(Definition.Bits, Value, Definition.IsLittleEndian);
                 }
                 else
                 {

@@ -12,8 +12,7 @@ namespace NtFreX.Audio.Math
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
             return Enumerable
-                .Repeat(0L, (int)(format.SampleRate * format.Channels * lengthInSeconds))
-                .Select(x => x.ToByteArray(format.BitsPerSample / 8, isLittleEndian))
+                .Repeat(Number.ToRequiredBits(format.BitsPerSample, 0, isLittleEndian), (int)(format.SampleRate * format.Channels * lengthInSeconds))
                 .SelectMany(x => x)
                 .ToArray();
         }
