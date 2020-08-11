@@ -12,13 +12,13 @@ namespace NtFreX.Audio.Infrastructure
             var data = samples.ToArray();
             foreach (var sample in data)
             {
-                if(data[0].Definition != sample.Definition)
+                if (data[0].Definition != sample.Definition)
                 {
                     throw new Exception("The given samples are not of the same type");
                 }
-                sum += (decimal) sample.Value;
+                sum += (decimal)sample.Value;
             }
-            return new Sample((long)(sum / data.Length), data[0].Definition);
+            return new Sample((double)(sum / data.Length), data[0].Definition);
         }
     }
 }

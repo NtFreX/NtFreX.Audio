@@ -16,11 +16,14 @@ namespace NtFreX.Audio.Console
 
             using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
-            System.Console.WriteLine($"Playing...");
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-            (var context, var client) = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
+            System.Console.WriteLine($"Playing on {device.GetId()}...");
+            await using var context = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
+
+            var format = context.GetFormat();
+            AudioFactory.PrintAudioFormat(format);
 
             var totalLength = audio.GetLength().TotalSeconds;
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
@@ -31,9 +34,6 @@ namespace NtFreX.Audio.Console
             }
             finally
             {
-                await context.DisposeAsync().ConfigureAwait(false);
-                client.Dispose();
-
                 System.Console.WriteLine();
                 System.Console.WriteLine("  Audio device has been disposed");
             }

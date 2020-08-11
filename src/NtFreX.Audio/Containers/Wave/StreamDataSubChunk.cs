@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Helpers;
-using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Resources;
 using System;
 using System.Collections.Generic;
@@ -16,7 +15,6 @@ namespace NtFreX.Audio.Containers
         /// Start index of this package. 
         /// It is used to seek the given stream to the start of the audio.
         /// </summary>
-        //TODO: update startIndex when data before this chunk changes
         public long StartIndex { get; }
 
         /// <summary>
@@ -24,16 +22,11 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public ReadLock<Stream> Data { get; }
 
-        public StreamDataSubChunk(long startIndex, [NotNull] string chunkId, uint chunkSize, [NotNull] Stream data)
-#pragma warning disable CS8777 // Parameter must have a non-null value when exiting. => set by overloaded constructor
-            : this(startIndex, chunkId, chunkSize, new ReadLock<Stream>(data, data => OnStreamAquire(data, startIndex))) { }
-#pragma warning restore CS8777 // Parameter must have a non-null value when exiting.
-
-        internal StreamDataSubChunk(long startIndex, [NotNull] string chunkId, uint chunkSize, [NotNull] ReadLock<Stream> data)
+        public StreamDataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
             : base(chunkId, chunkSize)
         {
             StartIndex = startIndex;
-            Data = data;
+            Data = new ReadLock<Stream>(data, data => OnStreamAquire(data, startIndex));
         }
 
         [return: NotNull]
@@ -86,9 +79,8 @@ namespace NtFreX.Audio.Containers
             Data.Dispose();
         }
 
-        [return: NotNull] public override StreamDataSubChunk WithChunkId([NotNull] string chunkId) => new StreamDataSubChunk(StartIndex, chunkId, ChunkSize, Data);
-        [return: NotNull] public override StreamDataSubChunk WithChunkSize(uint chunkSize) => new StreamDataSubChunk(StartIndex, ChunkId, chunkSize, Data);
-        [return: NotNull] public StreamDataSubChunk WithData([NotNull] Stream data) => new StreamDataSubChunk(StartIndex, ChunkId, ChunkSize, data);
+        [return: NotNull] public override StreamDataSubChunk WithChunkId([NotNull] string chunkId) => throw new Exception("Stream containers are read only");
+        [return: NotNull] public override StreamDataSubChunk WithChunkSize(uint chunkSize) => throw new Exception("Stream containers are read only");
 
         private static void OnStreamAquire(Stream? stream, long startIndex) 
         {

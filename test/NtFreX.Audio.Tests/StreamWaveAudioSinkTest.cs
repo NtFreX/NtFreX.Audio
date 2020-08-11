@@ -21,10 +21,9 @@ namespace NtFreX.Audio.Tests
         {
             // arrange
             var stream = new MemoryStream();
-            var sink = new StreamWaveAudioSink(stream);
             var format = new AudioFormat(WellKnownSampleRate.Hz44100, 32, 1, AudioFormatType.Pcm);
-            await sink.InitializeAsync(format).ConfigureAwait(false);
-
+            var sink = await StreamWaveAudioSink.CreateAsync(stream, format).ConfigureAwait(false);
+            
             // act
             var size = 100;
             var data = new byte[size];
@@ -34,7 +33,7 @@ namespace NtFreX.Audio.Tests
                 sink.DataReceived(data);
             }
 
-            sink.Finish();
+            await sink.DisposeAsync().ConfigureAwait(false);
 
             // assert
             stream.Seek(0, SeekOrigin.Begin);
@@ -54,9 +53,8 @@ namespace NtFreX.Audio.Tests
         {
             // arrange
             var stream = new MemoryStream();
-            var sink = new StreamWaveAudioSink(stream);
             var format = new AudioFormat(WellKnownSampleRate.Hz44100, 32, 1, AudioFormatType.Pcm);
-            await sink.InitializeAsync(format).ConfigureAwait(false);
+            var sink = await StreamWaveAudioSink.CreateAsync(stream, format).ConfigureAwait(false);
 
             // act
             var size = 100;
@@ -67,7 +65,7 @@ namespace NtFreX.Audio.Tests
                 sink.DataReceived(data);
             }
 
-            sink.Finish();
+            await sink.DisposeAsync().ConfigureAwait(false);
 
             // assert
             stream.Seek(0, SeekOrigin.Begin);

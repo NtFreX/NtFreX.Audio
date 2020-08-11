@@ -11,7 +11,7 @@ namespace NtFreX.Audio.Tests
             var buffer = new Sample[channelSamples.Length];
             for (var i = 0; i < channelSamples.Length; i++)
             {
-                buffer[i] = new Sample(Number.ToRequiredBits(bitsPerSample, channelSamples[i]), new SampleDefinition(AudioFormatType.Pcm, bitsPerSample, isLittleEndian: true));
+                buffer[i] = new Sample(channelSamples[i], new SampleDefinition(AudioFormatType.Pcm, bitsPerSample, isLittleEndian: true));
             }
             return buffer;
         }

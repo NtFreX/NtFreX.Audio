@@ -47,11 +47,13 @@ namespace NtFreX.Audio.Containers
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 tempBuffer.AddRange(buffer);
-                while(tempBuffer.Count >= samplesSize)
+                var currentIndex = 0;
+                while(tempBuffer.Count >= samplesSize * (currentIndex + 1))
                 {
-                    yield return new Sample(tempBuffer.Take(samplesSize).ToArray(), definition);
-                    tempBuffer.RemoveRange(0, samplesSize);
+                    yield return new Sample(tempBuffer.Skip(currentIndex * samplesSize).Take(samplesSize).ToArray(), definition);
+                    currentIndex++;
                 }
+                tempBuffer.RemoveRange(0, samplesSize * currentIndex);
             }
 
             Debug.Assert(tempBuffer.Count == 0, $"Temp buffer should be completly returned and emptied but is {tempBuffer.Count} long");

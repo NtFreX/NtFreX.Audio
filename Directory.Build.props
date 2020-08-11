@@ -1,6 +1,7 @@
 <Project>
 
   <PropertyGroup>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
     <NullableReferenceTypes>true</NullableReferenceTypes>
     <Nullable>enable</Nullable>
     <!--TODO: <TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->

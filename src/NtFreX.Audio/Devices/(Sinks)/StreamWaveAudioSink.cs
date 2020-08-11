@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Devices
 {
-    public class StreamWaveAudioSink : IAudioSink
+    public class StreamWaveAudioSink : IAudioSink, IAsyncDisposable
     {
         private uint size = 0;
-        private bool isFinished = false;
+        private bool isDisposed = false;
 
         public Stream Stream { get; }
 
-        public StreamWaveAudioSink(Stream stream)
+        protected StreamWaveAudioSink(Stream stream)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
@@ -26,7 +26,34 @@ namespace NtFreX.Audio.Devices
             Stream = stream;
         }
 
-        public async Task InitializeAsync(AudioFormat format)
+        public static async Task<StreamWaveAudioSink> CreateAsync(Stream stream, IAudioFormat format)
+        {
+            var sink = new StreamWaveAudioSink(stream);
+            await sink.InitializeAsync(format).ConfigureAwait(false);
+            return sink;
+        }
+
+        public void DataReceived(byte[] data)
+        {
+            if(isDisposed)
+            {
+                throw new Exception("The sink has allready been closed");
+            }
+
+            size += (uint) (data == null ? 0 : data.Length);
+            Stream.Write(data);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeAsyncCore(true).ConfigureAwait(false);
+
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+            GC.SuppressFinalize(this);
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        }
+
+        protected async Task InitializeAsync(IAudioFormat format)
         {
 #pragma warning disable CA2000 // Dispose objects before losing scope => do not dispose stream!
             await WaveEnumerableAudioContainerBuilder
@@ -36,35 +63,33 @@ namespace NtFreX.Audio.Devices
 #pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
-        public void DataReceived(byte[] data)
-        {
-            if(isFinished)
-            {
-                throw new Exception("The sink has allready been closed");
-            }
-
-            size += (uint) (data == null ? 0 : data.Length);
-            Stream.Write(data);
-        }
-
         /// <summary>
         /// Writes the total data size back into the wave riff header
         /// </summary>
-        public void Finish()
+        /// <param name="disposing">is comming from dipose call</param>
+        /// <returns>Task</returns>
+        protected virtual async ValueTask DisposeAsyncCore(bool disposing)
         {
-            isFinished = true;
+            if (disposing && !isDisposed)
+            {
+                isDisposed = true;
 
-            var dataSizeBuffer = BitConverter.GetBytes(size);
-            var totalSizeBuffer = BitConverter.GetBytes((uint) (size + WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize));
+                var dataSizeBuffer = BitConverter.GetBytes(size);
+                var totalSizeBuffer = BitConverter.GetBytes((uint)(size + WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize));
 
-            // TODO: find data pos some way other
-            // riff file size should allways be at 4
-            Stream.Seek(4, SeekOrigin.Begin);
-            Stream.Write(totalSizeBuffer, 0, totalSizeBuffer.Length);
+                await Stream.FlushAsync().ConfigureAwait(false);
 
-            // data size could be in another place as 40 when unknown sub chunks exist
-            Stream.Seek(40, SeekOrigin.Begin);
-            Stream.Write(dataSizeBuffer, 0, dataSizeBuffer.Length);
+                // TODO: find data pos some way other
+                // riff file size should allways be at 4
+                Stream.Seek(4, SeekOrigin.Begin);
+                Stream.Write(totalSizeBuffer, 0, totalSizeBuffer.Length);
+
+                // data size could be in another place as 40 when unknown sub chunks exist
+                Stream.Seek(40, SeekOrigin.Begin);
+                Stream.Write(dataSizeBuffer, 0, dataSizeBuffer.Length);
+
+                await Stream.FlushAsync().ConfigureAwait(false);
+            }
         }
     }
 }

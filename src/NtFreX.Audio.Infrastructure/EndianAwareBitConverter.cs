@@ -18,7 +18,7 @@ namespace NtFreX.Audio.Infrastructure
         [return: NotNull] public static byte[] ToByteArray(this short value, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
         [return: NotNull] public static byte[] ToByteArray(this sbyte value)
-            => new[] { (byte)value };
+            => new[] { (byte)(value + sbyte.MinValue) };
         [return: NotNull] public static byte[] ToByteArray(this uint value, bool isLittleEndian = true)
             => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
         [return: NotNull] public static byte[] ToByteArray(this ushort value, bool isLittleEndian = true)
@@ -65,7 +65,7 @@ namespace NtFreX.Audio.Infrastructure
         {
             _ = value ?? throw new ArgumentNullException(nameof(value));
 
-            return (sbyte)value[0];
+            return (sbyte) (value[0] + sbyte.MinValue);
         }
         public static uint ToUInt32([NotNull] this byte[] value, bool isLittleEndian = true)
         {

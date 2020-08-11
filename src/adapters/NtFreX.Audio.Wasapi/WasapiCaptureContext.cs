@@ -8,10 +8,12 @@ namespace NtFreX.Audio.Wasapi
     public sealed class WasapiCaptureContext : ICaptureContext
     {
         private readonly ManagedAudioCapture managedAudioCapturer;
+        private readonly ManagedAudioClient managedAudioClient;
 
-        internal WasapiCaptureContext(ManagedAudioCapture managedAudioCapture)
+        internal WasapiCaptureContext(ManagedAudioCapture managedAudioCapture, ManagedAudioClient managedAudioClient)
         {
             this.managedAudioCapturer = managedAudioCapture;
+            this.managedAudioClient = managedAudioClient;
         }
 
         public AudioFormat GetFormat() => managedAudioCapturer.GetFormat();
@@ -19,6 +21,7 @@ namespace NtFreX.Audio.Wasapi
         public async ValueTask DisposeAsync()
         {
             await managedAudioCapturer.DisposeAsync().ConfigureAwait(false);
+            managedAudioClient.Dispose();
         }
     }
 }
