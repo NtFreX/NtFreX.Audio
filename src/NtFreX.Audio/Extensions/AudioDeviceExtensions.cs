@@ -10,12 +10,13 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AudioDeviceExtensions
     {
-        public static async Task<(IRenderContext Context, IAudioClient Client)> RenderAsync(this IAudioDevice device, IWaveAudioContainer audio, CancellationToken cancellationToken)
+        public static async Task<IRenderContext> RenderAsync(this IAudioDevice device, IWaveAudioContainer audio, CancellationToken cancellationToken)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             var audioPlatform = AudioEnvironment.Platform.Get();
 
+#pragma warning disable CA2000 // Dispose objects before losing scope => IRenderContext wraps the client and disposes it
             if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
             {
                 audio = await SampleAsync(audio, supportedFormat, cancellationToken).ConfigureAwait(false);
@@ -25,21 +26,22 @@ namespace NtFreX.Audio.Extensions
                     throw new Exception("The given audio is not supported");
                 }
             }
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
-            var context = await audioClient.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
-            return (context, audioClient);
+            return await audioClient.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<(ICaptureContext Context, IAudioClient Client)> CaptureAsync(this IAudioDevice device, AudioFormat format, IAudioSink sink, CancellationToken cancellationToken)
+        public static async Task<ICaptureContext> CaptureAsync(this IAudioDevice device, AudioFormat format, IAudioSink sink, CancellationToken cancellationToken)
         {
             var audioPlatform = AudioEnvironment.Platform.Get();
+#pragma warning disable CA2000 // Dispose objects before losing scope => ICaptureContext wraps the client and disposes it
             if (!audioPlatform.AudioClientFactory.TryInitialize(format, device, out var audioClient, out _) || audioClient == null)
             {
                 throw new Exception("The given format is not supported");
             }
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
-            var context = await audioClient.CaptureAsync(sink, cancellationToken).ConfigureAwait(false);
-            return (context, audioClient);
+            return await audioClient.CaptureAsync(sink, cancellationToken).ConfigureAwait(false);
         }
 
         private static async Task<IWaveAudioContainer> SampleAsync(IWaveAudioContainer source, IAudioFormat targetFormat, CancellationToken cancellationToken)

@@ -1,16 +1,25 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Devices
 {
-    public sealed class FileWaveAudioSink : StreamWaveAudioSink, IDisposable
+    public sealed class FileWaveAudioSink : StreamWaveAudioSink
     {
-        public FileWaveAudioSink(string path, FileMode mode = FileMode.Create)
+        private FileWaveAudioSink(string path, FileMode mode)
             : base(File.Open(path, mode)) { }
 
-        public void Dispose()
+        public static async Task<FileWaveAudioSink> CreateAsync(string path, IAudioFormat format, FileMode mode = FileMode.Create)
         {
-            Stream.Flush();
+            var sink = new FileWaveAudioSink(path, mode);
+            await sink.InitializeAsync(format).ConfigureAwait(false);
+            return sink;
+        }
+
+        protected override async ValueTask DisposeAsyncCore(bool disposing)
+        {
+            await base.DisposeAsyncCore(disposing).ConfigureAwait(false);
+
             Stream.Dispose();
         }
     }

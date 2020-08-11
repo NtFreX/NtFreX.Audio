@@ -15,6 +15,8 @@ namespace NtFreX.Audio.Console
         public string Name => nameof(DrawDiagramsDemo);
         public string Description => "Draws a diagram of the given audio file and saves it as svg to an given html file";
 
+        private const int SvgHeight = 1000;
+
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             System.Console.Write("Enter the file you want to draw: ");
@@ -70,7 +72,7 @@ namespace NtFreX.Audio.Console
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
 
             //TODO: suport more then three channels
-            return DrawSvg(channelSamples.ToArray(), new[] { "green", "red", "black" }, new[] { 0.2f, 0.2f, 1 }, waveAudioContainer.FmtSubChunk.BitsPerSample / 8);
+            return DrawSvg(channelSamples.ToArray(), new[] { "green", "red", "yellow" }, new[] { 1f, 1f, 1f });
         }
 
         private static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
@@ -106,35 +108,34 @@ namespace NtFreX.Audio.Console
             return html.ToString();
         }
 
-        private static string DrawSvg(Sample[][] data, string[] colors, float[] opacities, int byteCount, int skip = 100)
+        private static string DrawSvg(Sample[][] data, string[] colors, float[] opacities)
         {
-            var width = data[0].Length / skip; // TODO: replace with file length
-            var height = 100;
-            var middle = height / 2.0f;
+            var width = data[0].Length;
+            var middle = SvgHeight / 2.0f;
 
             var image = new StringBuilder();
-            image.AppendLine($"<svg viewBox=\"0 0 {width} {height}\" height=\"100%\" width=\"500%\">"); //  style=\"position:absolute;z-index:2;\"
+            image.AppendLine($"<svg height=\"{SvgHeight}\" width=\"{width}\">");
             image.AppendLine($"<line x1=\"0\" y1=\"{middle}\" x2=\"{width}\" y2=\"{middle}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
             for (int i = 0; i < data.Length; i++)
             {
-                image.AppendLine(DrawPath(data[i], colors[i], opacities[i], height, byteCount, skip));
+                image.AppendLine(DrawPath(data[i], colors[i], opacities[i], SvgHeight));
             }
             image.AppendLine("</svg>");
             return image.ToString();
         }
 
-        private static string DrawPath(Sample[] data, string color, float opacity, float height, int byteCount, int skip)
+        private static string DrawPath(Sample[] data, string color, float opacity, double height)
         {
             var middle = height / 2.0f;
 
             var path = new StringBuilder();
-            var modifier = System.Math.Pow(256, byteCount) / 4;
+            var modifier = height / (data.Max(x => x.Value) * 2);
 
             path.AppendLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {middle}");
-            for (int i = 0; i * skip < data.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
-                var averageData = data.Skip(i * skip).Take(skip).Average().Value;
-                path.AppendLine($"L{i} {middle - (averageData / modifier * 100)} ");
+                var value = data[i].Value * modifier;
+                path.AppendLine($"L{i} {middle + value} ");
             }
             path.AppendLine("\" />");
             return path.ToString();

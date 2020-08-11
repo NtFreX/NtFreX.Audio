@@ -9,13 +9,13 @@ namespace NtFreX.Audio.Containers
 {
     public static class WaveEnumerableAudioContainerBuilder
     {
-        public static WaveEnumerableAudioContainer Build(AudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
+        public static WaveEnumerableAudioContainer Build(IAudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
         {
             var data = WaveBuilder.Silence(format, lengthInSeconds, isLittleEndian);
             return Build(format, data, isLittleEndian);
         }
 
-        public static WaveEnumerableAudioContainer Build(AudioFormat format, byte[] data, bool isLittleEndian = true)
+        public static WaveEnumerableAudioContainer Build(IAudioFormat format, byte[] data, bool isLittleEndian = true)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));
             _ = data ?? throw new ArgumentNullException(nameof(data));

@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Alsa.Wrapper;
+using NtFreX.Audio.Infrastructure;
 using System;
 using System.Threading.Tasks;
 
@@ -24,6 +25,11 @@ namespace NtFreX.Audio.Alsa
         public void Start() => managedAlsaAudioRender.Start();
 
         public TimeSpan GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAudioFormat GetFormat()
         {
             throw new NotImplementedException();
         }

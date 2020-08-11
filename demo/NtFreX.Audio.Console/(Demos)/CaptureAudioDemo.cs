@@ -30,11 +30,11 @@ namespace NtFreX.Audio.Console
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 
             var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-           
-            using var sink = new FileWaveAudioSink(file);
-            await sink.InitializeAsync(format).ConfigureAwait(false);
+            AudioFactory.PrintAudioFormat(format);
 
-            (var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
+            await using var sink = await FileWaveAudioSink.CreateAsync(file, format).ConfigureAwait(false);
+
+            await using var context = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
 
             try
             {
@@ -42,11 +42,6 @@ namespace NtFreX.Audio.Console
             }
             finally
             {
-                await context.DisposeAsync().ConfigureAwait(false);
-                client.Dispose();
-
-                sink.Finish();
-
                 System.Console.WriteLine();
                 System.Console.WriteLine("  Audio device has been disposed");
             }

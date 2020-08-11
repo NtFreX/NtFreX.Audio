@@ -25,11 +25,5 @@ namespace NtFreX.Audio.Containers
             DataSubChunk.Dispose();
             disposed = true;
         }
-
-        [return: NotNull] internal WaveStreamAudioContainer WithRiffSubChunk([NotNull] Func<IRiffSubChunk, IRiffSubChunk> riffSubChunk) => new WaveStreamAudioContainer(riffSubChunk(RiffSubChunk), FmtSubChunk, DataSubChunk, UnknownSubChunks);
-        [return: NotNull] internal WaveStreamAudioContainer WithFmtSubChunk([NotNull] Func<FmtSubChunk, FmtSubChunk> fmtSubChunk) => new WaveStreamAudioContainer(RiffSubChunk, fmtSubChunk(FmtSubChunk), DataSubChunk, UnknownSubChunks);
-        [return: NotNull] internal WaveStreamAudioContainer WithDataSubChunk([NotNull] Func<StreamDataSubChunk, StreamDataSubChunk> dataSubChunk) => new WaveStreamAudioContainer(RiffSubChunk, FmtSubChunk, dataSubChunk(DataSubChunk), UnknownSubChunks);
-        // TODO: update start index in data chunk if size changed
-        [return: NotNull] internal WaveStreamAudioContainer WithRiffSubChunks([NotNull] UnknownSubChunk[] riffSubChunks) => new WaveStreamAudioContainer(RiffSubChunk, FmtSubChunk, DataSubChunk, riffSubChunks);
     }
 }

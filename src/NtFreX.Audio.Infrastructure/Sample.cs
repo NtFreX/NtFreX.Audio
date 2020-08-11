@@ -19,9 +19,7 @@ namespace NtFreX.Audio.Infrastructure
             Definition = definition;
 
             this.cache = value;
-            this.Value = definition.Type == AudioFormatType.Pcm ? Number.FromGivenBits(value, definition.IsLittleEndian) :
-                         definition.Type == AudioFormatType.IeeFloat ? FloatingPointNumber.FromGivenBits(value, definition.IsLittleEndian) :
-                         throw new NotImplementedException();
+            this.Value = NumberFactory.ConstructNumber(definition.Type, definition.IsLittleEndian, value);
         }
 
         public Sample(double value, SampleDefinition definition)
@@ -32,21 +30,20 @@ namespace NtFreX.Audio.Infrastructure
             this.Value = value;
         }
 
-        public static Sample Zero(SampleDefinition definition) => new Sample(0, definition);
+        public static Sample Zero(SampleDefinition definition) => new Sample(0d, definition);
 
-        //TODO: is limit a good idea?
         public static Sample operator +(Sample a, Sample b)
             => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value + b.Value), a.Definition) : throw new Exception();
         public static Sample operator -(Sample a, Sample b)
             => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value - b.Value), a.Definition) : throw new Exception();
         public static Sample operator +(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, (long) (a.Value + b)), a.Definition);
+            => new Sample(LimitTo(a.Definition.Bits, a.Value + b), a.Definition);
         public static Sample operator -(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, (long) (a.Value - b)), a.Definition);
+            => new Sample(LimitTo(a.Definition.Bits, a.Value - b), a.Definition);
         public static Sample operator /(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, (long)(a.Value / b)), a.Definition);
+            => new Sample(LimitTo(a.Definition.Bits, a.Value / b), a.Definition);
         public static Sample operator *(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, (long)(a.Value * b)), a.Definition);
+            => new Sample(LimitTo(a.Definition.Bits, a.Value * b), a.Definition);
         public static bool operator <(Sample a, Sample b) => a.Definition == b.Definition ? a.Value < b.Value : throw new Exception();
         public static bool operator >(Sample a, Sample b) => a.Definition == b.Definition ? a.Value > b.Value : throw new Exception();
         public static bool operator ==(Sample left, Sample right) => left.Equals(right);
@@ -61,18 +58,7 @@ namespace NtFreX.Audio.Infrastructure
         {
             if (cache == null)
             {
-                if (Definition.Type == AudioFormatType.Pcm)
-                {
-                    cache = Number.ToRequiredBits(Definition.Bits, (long) Value, Definition.IsLittleEndian);
-                }
-                else if (Definition.Type == AudioFormatType.IeeFloat)
-                {
-                    cache = FloatingPointNumber.ToRequiredBits(Definition.Bits, Value, Definition.IsLittleEndian);
-                }
-                else
-                {
-                    throw new NotImplementedException("The given audio format type is not supported");
-                }
+                cache = NumberFactory.DeconstructNumber(Definition, Value);
             }
             return cache;
         }
@@ -109,7 +95,7 @@ namespace NtFreX.Audio.Infrastructure
         {
             var max = Math.Pow(256, bits / 8) / 2;
             var min = max * -1;
-            return value < 0 ? Math.Max(min, value) : Math.Min(max, value);
+            return Math.Clamp(value, min, max);
         }
     }
 }

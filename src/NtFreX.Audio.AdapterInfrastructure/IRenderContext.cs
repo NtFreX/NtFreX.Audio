@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure;
+using System;
 
 namespace NtFreX.Audio.AdapterInfrastructure
 {
@@ -13,6 +14,7 @@ namespace NtFreX.Audio.AdapterInfrastructure
 #pragma warning restore CA1716 // Identifiers should not match keywords
         void Start();
 
+        IAudioFormat GetFormat();
         TimeSpan GetPosition();
     }
 }
