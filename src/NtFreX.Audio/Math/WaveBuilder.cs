@@ -37,7 +37,7 @@ namespace NtFreX.Audio.Math
             for (var sampleNumber = 0; sampleNumber < sampleRate * lengthInSeconds; sampleNumber++)
             {
                 var timeInSeconds = sampleNumber / (sampleRate * 1f);
-                yield return System.Math.Sin(2 * System.Math.PI * frequency * timeInSeconds) + 1f;
+                yield return System.Math.Sin(2 * System.Math.PI * frequency * timeInSeconds);
             }
         }
     }
