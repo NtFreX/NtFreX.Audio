@@ -5,6 +5,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <!--TODO: include platform assembly only on matching config => validate if working -->
     <!--<ProjectReference Include="..\..\src\adapters\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />-->

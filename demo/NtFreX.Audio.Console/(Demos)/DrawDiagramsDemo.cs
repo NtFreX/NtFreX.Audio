@@ -135,41 +135,35 @@ namespace NtFreX.Audio.Console
         }
 
         /*
-        static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
+        private const int SpectogramHeight = 100;
+        private static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
         {
-            // TODO: cleanup improve make it work
             using var monoAudio = await AudioEnvironment.Sampler
-                .MonoAudioSampler()
+                .ChannelAudioSampler(1)
                 .SampleAsync(waveAudioContainer)
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);
 
-            //using var downAudio = await AudioEnvironment.Sampler.BitsPerSampleAudioSampler(8).SampleAsync(monoAudio).ConfigureAwait(false);
-            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.ToInt64()).ToArrayAsync().ConfigureAwait(false);
+            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.Value).ToArrayAsync().ConfigureAwait(false);
 
             var spectrum = new StringBuilder();
             var computed = FourierTransform
-                .Fast(monoData.Select(x => new CartesianCordinate(x)).ToArray())
+                .Fast(monoData.Select(x => new Complex(x, 0)).ToArray())
                 .Where(x => x != null)
                 .ToArray();
 
-            var height = computed.Max(x => x.X) + computed.Max(x => x.Y);
-            var halfY = height / 2.0f;
+            var halfY = SpectogramHeight  / 2.0f;
 
             var skip = 50;
-            spectrum.AppendLine($"<svg viewBox=\"0 0 {computed.Length} {height}\" height=\"40%\" width=\"40%\">"); // viewBox=\"0 0 {width} {height}\" height=\"100%\" width=\"100%\" style=\"position:absolute;z-index:1;\" 
-            spectrum.AppendLine($"<path stroke=\"black\" stroke-width=\"{2}\" stroke-opacity=\"1\" fill-opacity=\"0\" d=\"M0 {halfY}"); // height=\"{height}\" width=\"{width}\" 
+            spectrum.AppendLine($"<svg height=\"{SpectogramHeight}\" width=\"{monoData.Length}\" style=\"border: 1px solid black;\">");
+            spectrum.AppendLine($"<path stroke=\"black\" stroke-width=\"{2}\" stroke-opacity=\"1\" fill-opacity=\"0\" d=\"M0 {halfY}");
             for (int i = 0; i < computed.Length; i += skip)
             {
-                var current = computed.Skip(i).Take(skip).ToArray();
-                var averageX = current.Average(x => x.X);
-                var averageY = current.Average(x => x.Y);
-                spectrum.AppendLine($"L{i} {(averageX + averageY) / 100.0} ");
+                spectrum.AppendLine($"L{i} {computed[i].Magnitude / SpectogramHeight} ");
             }
             spectrum.AppendLine("Z\" />");
             spectrum.AppendLine("</svg>");
             return spectrum.ToString();
-        }
-        */
+        }*/
     }
 }
