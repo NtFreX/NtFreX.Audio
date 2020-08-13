@@ -11,6 +11,6 @@ namespace NtFreX.Audio.Devices
 
         [return: NotNull]
         public IAudioPlatform Initialize()
-            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.Alsa", "AlsaPlatform");
+            => AsssemblyAudioDeviceLoader.Initialize("NtFreX.Audio.Alsa", "AlsaAudioPlatform");
     }
 }
