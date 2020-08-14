@@ -13,10 +13,11 @@ namespace NtFreX.Audio.Alsa.Wrapper
                 return;
             }
 
-            var errorPtr = Interop.Alsa.snd_strerror((int)result);
+            var resultCode = (int)result;
+            var errorPtr = Interop.Alsa.snd_strerror(resultCode);
             var errorMsg = errorPtr != null && errorPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(errorPtr) : "Unknown interop error code";
 
-            throw new Exception(message, new Exception($"Error {result}: {errorMsg}"));
+            throw new Exception(message, new COMException(errorMsg, resultCode));
         }
     }
 }

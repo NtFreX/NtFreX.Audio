@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -126,11 +127,17 @@ namespace NtFreX.Audio.Console
 
             System.Console.WriteLine();
             System.Console.WriteLine(spacing + exce.Message);
+
+            if(exce is COMException comException)
+            {
+                System.Console.WriteLine($"{spacing}HResult: {comException.HResult}");
+            }
+
             System.Console.WriteLine(spacing + exce.StackTrace);
 
             if(exce.InnerException != null)
             {
-                LogException(exce.InnerException, tabs++);
+                LogException(exce.InnerException, ++tabs);
             }
         }
     }
