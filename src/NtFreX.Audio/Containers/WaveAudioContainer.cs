@@ -43,20 +43,17 @@ namespace NtFreX.Audio.Containers
             var samplesSize = FmtSubChunk.BitsPerSample / 8;
             var isLittleEndian = IsDataLittleEndian();
             var definition = new SampleDefinition(FmtSubChunk.Type, FmtSubChunk.BitsPerSample, isLittleEndian);
-            var tempBuffer = new List<byte>();
             await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
-                tempBuffer.AddRange(buffer);
                 var currentIndex = 0;
-                while(tempBuffer.Count >= samplesSize * (currentIndex + 1))
+                while (buffer.Length > currentIndex)
                 {
-                    yield return new Sample(tempBuffer.Skip(currentIndex * samplesSize).Take(samplesSize).ToArray(), definition);
-                    currentIndex++;
+                    yield return new Sample(buffer.AsMemory(currentIndex, samplesSize).ToArray(), definition);
+                    currentIndex += samplesSize;
                 }
-                tempBuffer.RemoveRange(0, samplesSize * currentIndex);
-            }
 
-            Debug.Assert(tempBuffer.Count == 0, $"Temp buffer should be completly returned and emptied but is {tempBuffer.Count} long");
+                Debug.Assert(currentIndex == buffer.Length, $"GetAudioSamplesAsBufferAsync must return a multiple of the sample size {samplesSize}");
+            }
         }
     }
 }
