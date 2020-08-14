@@ -12,6 +12,10 @@
     <!-- TODO: use in package -->
     <Version>0.0.1-alpha</Version>
   </PropertyGroup>
+    
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
