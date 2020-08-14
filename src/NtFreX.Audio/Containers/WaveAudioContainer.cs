@@ -52,7 +52,13 @@ namespace NtFreX.Audio.Containers
                     currentIndex += samplesSize;
                 }
 
-                Debug.Assert(currentIndex == buffer.Length, $"GetAudioSamplesAsBufferAsync must return a multiple of the sample size {samplesSize}");
+#if DEBUG
+                // fun fact: Debug.Assert is so slow it cannot be used here
+                if(currentIndex != buffer.Length) 
+                {
+                    throw new Exception($"GetAudioSamplesAsBufferAsync must return a multiple of the sample size {samplesSize}");
+                }
+#endif
             }
         }
     }

@@ -33,15 +33,14 @@ namespace NtFreX.Audio.Containers
         public override async IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             using var readContext = await Data.AquireAsync(cancellationToken).ConfigureAwait(false);
-            if(readContext.Data == null)
+            if (readContext.Data == null)
             {
                 throw new Exception(ExceptionMessages.DataStreamNull);
             }
 
             var bufferSize = StreamFactory.GetBufferSize();
-            var max = ChunkSize;
-            var current = 0;
             var endOfChunk = ChunkSize + StartIndex + ChunkHeaderSize;
+            var buffer = new byte[bufferSize];
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
@@ -49,28 +48,19 @@ namespace NtFreX.Audio.Containers
                     throw new OperationCanceledException(ExceptionMessages.CancelationRequested);
                 }
 
-                var realBufferSize = (int)(current + bufferSize > max ? max - current : bufferSize);
-                if (readContext.Data.Position + realBufferSize > endOfChunk)
+                if (readContext.Data.Position + bufferSize > endOfChunk)
                 {
                     // other chunks could follow after this so stop when end of chunk is reached
-                    realBufferSize = (int) (endOfChunk - readContext.Data.Position);
+                    var endBufferSize = (int)(endOfChunk - readContext.Data.Position);
+                    await readContext.Data.ReadAsync(buffer, 0, endBufferSize, cancellationToken).ConfigureAwait(false);
+                    yield return buffer.AsMemory(0, endBufferSize).ToArray();
+                    break;
                 }
-
-                var buffer = new byte[realBufferSize];
-
-                try
+                else
                 {
-                    var readLength = await readContext.Data.ReadAsync(buffer, 0, realBufferSize, cancellationToken).ConfigureAwait(false);
-                    if (readLength == 0)
-                    {
-                        break;
-                    }
+                    await readContext.Data.ReadAsync(buffer, 0, bufferSize, cancellationToken).ConfigureAwait(false);
+                    yield return buffer;
                 }
-                catch (Exception exce)
-                {
-                    throw new Exception(ExceptionMessages.AudioSampleLoadingFailed, exce);
-                }
-                yield return buffer;
             }
         }
 
@@ -82,7 +72,7 @@ namespace NtFreX.Audio.Containers
         [return: NotNull] public override StreamDataSubChunk WithChunkId([NotNull] string chunkId) => throw new Exception("Stream containers are read only");
         [return: NotNull] public override StreamDataSubChunk WithChunkSize(uint chunkSize) => throw new Exception("Stream containers are read only");
 
-        private static void OnStreamAquire(Stream? stream, long startIndex) 
+        private static void OnStreamAquire(Stream? stream, long startIndex)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
@@ -92,7 +82,7 @@ namespace NtFreX.Audio.Containers
                 return;
             }
 
-            if(!stream.CanSeek)
+            if (!stream.CanSeek)
             {
                 throw new Exception("The stream is non seekable an therefore can only be read once");
             }
