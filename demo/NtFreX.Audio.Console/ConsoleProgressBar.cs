@@ -11,7 +11,7 @@ namespace NtFreX.Audio.Console
         private const int MaxLength = 40;
         private const int StartAtFromLeft = 2;
 
-        private static double lastProgress = 0;
+        private static double lastProgress;
 
         public static void LogProgress(double progress)
         {

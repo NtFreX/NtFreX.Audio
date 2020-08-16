@@ -25,7 +25,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly Task audioPump;
         private readonly uint bufferFrameCount;
 
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         internal ManagedAudioCapture(ManagedAudioClient managedAudioClient, IAudioCaptureClient audioCaptureClient, IAudioSink sink, CancellationToken cancellationToken)
         {

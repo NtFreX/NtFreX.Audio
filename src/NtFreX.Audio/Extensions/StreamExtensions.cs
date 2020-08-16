@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Extensions
             }
             else
             {
-                _ = await stream.ReadAsync(new byte[length], 0, length, cancellationToken).ConfigureAwait(false);
+                _ = await stream.ReadAsync(new byte[length], cancellationToken).ConfigureAwait(false);
             }
             return stream;
         }
@@ -68,7 +68,7 @@ namespace NtFreX.Audio.Extensions
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
             var buffer = new byte[requiredLength];
-            var length = await stream.ReadAsync(buffer, 0, requiredLength, cancellationToken).ConfigureAwait(false);
+            var length = await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
             if (length != requiredLength)
             {
                 throw new InvalidOperationException(ExceptionMessages.StreamToShort);

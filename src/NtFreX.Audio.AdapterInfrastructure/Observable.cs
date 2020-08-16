@@ -12,7 +12,7 @@ namespace NtFreX.Audio.AdapterInfrastructure
         private readonly List<Func<object, T, Task>> asyncHandlers = new List<Func<object, T, Task>>();
         private readonly List<TaskCompletionSource<(object Sender, T Args)>> nextInvokeHandlers = new List<TaskCompletionSource<(object Sender, T Args)>>();
         private readonly object myLock = new object();
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         public void Subscribe(Action<object, T> handler)
         {

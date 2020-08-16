@@ -11,7 +11,7 @@ namespace NtFreX.Audio.Helpers
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private readonly T? data;
         private readonly Action<T?>? aquireAction;
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         internal ReadLock([MaybeNull] T? data, [MaybeNull] Action<T?>? aquireAction)
         {
