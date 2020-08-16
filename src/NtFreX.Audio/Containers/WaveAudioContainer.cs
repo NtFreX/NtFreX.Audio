@@ -2,7 +2,6 @@
 using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -34,16 +33,24 @@ namespace NtFreX.Audio.Containers
         public TimeSpan GetLength()
             => TimeSpan.FromSeconds(DataSubChunk.ChunkSize / (FmtSubChunk.ByteRate * 1.0f));
 
+        public void SeekTo(TimeSpan time)
+        {
+            var length = GetLength();
+            var position = time;
+            DataSubChunk.SeekTo((long) (position / length * DataSubChunk.ChunkSize));
+        }
+
         public bool IsDataLittleEndian()
             => RiffSubChunk.ChunkId == Containers.RiffSubChunk.ChunkIdentifierRIFF;
 
         [return: NotNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var samplesSize = FmtSubChunk.BitsPerSample / 8;
             var isLittleEndian = IsDataLittleEndian();
             var definition = new SampleDefinition(FmtSubChunk.Type, FmtSubChunk.BitsPerSample, isLittleEndian);
-            await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
             {
                 var currentIndex = 0;
                 while (buffer.Length > currentIndex)

@@ -6,7 +6,8 @@ namespace NtFreX.Audio.Performance
     {
         public static void Main()
         {
-            BenchmarkRunner.Run<SampleRateAudioSamplerBenchmark>();
+            BenchmarkRunner.Run<AudioPipeBenchmark>();
+            //BenchmarkRunner.Run<SampleRateAudioSamplerBenchmark>();
         }
     }
 }

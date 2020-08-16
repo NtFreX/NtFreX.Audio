@@ -111,7 +111,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var hasStarted = false;
                 var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
+                await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
                 {
                     realBuffer.AddRange(buffer.AsByteArray());
 

@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Math;
 using NtFreX.Audio.Samplers;
 using System.Threading.Tasks;
 

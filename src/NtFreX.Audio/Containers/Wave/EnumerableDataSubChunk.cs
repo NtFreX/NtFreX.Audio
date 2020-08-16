@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -29,5 +30,7 @@ namespace NtFreX.Audio.Containers
         [return: NotNull]
         public override IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] CancellationToken cancellationToken = default)
             => Data;
+
+        public override void SeekTo(long position) => throw new NotImplementedException("The given data is not seekable");
     }
 }

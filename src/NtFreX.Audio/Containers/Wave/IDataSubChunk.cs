@@ -7,6 +7,7 @@ namespace NtFreX.Audio.Containers
 {
     public interface IDataSubChunk: ISubChunk
     {
+        void SeekTo(long position);
         IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] CancellationToken cancellationToken = default);
     }
 }

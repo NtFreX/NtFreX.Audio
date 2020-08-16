@@ -26,6 +26,8 @@ namespace NtFreX.Audio.Helpers
             return new ReadLockContext<T>(semaphore, data);
         }
 
+        public T? UnsafeAccess() => data;
+
         public void Dispose()
         {
             Dispose(true);
