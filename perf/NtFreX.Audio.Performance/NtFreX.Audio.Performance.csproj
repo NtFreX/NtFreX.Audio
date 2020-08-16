@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SolutionDir)'==''">
+    <!-- Define solution dir to be able to reference solution items even if only this project is build without solution -->
+    <SolutionDir>$(ProjectDir)..\..\</SolutionDir>
   </PropertyGroup>
 
   <ItemGroup>

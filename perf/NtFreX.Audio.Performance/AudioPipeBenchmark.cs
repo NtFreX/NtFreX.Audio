@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using NtFreX.Audio.Containers;
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
@@ -9,6 +10,10 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Performance
 {
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp50)]
+    [SimpleJob(RuntimeMoniker.CoreRt31)]
+    [SimpleJob(RuntimeMoniker.CoreRt50)]
     public class AudioPipeBenchmark
     {
         private IAudioFormat targetFormat = new AudioFormat(WellKnownSampleRate.Hz48000, 32, 2, AudioFormatType.Pcm);
@@ -33,8 +38,6 @@ namespace NtFreX.Audio.Performance
             {
                 throw new Exception("Pregenerated data required");
             }
-
-            sourceAudio.SeekTo(TimeSpan.Zero);
 
             await sourceAudio
                 .ToFormatAsync(targetFormat)
