@@ -69,6 +69,23 @@ namespace NtFreX.Audio.Containers
             Data.Dispose();
         }
 
+        public override void SeekTo(long position)
+        {
+            var index = StartIndex + ChunkHeaderSize + position;
+            var stream = Data.UnsafeAccess();
+            if(stream == null)
+            {
+                throw new Exception("Stream is null");
+            }
+
+            if (!stream.CanSeek)
+            {
+                throw new Exception("The stream is non seekable an therefore can only be read once");
+            }
+
+            stream.Seek(index, SeekOrigin.Begin);
+        }
+
         [return: NotNull] public override StreamDataSubChunk WithChunkId([NotNull] string chunkId) => throw new Exception("Stream containers are read only");
         [return: NotNull] public override StreamDataSubChunk WithChunkSize(uint chunkSize) => throw new Exception("Stream containers are read only");
 
