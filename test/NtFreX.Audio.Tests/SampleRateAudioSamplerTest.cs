@@ -11,18 +11,18 @@ namespace NtFreX.Audio.Tests
     [TestFixture]
     public class SampleRateAudioSamplerTest
     {
-        [TestCase(2, 4)]
-        [TestCase(4, 6)]
-        [TestCase(3, 5)]
-        [TestCase(4, 8)]
+        [TestCase((uint)2, (uint)4)]
+        [TestCase((uint)4, (uint)6)]
+        [TestCase((uint)3, (uint)5)]
+        [TestCase((uint)4, (uint)8)]
         [TestCase(WellKnownSampleRate.Hz44100, WellKnownSampleRate.Hz48000)]
         [TestCase(WellKnownSampleRate.Hz16000, WellKnownSampleRate.Hz48000)]
         [TestCase(WellKnownSampleRate.Hz8000, WellKnownSampleRate.Hz32000)]
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz48000)]
-        [TestCase(8, 4)]
+        [TestCase((uint)8, (uint)4)]
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
-        public async Task ShouldSampleCorrectByteAmount(int fromSampleRate, int toSampleRate)
+        public async Task ShouldSampleCorrectByteAmount(uint fromSampleRate, uint toSampleRate)
         {
             var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint) fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler((uint) toSampleRate);
@@ -41,11 +41,11 @@ namespace NtFreX.Audio.Tests
             Assert.AreEqual(expectedNewDataSize, expectedNewSize);
         }
 
-        [TestCase(4, 8)]
+        [TestCase((uint)4, (uint)8)]
         [TestCase(WellKnownSampleRate.Hz44100, WellKnownSampleRate.Hz48000)]
-        [TestCase(8, 4)]
+        [TestCase((uint)8, (uint)4)]
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
-        public async Task ShouldBeSameLengthAfterSampling(int fromSampleRate, int toSampleRate)
+        public async Task ShouldBeSameLengthAfterSampling(uint fromSampleRate, uint toSampleRate)
         {
             var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint)fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler((uint)toSampleRate);
