@@ -26,10 +26,8 @@ namespace NtFreX.Audio.Samplers
 
             var max = (System.Math.Pow(2, audio.Format.BitsPerSample) / 2) - 1;
             var samples = audio
-                .GetAudioSamplesAsync()
-                .SelectAsync(x => new Sample(
-                    value: x.Value / max, 
-                    definition: new SampleDefinition(AudioFormatType.IeeFloat, x.Definition.Bits, x.Definition.IsLittleEndian)));
+                .GetAudioSamplesAsync(cancellationToken)
+                .SelectAsync(x => new Sample(value: x.Value / max, definition: new SampleDefinition(AudioFormatType.IeeFloat, x.Definition.Bits, x.Definition.IsLittleEndian)), cancellationToken);
 
             return Task.FromResult(audio
                 .WithFmtSubChunk(x => x.WithAudioFormat(AudioFormatType.IeeFloat))

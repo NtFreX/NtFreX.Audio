@@ -24,6 +24,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         [return: NotNull] public static async IAsyncEnumerable<TOutput> SelectManyAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, IEnumerable<TOutput>> selector, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            _ = selector ?? throw new ArgumentNullException(nameof(selector));
+
             await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 foreach(var subValue in selector(value))
@@ -35,6 +37,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         [return: NotNull] public static async IAsyncEnumerable<TOutput> SelectAsync<T, TOutput>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Func<T, TOutput> selector, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            _ = selector ?? throw new ArgumentNullException(nameof(selector));
+
             await foreach(var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return selector(value);
@@ -44,6 +48,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
         [return: NotNull]
         public static async IAsyncEnumerable<T> ForEachAsync<T>([NotNull] this IAsyncEnumerable<T> values, [NotNull] Action<int, T> visitor, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            _ = visitor ?? throw new ArgumentNullException(nameof(visitor));
+
             var index = 0;
             await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
             {

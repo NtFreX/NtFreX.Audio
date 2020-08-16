@@ -52,13 +52,13 @@ namespace NtFreX.Audio.Containers
                 {
                     // other chunks could follow after this so stop when end of chunk is reached
                     var endBufferSize = (int)(endOfChunk - readContext.Data.Position);
-                    await readContext.Data.ReadAsync(buffer, 0, endBufferSize, cancellationToken).ConfigureAwait(false);
+                    await readContext.Data.ReadAsync(buffer.AsMemory(0, endBufferSize), cancellationToken).ConfigureAwait(false);
                     yield return buffer.AsMemory(0, endBufferSize).ToArray();
                     break;
                 }
                 else
                 {
-                    await readContext.Data.ReadAsync(buffer, 0, bufferSize, cancellationToken).ConfigureAwait(false);
+                    await readContext.Data.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
                     yield return buffer;
                 }
             }

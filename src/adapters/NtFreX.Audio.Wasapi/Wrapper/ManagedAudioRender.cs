@@ -29,7 +29,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly Task eventPump;
         private readonly uint bufferFrameCount;
 
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         public Observable<EventArgs<Exception>> RenderExceptionOccured { get; } = new Observable<EventArgs<Exception>>();
         public Observable<EventArgs> EndOfDataReached { get; } = new Observable<EventArgs>();

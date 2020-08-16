@@ -10,7 +10,7 @@ namespace NtFreX.Audio.Containers
     /// </summary>
     public sealed class WaveStreamAudioContainer : WaveAudioContainer<StreamDataSubChunk>, IStreamAudioContainer
     {
-        private bool disposed = false;
+        private bool disposed;
 
         public WaveStreamAudioContainer([NotNull] IRiffSubChunk riffChunkDescriptor, [NotNull] FmtSubChunk fmtSubChunk, [NotNull] StreamDataSubChunk dataSubChunk, [NotNull] IReadOnlyList<UnknownSubChunk> riffSubChuncks)
             : base(riffChunkDescriptor, fmtSubChunk, dataSubChunk, riffSubChuncks) { }

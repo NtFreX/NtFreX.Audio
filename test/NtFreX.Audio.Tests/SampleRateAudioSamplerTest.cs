@@ -24,8 +24,8 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint) fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
-            var sampler = new SampleRateAudioSampler((uint) toSampleRate);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
             var oldData = await audio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
@@ -47,8 +47,8 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat((uint)fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
-            var sampler = new SampleRateAudioSampler((uint)toSampleRate);
+            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
 

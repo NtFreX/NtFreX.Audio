@@ -27,6 +27,9 @@ namespace NtFreX.Audio.Extensions
 
         public static async Task<WaveEnumerableAudioContainer> ToFormatAsync(this IWaveAudioContainer source, IAudioFormat targetFormat, CancellationToken cancellationToken = default)
         {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = targetFormat ?? throw new ArgumentNullException(nameof(targetFormat));
+
             var pipe = new AudioSamplerPipe()
                     .Add(x => x.BitsPerSampleAudioSampler(targetFormat.BitsPerSample))
                     .Add(x => x.SampleRateAudioSampler(targetFormat.SampleRate))

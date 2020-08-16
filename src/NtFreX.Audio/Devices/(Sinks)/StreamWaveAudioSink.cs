@@ -9,8 +9,8 @@ namespace NtFreX.Audio.Devices
 {
     public class StreamWaveAudioSink : IAudioSink, IAsyncDisposable
     {
-        private uint size = 0;
-        private bool isDisposed = false;
+        private uint size;
+        private bool isDisposed;
 
         public Stream Stream { get; }
 

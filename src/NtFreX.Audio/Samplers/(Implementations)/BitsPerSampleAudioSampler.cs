@@ -32,9 +32,9 @@ namespace NtFreX.Audio.Samplers
             var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
             var isLittleEndian = audio.IsDataLittleEndian();
             var samples = audio
-                .GetAudioSamplesAsync()
-                .SelectAsync(x => new Sample(x.Value, new SampleDefinition(x.Definition.Type, bitsPerSample, x.Definition.IsLittleEndian)))
-                .SelectAsync(x => UpOrDown(audio, x, isNewBigger, factor));
+                .GetAudioSamplesAsync(cancellationToken)
+                .SelectAsync(x => new Sample(x.Value, new SampleDefinition(x.Definition.Type, bitsPerSample, x.Definition.IsLittleEndian)), cancellationToken)
+                .SelectAsync(x => UpOrDown(audio, x, isNewBigger, factor), cancellationToken);
 
             var newSize = audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample;
             
