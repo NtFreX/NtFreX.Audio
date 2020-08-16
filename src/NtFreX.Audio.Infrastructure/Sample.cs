@@ -33,17 +33,17 @@ namespace NtFreX.Audio.Infrastructure
         public static Sample Zero(SampleDefinition definition) => new Sample(0d, definition);
 
         public static Sample operator +(Sample a, Sample b)
-            => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value + b.Value), a.Definition) : throw new Exception();
+            => a.Definition == b.Definition ? new Sample(a.Value + b.Value, a.Definition) : throw new Exception();
         public static Sample operator -(Sample a, Sample b)
-            => a.Definition == b.Definition ? new Sample(LimitTo(a.Definition.Bits, a.Value - b.Value), a.Definition) : throw new Exception();
+            => a.Definition == b.Definition ? new Sample(a.Value - b.Value, a.Definition) : throw new Exception();
         public static Sample operator +(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, a.Value + b), a.Definition);
+            => new Sample(a.Value + b, a.Definition);
         public static Sample operator -(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, a.Value - b), a.Definition);
+            => new Sample(a.Value - b, a.Definition);
         public static Sample operator /(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, a.Value / b), a.Definition);
+            => new Sample(a.Value / b, a.Definition);
         public static Sample operator *(Sample a, double b)
-            => new Sample(LimitTo(a.Definition.Bits, a.Value * b), a.Definition);
+            => new Sample(a.Value * b, a.Definition);
         public static bool operator <(Sample a, Sample b) => a.Definition == b.Definition ? a.Value < b.Value : throw new Exception();
         public static bool operator >(Sample a, Sample b) => a.Definition == b.Definition ? a.Value > b.Value : throw new Exception();
         public static bool operator ==(Sample left, Sample right) => left.Equals(right);
@@ -90,12 +90,5 @@ namespace NtFreX.Audio.Infrastructure
 
         public bool Equals([AllowNull] Sample other) 
             => Definition == other.Definition && other.AsByteArray().SequenceEqual(AsByteArray());
-
-        private static double LimitTo(ushort bits, double value)
-        {
-            var max = Math.Pow(256, bits / 8) / 2;
-            var min = max * -1;
-            return Math.Clamp(value, min, max);
-        }
     }
 }
