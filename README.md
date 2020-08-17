@@ -9,13 +9,13 @@ This .net core library provides functionality to
  - convert between audio formats
  - play/record wave data
 
-## Architecture
- 
-The entry point should most of the time be the `AudioEnvironment` class.
+## Supported formats
 
-This is a takeout of the library architecture. A speciality of this library is the `WaveEnumerableAudioContainer` which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
+Containers/Formats:
 
-![img](./resources/doc/architecture.jpg)
+ - Wave
+   - Pcm (8bps, 16bps, 32bps, 64bps)
+   - Float (16bps, 32bps, 64bps)
 
 ## Demo
 
@@ -103,4 +103,12 @@ await Task.Delay(time);
 
 You need to install the `NtFreX.Audio` nuget package and then addtional nuget packages depending on the platforms you want to use.
 
- - For Windows the `NtFreX.Audio.Wasapi` package
+ - For Windows 7 and upwards the `NtFreX.Audio.Wasapi` package
+
+## Architecture
+ 
+The entry point should most of the time be the `AudioEnvironment` class.
+
+This is a takeout of the library architecture. A speciality of this library is the `WaveEnumerableAudioContainer` which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
+
+![img](./resources/doc/architecture.jpg)
