@@ -1,8 +1,8 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace NtFreX.Audio.Containers
@@ -12,13 +12,10 @@ namespace NtFreX.Audio.Containers
         /// <summary>
         /// The actual sound data.
         /// </summary>
-        public IAsyncEnumerable<byte[]> Data { get; }
+        public IAsyncEnumerable<Sample> Data { get; }
 
         public EnumerableDataSubChunk([NotNull] string chunkId, uint chunkSize, [NotNull] IAsyncEnumerable<Sample> data)
-            : this(chunkId, chunkSize, data.SelectAsync(x => x.AsByteArray())) { }
-
-        public EnumerableDataSubChunk([NotNull] string chunkId, uint chunkSize, [NotNull] IAsyncEnumerable<byte[]> data)
-            : base(chunkId, chunkSize)
+            : base(chunkId, chunkSize) 
         {
             Data = data;
         }
@@ -28,8 +25,8 @@ namespace NtFreX.Audio.Containers
         [return: NotNull] public EnumerableDataSubChunk WithData([NotNull] IAsyncEnumerable<Sample> data) => new EnumerableDataSubChunk(ChunkId, ChunkSize, data);
 
         [return: NotNull]
-        public override IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] CancellationToken cancellationToken = default)
-            => Data;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default) => Data;
 
         public override void SeekTo(long position) => throw new NotImplementedException("The given data is not seekable");
     }

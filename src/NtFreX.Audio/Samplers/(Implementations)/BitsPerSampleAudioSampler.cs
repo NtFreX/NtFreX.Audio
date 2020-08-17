@@ -42,12 +42,6 @@ namespace NtFreX.Audio.Samplers
             return base.ToString() + $", bitsPerSample={bitsPerSample}";
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Sample UpOrDown(AudioFormatType type, Sample sample, bool isNewBigger, double factor)
-            => type == AudioFormatType.Pcm ? isNewBigger ? sample * factor : sample / factor :
-               type == AudioFormatType.IeeFloat ? sample :
-               throw new Exception();
-
         private async IAsyncEnumerable<Sample> SampleInnerAsync(WaveEnumerableAudioContainer audio, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
@@ -55,8 +49,13 @@ namespace NtFreX.Audio.Samplers
             var definition = new SampleDefinition(audio.Format.Type, bitsPerSample, audio.IsDataLittleEndian());
             await foreach (var sample in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
             {
-                var newSample = new Sample(sample.Value, definition);
-                yield return UpOrDown(audio.Format.Type, newSample, isNewBigger, factor);
+                yield return new Sample(
+                    audio.Format.Type switch
+                    {
+                        AudioFormatType.Pcm => isNewBigger ? sample.Value * factor : sample.Value / factor,
+                        AudioFormatType.IeeFloat => sample.Value,
+                        _ => throw new Exception()
+                    }, definition);
             }
         }
     }

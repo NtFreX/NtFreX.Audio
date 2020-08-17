@@ -19,6 +19,9 @@ namespace NtFreX.Audio.Containers
             }
         }
 
+        public bool IsDataLittleEndian()
+            => RiffSubChunk.IsDataLittleEndian();
+
         protected RiffContainer(IRiffSubChunk riffSubChunk, IReadOnlyList<ISubChunk> subChunks)
         {
             RiffSubChunk = riffSubChunk;

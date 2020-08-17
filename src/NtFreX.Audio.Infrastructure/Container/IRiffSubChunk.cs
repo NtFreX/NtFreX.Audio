@@ -9,5 +9,7 @@ namespace NtFreX.Audio.Infrastructure.Container
         IRiffSubChunk WithChunkId([NotNull] string chunkId);
         IRiffSubChunk WithChunkSize(uint chunkSize);
         IRiffSubChunk WithFormat([NotNull] string format);
+
+        bool IsDataLittleEndian();
     }
 }

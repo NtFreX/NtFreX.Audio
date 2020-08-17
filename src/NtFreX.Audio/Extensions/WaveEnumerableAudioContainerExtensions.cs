@@ -25,7 +25,7 @@ namespace NtFreX.Audio.Extensions
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var modifier = audio.DataSubChunk.ChunkSize / (audio.Format.BitsPerSample / 8);
+            var modifier = audio.DataSubChunk.ChunkSize / (audio.Format.BitsPerSample / 8d);
             return audio.WithDataSubChunk(x => x.WithData(audio.GetAudioSamplesAsync(cancellationToken).ForEachAsync((index, _) => onProgress.Invoke((index + 1) / modifier), cancellationToken)));
         }
 
