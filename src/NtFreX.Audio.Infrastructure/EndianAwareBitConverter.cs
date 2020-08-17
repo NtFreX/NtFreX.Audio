@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NtFreX.Audio.Infrastructure
@@ -84,8 +85,11 @@ namespace NtFreX.Audio.Infrastructure
         [return:NotNull] public static string ToAscii([NotNull] this byte[] value, bool isLittleEndian = true)
             => Encoding.ASCII.GetString(value.SwitcheEndiannessWhenNotSameAsBitConverter(isLittleEndian));
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull] public static byte[] SwitcheEndiannessWhenNotSameAsBitConverter([NotNull] this byte[] value, bool isLittleEndian = true)
             => isLittleEndian != BitConverter.IsLittleEndian ? SwitchEndianness(value) : value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNull] public static byte[] SwitchEndianness([NotNull] this byte[] value)
             => value.Reverse().ToArray();
     }
