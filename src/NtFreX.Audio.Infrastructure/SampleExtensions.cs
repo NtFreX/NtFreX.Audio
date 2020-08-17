@@ -38,7 +38,7 @@ namespace NtFreX.Audio.Infrastructure
                     currentIndex += sampleSize;
                 }
 
-                Debug.Assert(currentIndex == buffer.Length, $"Byte buffers can only be converted to audio samples when their size is a multiple of the sample size {sampleSize}");
+                Debug.Assert(currentIndex == buffer.Length, $"Byte buffers can only be converted to audio samples when their size is a multiple of the sample size '{sampleSize}'");
             }
         }
     }
