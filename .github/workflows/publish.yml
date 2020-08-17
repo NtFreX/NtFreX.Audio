@@ -17,6 +17,10 @@ jobs:
         
       - name: Setup .NET Core @ Latest
         uses: actions/setup-dotnet@v1
+        with:
+          source-url: https://nuget.pkg.github.com/NtFreX/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}} 
         
       - name: Build solution and generate NtFreX.Audio NuGet package
         run: |  
@@ -25,15 +29,14 @@ jobs:
       
       - name: Build solution and generate NtFreX.Audio.Wasapi NuGet package
         run: |  
-          cd src/NtFreX.Audio.Wasapi
+          cd src/adapters/NtFreX.Audio.Wasapi
           dotnet pack -c Release -o out --version-suffix ${{env.VERSION}}
           
       - name: Push generated package to GitHub registry
         run: |
-          dotnet nuget add source https://nuget.pkg.github.com/NtFreX/index.json --name "Github" --username "NtFreX" --password ${{secrets.GITHUB_TOKEN}}
-          dotnet nuget push ./src/NtFreX.Audio/out/NtFreX.Audio.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true --source "Github"
+          dotnet nuget push ./src/NtFreX.Audio/out/NtFreX.Audio.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true
     
       - name: Push generated package to GitHub registry
         run: |
           dotnet nuget add source https://nuget.pkg.github.com/NtFreX/index.json --name "Github" --username "NtFreX" --password ${{secrets.GITHUB_TOKEN}}
-          dotnet nuget push ./src/NtFreX.Audio.Wasapi/out/NtFreX.Audio.Wasapi.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true --source "Github"
+          dotnet nuget push ./src/adapters/NtFreX.Audio.Wasapi/out/NtFreX.Audio.Wasapi.0.0.1-alpha.nupkg --skip-duplicate --no-symbols true --source "Github"
