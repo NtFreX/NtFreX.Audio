@@ -11,8 +11,6 @@ This .net core library provides functionality to
 
 ## Supported formats
 
-Containers/Formats:
-
  - Wave
    - Pcm (8bps, 16bps, 32bps, 64bps)
    - Float (16bps, 32bps, 64bps)
