@@ -6,7 +6,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
@@ -40,33 +39,9 @@ namespace NtFreX.Audio.Containers
             DataSubChunk.SeekTo((long) (position / length * DataSubChunk.ChunkSize));
         }
 
-        public bool IsDataLittleEndian()
-            => RiffSubChunk.ChunkId == Containers.RiffSubChunk.ChunkIdentifierRIFF;
-
         [return: NotNull]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            var samplesSize = FmtSubChunk.BitsPerSample / 8;
-            var isLittleEndian = IsDataLittleEndian();
-            var definition = new SampleDefinition(FmtSubChunk.Type, FmtSubChunk.BitsPerSample, isLittleEndian);
-            await foreach (var buffer in DataSubChunk.GetAudioSamplesAsBufferAsync(cancellationToken: cancellationToken).ConfigureAwait(false))
-            {
-                var currentIndex = 0;
-                while (buffer.Length > currentIndex)
-                {
-                    yield return new Sample(buffer.AsMemory(currentIndex, samplesSize).ToArray(), definition);
-                    currentIndex += samplesSize;
-                }
-
-#if DEBUG
-                // fun fact: Debug.Assert is so slow it cannot be used here
-                if(currentIndex != buffer.Length) 
-                {
-                    throw new Exception($"GetAudioSamplesAsBufferAsync must return a multiple of the sample size {samplesSize}");
-                }
-#endif
-            }
-        }
+        public IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default)
+            => DataSubChunk.GetAudioSamplesAsync(cancellationToken);
     }
 }

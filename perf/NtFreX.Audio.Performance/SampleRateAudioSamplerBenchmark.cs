@@ -1,4 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Samplers;
@@ -6,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Performance
 {
+    [SimpleJob(RuntimeMoniker.NetCoreApp31)]
+    [SimpleJob(RuntimeMoniker.NetCoreApp50)]
+    [SimpleJob(RuntimeMoniker.CoreRt31)]
+    [SimpleJob(RuntimeMoniker.CoreRt50)]
     public class SampleRateAudioSamplerBenchmark
     {
         [Benchmark]

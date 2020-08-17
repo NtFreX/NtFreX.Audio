@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers.Serializers;
+using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Collections.Generic;
@@ -31,9 +32,13 @@ namespace NtFreX.Audio.Containers
             var length = await WaveAudioContainerSerializer.WriteHeadersAsync(RiffSubChunk, FmtSubChunk, UnknownSubChunks, DataSubChunk, stream, cancellationToken).ConfigureAwait(false);
             await WaveAudioContainerSerializer.WriteDataAsync(GetAudioSamplesAsync(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
 
+            var sampleDefinition = new SampleDefinition(Format.Type, Format.BitsPerSample, IsDataLittleEndian());
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-            return new WaveStreamAudioContainer(RiffSubChunk, FmtSubChunk, new StreamDataSubChunk(length - DataSubChunk<ISubChunk>.ChunkHeaderSize, DataSubChunk.ChunkId, DataSubChunk.ChunkSize, stream), UnknownSubChunks);
+            var streamData = new StreamBufferSubChunk(length - DataSubChunk<ISubChunk>.ChunkHeaderSize, DataSubChunk.ChunkId, DataSubChunk.ChunkSize, stream);
+            var streamWrapper = new StreamDataSubChunk(streamData, sampleDefinition);
 #pragma warning restore CA2000 // Dispose objects before losing scope
+
+            return new WaveStreamAudioContainer(RiffSubChunk, FmtSubChunk, streamWrapper, UnknownSubChunks);
         }
     }
 }

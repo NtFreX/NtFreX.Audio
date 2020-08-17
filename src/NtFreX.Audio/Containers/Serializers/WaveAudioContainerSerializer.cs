@@ -86,7 +86,7 @@ namespace NtFreX.Audio.Containers.Serializers
 
         [return: NotNull] public override async Task<WaveStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
         {
-            StreamDataSubChunk? data = null;
+            StreamBufferSubChunk? data = null;
             FmtSubChunk? fmt = null;
             RiffSubChunk? riff = null;
             var subChunks = new List<UnknownSubChunk>();
@@ -96,7 +96,7 @@ namespace NtFreX.Audio.Containers.Serializers
                 if (chunckId == DataSubChunk<ISubChunk>.ChunkIdentifer)
                 {
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-                    data = new StreamDataSubChunk(
+                    data = new StreamBufferSubChunk(
                           startIndex: stream.Position - 4,
                           chunkId: chunckId,
                           chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
@@ -155,7 +155,10 @@ namespace NtFreX.Audio.Containers.Serializers
                 throw new Exception(ExceptionMessages.WaveAudioContainerNoDataSubChunk);
             }
 
-            return new WaveStreamAudioContainer(riff, fmt, data, subChunks.ToArray());
+#pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
+            var wrapper = new StreamDataSubChunk(data, new SampleDefinition(fmt.Type, fmt.BitsPerSample, riff.IsDataLittleEndian()));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+            return new WaveStreamAudioContainer(riff, fmt, wrapper, subChunks.ToArray());
         }
     }
 }

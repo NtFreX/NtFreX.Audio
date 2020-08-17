@@ -15,7 +15,9 @@ namespace NtFreX.Audio.Extensions
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
             return await audio.ToStreamAsync(new MemoryStream(), cancellationToken).ConfigureAwait(false);
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
         [return: NotNull]
@@ -23,7 +25,7 @@ namespace NtFreX.Audio.Extensions
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var modifier = audio.DataSubChunk.ChunkSize / (double) (audio.FmtSubChunk.BitsPerSample / 8);
+            var modifier = audio.DataSubChunk.ChunkSize / (audio.Format.BitsPerSample / 8d);
             return audio.WithDataSubChunk(x => x.WithData(audio.GetAudioSamplesAsync(cancellationToken).ForEachAsync((index, _) => onProgress.Invoke((index + 1) / modifier), cancellationToken)));
         }
 

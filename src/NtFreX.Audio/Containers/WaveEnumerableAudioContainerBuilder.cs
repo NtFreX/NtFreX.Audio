@@ -20,13 +20,14 @@ namespace NtFreX.Audio.Containers
             _ = format ?? throw new ArgumentNullException(nameof(format));
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
+            // TODO: create intermediate wave audio format
             return new WaveEnumerableAudioContainer(
                    new RiffSubChunk(isLittleEndian ? RiffSubChunk.ChunkIdentifierRIFF : RiffSubChunk.ChunkIdentifierRIFX, /* size of file minus 8: 36 + data in default case */ (uint) (WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize + data.Length), RiffSubChunk.WAVE),
                    new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BitsPerSample),
                    new EnumerableDataSubChunk(
                        DataSubChunk<ISubChunk>.ChunkIdentifer,
                        (uint)data.Length,
-                       GroupByLength(data, format.BitsPerSample / 8).ToAsyncEnumerable()),
+                       GroupByLength(data, format.BitsPerSample / 8).ToAsyncEnumerable().ToAudioSamplesAsync(new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian))),
                    new List<UnknownSubChunk>());
         }
 

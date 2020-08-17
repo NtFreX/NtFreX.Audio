@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Infrastructure.Container;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Resources;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace NtFreX.Audio.Containers
         public abstract void SeekTo(long position);
         [return: NotNull] public abstract T WithChunkId([NotNull] string chunkId);
         [return: NotNull] public abstract T WithChunkSize(uint chunkSize); 
-        [return: NotNull] public abstract IAsyncEnumerable<byte[]> GetAudioSamplesAsBufferAsync([MaybeNull] CancellationToken cancellationToken = default);
+        [return: NotNull] public abstract IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default);
 
         private void ThrowIfInvalid()
         {

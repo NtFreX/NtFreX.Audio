@@ -39,6 +39,9 @@ namespace NtFreX.Audio.Containers
             ThrowIfInvalid();
         }
 
+        public bool IsDataLittleEndian()
+            => ChunkId == ChunkIdentifierRIFF;
+
         private void ThrowIfInvalid()
         {
 #pragma warning disable CA2208 // Instantiate argument exceptions correctly

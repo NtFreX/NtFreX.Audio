@@ -10,7 +10,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
     public static class AsyncEnumerableExtensions
     {
         [return:NotNull] public static async Task<T[]> ToArrayAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default) 
-            => (await ToListAsync(values, cancellationToken).ConfigureAwait(false)).ToArray();
+            => (await values.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
         [return: NotNull] public static async Task<List<T>> ToListAsync<T>([NotNull] this IAsyncEnumerable<T> values, [MaybeNull] CancellationToken cancellationToken = default)
         {
