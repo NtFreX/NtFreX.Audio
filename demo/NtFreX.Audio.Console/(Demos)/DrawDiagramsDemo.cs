@@ -1,8 +1,15 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Math;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,8 +35,9 @@ namespace NtFreX.Audio.Console
             using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
             System.Console.WriteLine($"Drawing...");
-            File.WriteAllText(target, Html(await DrawSampleWavesAsync(audio).ConfigureAwait(false), DrawAudioControls(file)/*, await DrawSectogramAsync(audio).ConfigureAwait(false)*/));
+            File.WriteAllText(target, Html(await DrawSampleWavesAsync(audio).ConfigureAwait(false), DrawAudioControls(file), await DrawSectogramAsync(audio).ConfigureAwait(false)));
         }
+
         private static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
         {
             var channels = new List<Sample>[waveAudioContainer.FmtSubChunk.Channels];
@@ -134,36 +142,71 @@ namespace NtFreX.Audio.Console
             return path.ToString();
         }
 
-        /*
-        private const int SpectogramHeight = 100;
         private static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
         {
+            var stepSize = 200;
+            
             using var monoAudio = await AudioEnvironment.Sampler
                 .ChannelAudioSampler(1)
                 .SampleAsync(waveAudioContainer)
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);
 
-            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => x.Value).ToArrayAsync().ConfigureAwait(false);
-
-            var spectrum = new StringBuilder();
-            var computed = FourierTransform
-                .Fast(monoData.Select(x => new Complex(x, 0)).ToArray())
-                .Where(x => x != null)
-                .ToArray();
-
-            var halfY = SpectogramHeight  / 2.0f;
-
-            var skip = 50;
-            spectrum.AppendLine($"<svg height=\"{SpectogramHeight}\" width=\"{monoData.Length}\" style=\"border: 1px solid black;\">");
-            spectrum.AppendLine($"<path stroke=\"black\" stroke-width=\"{2}\" stroke-opacity=\"1\" fill-opacity=\"0\" d=\"M0 {halfY}");
-            for (int i = 0; i < computed.Length; i += skip)
+            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => new Complex(x.Value, 0)).ToArrayAsync().ConfigureAwait(false);
+            var steps = monoData.Length / stepSize;
+            var data = new double[steps][];
+            for (var col = 0; col < steps; col++)
             {
-                spectrum.AppendLine($"L{i} {computed[i].Magnitude / SpectogramHeight} ");
+                var computed = FourierTransform
+                    .Fast(monoData.Skip(stepSize * col).Take(stepSize).ToArray())
+                    .ToArray();
+
+                data[col] = new double[computed.Length];
+                for (int row = 0; row < computed.Length; row++)
+                {
+                    data[col][row] = computed[row].Magnitude;
+                }
             }
-            spectrum.AppendLine("Z\" />");
-            spectrum.AppendLine("</svg>");
-            return spectrum.ToString();
-        }*/
+
+            var max = data.SelectMany(x => x).Max();
+            using var bitmap = new Bitmap(data.Length, data[0].Length, PixelFormat.Format32bppArgb);
+            for (var col = 0; col < bitmap.Width; col++)
+            {
+                for (int row = 0; row < bitmap.Height; row++)
+                {
+                    var factor = data[col][row] / max;
+                    var value = (int)(factor * byte.MaxValue);
+
+                    bitmap.SetPixel(col, row, Color.FromArgb(0, 0, value));
+                }
+            }
+
+            return $"<div>{ToBase64Image(bitmap, ImageFormat.Jpeg)}</div>";
+        }
+
+        private static string ToBase64String(Bitmap bmp, ImageFormat imageFormat)
+        {
+            using var memoryStream = new MemoryStream();
+            bmp.Save(memoryStream, imageFormat);
+
+            memoryStream.Position = 0;
+            byte[] byteBuffer = memoryStream.ToArray();
+
+            memoryStream.Close();
+
+            return Convert.ToBase64String(byteBuffer);
+        }
+
+        private static string ToBase64Image(Bitmap bmp, ImageFormat imageFormat)
+        {
+            var base64String = ToBase64String(bmp, imageFormat);
+            var img = new StringBuilder();
+            img.Append("<img src=\"data: image/" + imageFormat.ToString() + "; base64,");
+            img.Append(base64String + "\" ");
+            img.Append("width=\"" + bmp.Width + "\" ");
+            img.Append("height=\"" + bmp.Height + "\" />");
+
+            return img.ToString();
+        }
     }
 }
