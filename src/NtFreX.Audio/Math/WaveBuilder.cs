@@ -7,6 +7,7 @@ namespace NtFreX.Audio.Math
 {
     public static class WaveBuilder
     {
+        // TODO: provide seekable async enumerable in all methods in this type
         public static IEnumerable<byte> Silence(IAudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));

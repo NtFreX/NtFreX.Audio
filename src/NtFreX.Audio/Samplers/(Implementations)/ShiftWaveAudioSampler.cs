@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Threading;

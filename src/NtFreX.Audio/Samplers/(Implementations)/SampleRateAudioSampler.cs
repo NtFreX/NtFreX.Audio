@@ -1,7 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
-using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,12 +56,10 @@ namespace NtFreX.Audio.Samplers
 
         private IntermediateEnumerableAudioContainer SampleInner(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken = default)
         {
-            var newSize = (uint) System.Math.Round(factor * audio.GetDataLength(), 0);
             var format = audio.GetFormat();
 
             return audio.WithData(
-                data: WaveStretcher.StretchAsync(audio, factor, cancellationToken)
-                    .ToNonSeekable(newSize),
+                data: WaveStretcher.StretchAsync(audio, factor, cancellationToken),
                 format: new AudioFormat(sampleRate, format.BitsPerSample, format.Channels, format.Type));
         }
     }

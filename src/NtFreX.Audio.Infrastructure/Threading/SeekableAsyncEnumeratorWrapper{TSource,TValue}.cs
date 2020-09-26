@@ -7,25 +7,31 @@ namespace NtFreX.Audio.Infrastructure.Threading
     {
         private readonly ISeekableAsyncEnumerator<TSource> source;
         private readonly IAsyncEnumerator<TValue> value;
-        
+        private readonly long dataLength;
+        private long position = -1;
+
         public TValue Current => value.Current;
 
-        public SeekableAsyncEnumeratorWrapper(ISeekableAsyncEnumerator<TSource> source, IAsyncEnumerator<TValue> value)
+        public SeekableAsyncEnumeratorWrapper(ISeekableAsyncEnumerator<TSource> source, IAsyncEnumerator<TValue> value, long dataLength)
         {
             this.source = source;
             this.value = value;
+            this.dataLength = dataLength;
         }
 
         public long GetDataLength()
-            => source.GetDataLength();
+            => dataLength;
         public bool CanSeek()
             => source.CanSeek();
         public void SeekTo(long position)
-            => source.SeekTo(position);
+            => source.SeekTo((long) (source.GetDataLength() * (1.0f * position / GetDataLength())));
         public long GetPosition()
-            => source.GetPosition();
+            => position;
         public ValueTask<bool> MoveNextAsync()
-            => value.MoveNextAsync();
+        {
+            position++;
+            return value.MoveNextAsync();
+        }
         public ValueTask DisposeAsync()
             => source.DisposeAsync();
     }

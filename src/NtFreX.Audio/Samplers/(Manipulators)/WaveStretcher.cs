@@ -1,16 +1,19 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Samplers
 {
     public static class WaveStretcher
     {
-        public static async IAsyncEnumerable<Sample> StretchAsync(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken)
+        public static ISeekableAsyncEnumerable<Sample> StretchAsync(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken)
+            => StretchInnerAsync(audio, factor, cancellationToken).ToSeekable(audio, (long)(audio.GetDataLength() * factor));
+
+        private static async IAsyncEnumerable<Sample> StretchInnerAsync(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 

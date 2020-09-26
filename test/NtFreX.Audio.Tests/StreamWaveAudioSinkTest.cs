@@ -2,10 +2,8 @@
 using NtFreX.Audio.Containers.Serializers;
 using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Devices;
-using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 

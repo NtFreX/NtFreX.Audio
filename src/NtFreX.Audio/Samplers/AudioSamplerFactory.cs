@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using System.Diagnostics.CodeAnalysis;
 
 namespace NtFreX.Audio.Samplers
 {

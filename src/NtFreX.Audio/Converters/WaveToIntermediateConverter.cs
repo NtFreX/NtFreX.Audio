@@ -1,7 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,7 @@ namespace NtFreX.Audio.Converters
             return Task.FromResult(container);
         }
 
-        private static async IAsyncEnumerable<Sample> ToSampleEnumerable(IAudioFormat format, bool isLittleEndian, IAsyncEnumerator<IReadOnlyList<byte>?> data)
+        private static async IAsyncEnumerable<Sample> ToSampleEnumerable(IAudioFormat format, bool isLittleEndian, IAsyncEnumerator<IReadOnlyList<byte>> data)
         {
             while (await data.MoveNextAsync().ConfigureAwait(false))
             {

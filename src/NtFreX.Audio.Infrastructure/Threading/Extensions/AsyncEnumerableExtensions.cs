@@ -9,10 +9,13 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
     public static class AsyncEnumerableExtensions
     {
         // TODO: remove all calls to this
-        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, long length)
+        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, long? length = null)
             => new NonSeekableAsyncEnumerable<T>(data, length);
 
-        public static async IAsyncEnumerable<byte[]> GroupByLength(this IAsyncEnumerable<byte> data, int length)
+        public static ISeekableAsyncEnumerable<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerable<TOut> data, ISeekableAsyncEnumerable<TIn> source, long newLength)
+            => new SeekableAsyncEnumerableWrapper<TIn, TOut>(source, data, newLength);
+
+        public static async IAsyncEnumerable<byte[]> GroupByLengthAsync(this IAsyncEnumerable<byte> data, int length)
         {
             var buffer = new byte[length];
             var index = 0;

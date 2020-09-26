@@ -1,8 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Containers.Wave;
-using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading;
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

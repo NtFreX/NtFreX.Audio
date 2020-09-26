@@ -7,12 +7,12 @@ namespace NtFreX.Audio.Infrastructure.Threading
     internal class NonSeekableAsyncEnumerator<T> : ISeekableAsyncEnumerator<T>
     {
         private readonly IAsyncEnumerator<T> value;
-        private readonly long length;
+        private readonly long? length;
         private long position = -1;
 
         public T Current => value.Current;
 
-        public NonSeekableAsyncEnumerator(IAsyncEnumerator<T> value, long length)
+        public NonSeekableAsyncEnumerator(IAsyncEnumerator<T> value, long? length)
         {
             this.value = value;
             this.length = length;
@@ -23,7 +23,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
         public void SeekTo(long position)
             => throw new NotSupportedException();
         public long GetDataLength()
-            => length;
+            => length ?? throw new NotSupportedException();
         public long GetPosition()
             => position;
         public ValueTask<bool> MoveNextAsync()

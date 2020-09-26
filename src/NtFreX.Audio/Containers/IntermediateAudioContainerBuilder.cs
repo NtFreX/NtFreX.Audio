@@ -1,5 +1,4 @@
 ﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Math;
 using System;
@@ -24,7 +23,7 @@ namespace NtFreX.Audio.Containers
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
             var enumerable = data
-                .GroupByLength(format.BytesPerSample)
+                .GroupByLengthAsync(format.BytesPerSample)
                 .ToAudioSamplesAsync(new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian))
                 .ToNonSeekable(length / format.BytesPerSample);
 

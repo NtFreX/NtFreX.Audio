@@ -1,11 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,27 +23,16 @@ namespace NtFreX.Audio.Samplers
                 throw new ArgumentException("The given format must be pcm", nameof(audio));
             }
 
-            var isLittleEndian = audio.IsDataLittleEndian();
+            var max = (System.Math.Pow(2, format.BitsPerSample) / 2) - 1;
+            var definition = new SampleDefinition(AudioFormatType.IeeFloat, format.BitsPerSample, audio.IsDataLittleEndian());
+
             return Task.FromResult(
                 audio.WithData(
-                    data: SampleInnerAsync(audio, format, isLittleEndian, cancellationToken)
-                        .ToNonSeekable(audio.GetDataLength()),
+                    data: audio.SelectAsync(x => PcmToFloat(x, max, definition), cancellationToken),
                     format: new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, AudioFormatType.IeeFloat)));
         }
 
-        private static async IAsyncEnumerable<Sample> SampleInnerAsync(ISeekableAsyncEnumerable<Sample> audio, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken)
-        {
-            var max = (System.Math.Pow(2, format.BitsPerSample) / 2) - 1;
-            var definition = new SampleDefinition(AudioFormatType.IeeFloat, format.BitsPerSample, isLittleEndian);
-            await foreach(var sample in audio)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
-
-                yield return new Sample(sample.Value / max, definition);
-            }
-        }
+        private static Sample PcmToFloat(Sample sample, double max, SampleDefinition definition)
+            => new Sample(sample.Value / max, definition);
     }
 }

@@ -1,10 +1,8 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
-using NtFreX.Audio.Containers;
 using NtFreX.Audio.Containers.Serializers;
 using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Infrastructure;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 

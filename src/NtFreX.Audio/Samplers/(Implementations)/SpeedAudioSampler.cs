@@ -1,8 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Infrastructure.Threading;
-using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,12 +18,8 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var newSize = (uint)System.Math.Round(speedFactor * audio.GetDataLength(), 0);
-
             return Task.FromResult(audio.WithData(
-                data: WaveStretcher
-                    .StretchAsync(audio, speedFactor, cancellationToken)
-                    .ToNonSeekable(newSize)));
+                data: WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken)));
         }
 
         public override string ToString()

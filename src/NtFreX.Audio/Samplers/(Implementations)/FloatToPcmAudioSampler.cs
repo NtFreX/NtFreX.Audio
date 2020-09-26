@@ -1,9 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,25 +23,15 @@ namespace NtFreX.Audio.Samplers
                 throw new ArgumentException("The given format must be float", nameof(audio));
             }
 
+            var max = (System.Math.Pow(2, format.BitsPerSample) / 2) - 1;
+            var definition = new SampleDefinition(AudioFormatType.Pcm, format.BitsPerSample, audio.IsDataLittleEndian());
+
             return Task.FromResult(audio.WithData(
-                data: SampleInnerAsync(audio, format, audio.IsDataLittleEndian(), cancellationToken)
-                    .ToNonSeekable(audio.GetDataLength()),
+                data: audio.SelectAsync(x => FloatToPcm(x, max, definition), cancellationToken),
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, format.Channels, AudioFormatType.Pcm)));
         }
 
-        private static async IAsyncEnumerable<Sample> SampleInnerAsync(ISeekableAsyncEnumerable<Sample> audio, IAudioFormat format, bool isDataLittleEndian, CancellationToken cancellationToken)
-        {
-            var max = (System.Math.Pow(2, format.BitsPerSample) / 2) - 1;
-            var defintition = new SampleDefinition(AudioFormatType.Pcm, format.BitsPerSample, isDataLittleEndian);
-            await foreach(var sample in audio)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
-
-                yield return new Sample(sample.Value * max, defintition);
-            }
-        }
+        private static Sample FloatToPcm(Sample sample, double max, SampleDefinition definition)
+            => new Sample(sample.Value * max, definition);
     }
 }

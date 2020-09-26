@@ -1,14 +1,4 @@
-﻿using NtFreX.Audio.AdapterInfrastructure;
-using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.PulseAudio.Interop;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace NtFreX.Audio.PulseAudio
+﻿namespace NtFreX.Audio.PulseAudio
 {
     //public class PulseAudioDevice : IAudioDevice
     //{

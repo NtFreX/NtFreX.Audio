@@ -1,9 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,7 +33,7 @@ namespace NtFreX.Audio.Samplers
             var definition = new SampleDefinition(format.Type, bitsPerSample, audio.IsDataLittleEndian());
 
             return Task.FromResult(audio.WithData(
-                data: audio.SelectAsync(sample => Selector(sample, format, isNewBigger, factor, definition), cancellationToken),
+                data: audio.SelectAsync(sample => ToRequiredBitsPerSample(sample, format, isNewBigger, factor, definition), cancellationToken),
                 format: new AudioFormat(format.SampleRate, bitsPerSample, format.BitsPerSample, format.Type)));
         }
 
@@ -44,7 +42,7 @@ namespace NtFreX.Audio.Samplers
             return base.ToString() + $", bitsPerSample={bitsPerSample}";
         }
 
-        private Sample Selector(Sample sample, IAudioFormat format, bool isNewBigger, double factor, SampleDefinition definition)
+        private static Sample ToRequiredBitsPerSample(Sample sample, IAudioFormat format, bool isNewBigger, double factor, SampleDefinition definition)
         {
             return new Sample(
                 format.Type switch

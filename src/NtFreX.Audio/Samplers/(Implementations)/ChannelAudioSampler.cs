@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
@@ -68,40 +67,16 @@ namespace NtFreX.Audio.Samplers
             var format = audio.GetFormat();
             var factor = targetChannels / (double) format.Channels;
 
-            return Task.FromResult(audio.WithData(
-                data: ManipulateAudioData(audio, format, cancellationToken)
-                    .ToNonSeekable((long)(factor * audio.GetDataLength())),
-                format: new AudioFormat(format.SampleRate, format.BitsPerSample, targetChannels, format.Type)));
-        }
-
-        private async IAsyncEnumerable<Sample> ManipulateAudioData(ISeekableAsyncEnumerable<Sample> data, IAudioFormat format, CancellationToken cancellationToken)
-        {
-            //TODO: better way to get source channels
             Speakers sourceSpeaker = ChannelFactory.GetDefaultMapping(format.Channels);
             var channelMapping = channelMappings.First(x => x.Speaker == sourceSpeaker);
             var converter = converterResolver[targetSpeaker].Invoke(channelMapping);
-            var temp = new Sample[format.Channels];
-            var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
 
-            var counter = 0;
-            await foreach(var value in data)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
-
-                temp[counter] = value;
-                if (++counter == format.Channels)
-                {
-                    var convertedSample = converter.Invoke(temp);
-                    foreach (var sample in convertedSample)
-                    {
-                        yield return sample;
-                    }
-                    counter = 0;
-                }
-            }
+            return Task.FromResult(audio.WithData(
+                data: audio
+                    .GroupByLengthAsync(format.Channels, cancellationToken)
+                    .SelectAsync(x => converter.Invoke(x), cancellationToken)
+                    .SelectManyAsync(x => x, (long)(factor * audio.GetDataLength()), cancellationToken),
+                format: new AudioFormat(format.SampleRate, format.BitsPerSample, targetChannels, format.Type)));
         }
     }
 }

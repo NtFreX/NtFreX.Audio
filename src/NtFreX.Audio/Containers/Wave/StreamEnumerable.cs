@@ -1,10 +1,8 @@
 ﻿using NtFreX.Audio.Helpers;
-using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 

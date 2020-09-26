@@ -17,7 +17,7 @@ namespace NtFreX.Audio.Containers.Wave
             // TODO: make seekable
             var enumerable = data
                 .ToAsyncEnumerable()
-                .GroupByLength(format.BytesPerSample)
+                .GroupByLengthAsync(format.BytesPerSample)
                 .SelectAsync(x => (IReadOnlyList<byte>?)x.ToList())
                 .ToNonSeekable(data.Length / format.BytesPerSample);
 

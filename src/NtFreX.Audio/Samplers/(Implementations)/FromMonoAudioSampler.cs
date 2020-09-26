@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
@@ -34,24 +33,15 @@ namespace NtFreX.Audio.Samplers
             }
 
             return Task.FromResult(audio.WithData(
-                data: MultiplicateChannelData(audio, cancellationToken)
-                    .ToNonSeekable(audio.GetDataLength() * targetChannels),
+                data: audio.SelectManyAsync(FromMono, audio.GetDataLength() * targetChannels, cancellationToken),
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, (ushort) targetChannels, format.Type)));
         }
 
-        private async IAsyncEnumerable<Sample> MultiplicateChannelData(ISeekableAsyncEnumerable<Sample> audio, CancellationToken cancellationToken)
+        private IEnumerable<Sample> FromMono(Sample sample)
         {
-            await foreach(var value in audio)
+            for (var i = 0; i < targetChannels; i++)
             {
-                if(cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
-
-                for (var i = 0; i < targetChannels; i++)
-                {
-                    yield return value;
-                }
+                yield return sample;
             }
         }
     }
