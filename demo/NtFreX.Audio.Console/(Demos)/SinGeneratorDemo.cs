@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
 using System.Globalization;
@@ -33,8 +34,8 @@ namespace NtFreX.Audio.Console
             uint sampleRate = 44100;
             var format = new AudioFormat(sampleRate, 64, 1, AudioFormatType.IeeFloat);
             var data = WaveBuilder.Sin(sampleRate, frequency, length);
-            using var audio = await WaveEnumerableAudioContainerBuilder
-                .Build(format, data)
+            await using var audio = await IntermediateAudioContainerBuilder
+                .Build(format, data, sampleRate * format.BitsPerSample * format.Channels * length)
                 .ToFileAsync(file, FileMode.CreateNew, cancellationToken).ConfigureAwait(false);
         }
     }

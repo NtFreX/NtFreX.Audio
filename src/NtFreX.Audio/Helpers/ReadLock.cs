@@ -8,6 +8,7 @@ namespace NtFreX.Audio.Helpers
     public class ReadLock<T> : IDisposable 
         where T : class, IDisposable
     {
+        private object locking = new object();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private readonly T? data;
         private readonly Action<T?>? aquireAction;
@@ -19,11 +20,40 @@ namespace NtFreX.Audio.Helpers
             this.aquireAction = aquireAction;
         }
 
-        [return:NotNull] public async Task<ReadLockContext<T>> AquireAsync([MaybeNull] CancellationToken cancellationToken = default)
+        public async Task<ReadLockContext<T>> AquireAsync(CancellationToken cancellationToken = default)
         {
-            await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
-            aquireAction?.Invoke(data);
-            return new ReadLockContext<T>(semaphore, data);
+            bool wasLockTaken = false;
+            try 
+            {
+                Monitor.Enter(locking, ref wasLockTaken);
+                await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                aquireAction?.Invoke(data);
+                return new ReadLockContext<T>(semaphore, data);
+            }
+            finally
+            {
+                if(wasLockTaken)
+                {
+                    Monitor.Exit(locking);
+                }
+            }
+        }
+
+        public bool TryAquire(out ReadLockContext<T>? context)
+        {
+            lock (locking) 
+            {
+                if(semaphore.CurrentCount <= 0)
+                {
+                    context = null;
+                    return false;
+                }
+
+                semaphore.Wait();
+                aquireAction?.Invoke(data);
+                context = new ReadLockContext<T>(semaphore, data);
+                return true;
+            }
         }
 
         public T? UnsafeAccess() => data;

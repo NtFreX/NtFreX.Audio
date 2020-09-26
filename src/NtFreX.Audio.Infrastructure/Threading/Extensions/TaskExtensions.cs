@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Infrastructure.Threading
+namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 {
     public static class TaskExtensions
     {

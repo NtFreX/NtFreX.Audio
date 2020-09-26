@@ -1,7 +1,10 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Containers;
+using NtFreX.Audio.Containers.Serializers;
+using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -55,12 +58,16 @@ namespace NtFreX.Audio.Devices
 
         protected async Task InitializeAsync(IAudioFormat format)
         {
-#pragma warning disable CA2000 // Dispose objects before losing scope => do not dispose stream!
-            await WaveEnumerableAudioContainerBuilder
-                .Build(format, Array.Empty<byte>())
-                .ToStreamAsync(Stream)
-                .ConfigureAwait(false);
-#pragma warning restore CA2000 // Dispose objects before losing scope
+            _ = format ?? throw new ArgumentNullException(nameof(format));
+
+            await using var container = WaveAudioContainerBuilder.Build(Array.Empty<byte>(), format);
+
+            await WaveAudioContainerSerializer.WriteHeadersAsync(
+                container.RiffSubChunk,
+                container.FmtSubChunk,
+                container.UnknownSubChunks,
+                container.DataSubChunk,
+                Stream).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -75,7 +82,7 @@ namespace NtFreX.Audio.Devices
                 isDisposed = true;
 
                 var dataSizeBuffer = BitConverter.GetBytes(size);
-                var totalSizeBuffer = BitConverter.GetBytes((uint)(size + WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize));
+                var totalSizeBuffer = BitConverter.GetBytes((uint)(size + WaveAudioContainer.DefaultHeaderSize));
 
                 await Stream.FlushAsync().ConfigureAwait(false);
 

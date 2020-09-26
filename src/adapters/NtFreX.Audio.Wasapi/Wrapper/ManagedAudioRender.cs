@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly ManagedAudioClock managedAudioClock;
         private readonly IAudioRenderClient audioRenderClient;
         private readonly CancellationToken cancellationToken;
-        private readonly IWaveAudioContainer audio;
+        private readonly IAudioContainer audio;
         private readonly Task audioPump;
         private readonly Task eventPump;
         private readonly uint bufferFrameCount;
@@ -37,7 +38,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
         public Observable<EventArgs> RenderCanceled { get; } = new Observable<EventArgs>();
 
-        internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IWaveAudioContainer audio, CancellationToken cancellationToken)
+        internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IAudioContainer audio, CancellationToken cancellationToken)
         {
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
             this.managedAudioClient = managedAudioClient;
@@ -111,9 +112,18 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var hasStarted = false;
                 var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
+                await using var enumerator = audio.GetAsyncAudioEnumerator(cancellationToken);
+                while(await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
-                    realBuffer.AddRange(buffer.AsByteArray());
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException();
+                    }
+
+                    if (enumerator.Current != null)
+                    {
+                        realBuffer.AddRange(enumerator.Current);
+                    }
 
                     while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {

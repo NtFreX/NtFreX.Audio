@@ -1,8 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,18 +10,25 @@ namespace NtFreX.Audio.Samplers
     {
         private readonly List<AudioSampler> samplers = new List<AudioSampler>();
 
-        public AudioSamplerPipe Add([NotNull] Func<AudioSamplerFactory, AudioSampler> sampler)
+        public AudioSamplerPipe Add(Func<AudioSamplerFactory, AudioSampler> sampler)
         {
             _ = sampler ?? throw new ArgumentNullException(nameof(sampler));
 
             samplers.Add(sampler(AudioSamplerFactory.Instance));
             return this;
         }
-        
-        [return: NotNull]
-        public async Task<WaveEnumerableAudioContainer> RunAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public Task<IntermediateEnumerableAudioContainer> RunAsync(IntermediateListAudioContainer audio, CancellationToken cancellationToken = default)
         {
-            WaveEnumerableAudioContainer currentAudio = audio;
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            return RunAsync(audio.AsEnumerable(), cancellationToken);
+        }
+
+        public async Task<IntermediateEnumerableAudioContainer> RunAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
+        {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            IntermediateEnumerableAudioContainer currentAudio = audio;
             var count = (double)samplers.Count;
             for (var i = 0; i < count; i++)
             {

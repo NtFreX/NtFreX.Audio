@@ -1,7 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
@@ -32,17 +32,25 @@ namespace NtFreX.Audio.Console
             System.Console.Write("Enter the file you write to: ");
             var target = System.Console.ReadLine();
 
-            using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
+            await using var audio = await AudioFactory
+                .GetSampleAudioAsync(file, cancellationToken)
+                .ConvertAsync<IntermediateEnumerableAudioContainer>(cancellationToken)
+                .ConfigureAwait(false);
 
             System.Console.WriteLine($"Drawing...");
-            File.WriteAllText(target, Html(await DrawSampleWavesAsync(audio).ConfigureAwait(false), DrawAudioControls(file), await DrawSectogramAsync(audio).ConfigureAwait(false)));
+            var html = Html(
+                await DrawSampleWavesAsync(audio).ConfigureAwait(false),
+                DrawAudioControls(file),
+                await DrawSectogramAsync(audio).ConfigureAwait(false));
+            File.WriteAllText(target, html);
         }
 
-        private static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(WaveStreamAudioContainer waveAudioContainer)
+        private static async Task<IEnumerable<Sample[]>> GetChannelAudioSamplesAsync(IntermediateAudioContainer container)
         {
-            var channels = new List<Sample>[waveAudioContainer.FmtSubChunk.Channels];
+            var format = container.GetFormat();
+            var channels = new List<Sample>[format.Channels];
             var currentChannel = 0;
-            await foreach (var value in waveAudioContainer.GetAudioSamplesAsync().ConfigureAwait(false))
+            await foreach(var value in container)
             {
                 if (channels[currentChannel] == null)
                 {
@@ -51,7 +59,7 @@ namespace NtFreX.Audio.Console
 
                 channels[currentChannel].Add(value);
 
-                if (++currentChannel >= waveAudioContainer.FmtSubChunk.Channels)
+                if (++currentChannel >= format.Channels)
                 {
                     currentChannel = 0;
                 }
@@ -68,7 +76,7 @@ namespace NtFreX.Audio.Console
             return html.ToString();
         }
 
-        private static async Task<string> DrawSampleWavesAsync(WaveStreamAudioContainer waveAudioContainer)
+        private static async Task<string> DrawSampleWavesAsync(IntermediateEnumerableAudioContainer waveAudioContainer)
         {
             var channelSamples = await GetChannelAudioSamplesAsync(waveAudioContainer).ConfigureAwait(false);
 
@@ -76,7 +84,7 @@ namespace NtFreX.Audio.Console
                 data: channelSamples.ToArray(), 
                 colors: new[] { "green", "red", "yellow", "blue", "deeppink", "indigo", "gray", "cyan", "coral", "black" },
                 opacities: Enumerable.Repeat(1f, 10).ToArray(),
-                format: waveAudioContainer.Format);
+                format: waveAudioContainer.GetFormat());
         }
 
         private static string Html(params string[] elements)
@@ -142,7 +150,7 @@ namespace NtFreX.Audio.Console
             return path.ToString();
         }
 
-        private static async Task<string> DrawSectogramAsync(WaveStreamAudioContainer waveAudioContainer)
+        private static async Task<string> DrawSectogramAsync(IntermediateEnumerableAudioContainer waveAudioContainer)
         {
             var stepSize = 200;
             
@@ -152,7 +160,7 @@ namespace NtFreX.Audio.Console
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);
 
-            var monoData = await monoAudio.GetAudioSamplesAsync().SelectAsync(x => new Complex(x.Value, 0)).ToArrayAsync().ConfigureAwait(false);
+            var monoData = await monoAudio.SelectAsync(x => new Complex(x.Value, 0)).ToArrayAsync().ConfigureAwait(false);
             var steps = monoData.Length / stepSize;
             var data = new double[steps][];
             for (var col = 0; col < steps; col++)

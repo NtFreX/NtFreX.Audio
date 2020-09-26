@@ -23,12 +23,12 @@ namespace NtFreX.Audio.Infrastructure
 
         public static byte[] ToRequiredBits(uint bits, long value = 0, bool isLittleEndian = true)
         {
-            return (bits / 8) switch
+            return bits switch
             {
-                1 => new[] { (byte)value },
-                2 => ((short)value).ToByteArray(isLittleEndian),
-                4 => ((int)value).ToByteArray(isLittleEndian),
-                8 => value.ToByteArray(isLittleEndian),
+                8 => new[] { (byte)value },
+                16 => ((short)value).ToByteArray(isLittleEndian),
+                32 => ((int)value).ToByteArray(isLittleEndian),
+                64 => value.ToByteArray(isLittleEndian),
                 _ => throw new ArgumentException($"Numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }

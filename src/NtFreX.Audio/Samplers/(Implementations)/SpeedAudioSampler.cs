@@ -1,4 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -15,17 +17,16 @@ namespace NtFreX.Audio.Samplers
             this.speedFactor = speedFactor;
         }
 
-        [return: NotNull]
-        public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var newSize = (uint)System.Math.Round(speedFactor * audio.DataSubChunk.ChunkSize, 0);
-            
-            return Task.FromResult(audio
-                .WithDataSubChunk(x => x
-                    .WithChunkSize(newSize)
-                    .WithData(WaveStretcher.StretchAsync(audio, speedFactor, cancellationToken))));
+            var newSize = (uint)System.Math.Round(speedFactor * audio.GetDataLength(), 0);
+
+            return Task.FromResult(audio.WithData(
+                data: WaveStretcher
+                    .StretchAsync(audio, speedFactor, cancellationToken)
+                    .ToNonSeekable(newSize)));
         }
 
         public override string ToString()

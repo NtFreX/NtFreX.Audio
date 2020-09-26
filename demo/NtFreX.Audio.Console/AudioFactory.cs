@@ -1,5 +1,6 @@
-﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,15 +8,15 @@ namespace NtFreX.Audio.Console
 {
     internal static class AudioFactory
     {
-        public static async Task<WaveStreamAudioContainer> GetSampleAudioAsync(string file, CancellationToken cancellationToken)
+        public static async Task<IAudioContainer> GetSampleAudioAsync(string file, CancellationToken cancellationToken)
         {
             System.Console.WriteLine($"Reading...");
-            var audio = await AudioEnvironment.Serializer.FromFileAsync(file, cancellationToken).ConfigureAwait(false);
+            // TODO: choose serializer
+            var audio = await AudioEnvironment.Serializer.FromFileAsync(file, Path.GetExtension(file), cancellationToken).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
 
-            var waveAudio = await AudioEnvironment.Converter.ConvertAsync<WaveStreamAudioContainer>(audio, cancellationToken).ConfigureAwait(false);
-            PrintAudioFormat(waveAudio.Format);
-            return waveAudio;
+            PrintAudioFormat(audio.GetFormat());
+            return audio;
         }
 
         public static void PrintAudioFormat(IAudioFormat format)

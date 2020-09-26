@@ -9,13 +9,17 @@ namespace NtFreX.Audio.Converters
 {
     public sealed class AudioConverterFactory
     {
-        private readonly IAudioConverter[] converters = Array.Empty<IAudioConverter>();
+        private readonly IAudioConverter[] converters = new IAudioConverter[]
+        {
+            new WaveToIntermediateConverter(),
+            new IntermediateToWaveConverter()
+        };
 
         public static AudioConverterFactory Instance { [return: NotNull] get; } = new AudioConverterFactory();
 
         private AudioConverterFactory() { }
 
-        public async Task<TTo> ConvertAsync<TTo>(IStreamAudioContainer audio, CancellationToken cancellationToken = default)
+        public async Task<TTo> ConvertAsync<TTo>(IAudioContainer audio, CancellationToken cancellationToken = default)
             where TTo: IAudioContainer
         {
             if(audio is TTo to)

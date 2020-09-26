@@ -1,9 +1,9 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,23 +18,25 @@ namespace NtFreX.Audio.Samplers
             this.bitsPerSample = bitsPerSample;
         }
 
-        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.FmtSubChunk.BitsPerSample == bitsPerSample)
+            var format = audio.GetFormat();
+            if (format.BitsPerSample == bitsPerSample)
             {
                 return Task.FromResult(audio);
             }
 
             //TODO: make this work correctly with and from all sample rates
             // HINT: doubling bits per sample and not changing data will double speed
-            return Task.FromResult(audio
-                .WithFmtSubChunk(x => x
-                    .WithBitsPerSample(bitsPerSample))
-                .WithDataSubChunk(x => x
-                    .WithChunkSize(audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.BitsPerSample * bitsPerSample)
-                    .WithData(SampleInnerAsync(audio, cancellationToken))));
+            var isNewBigger = bitsPerSample > format.BitsPerSample;
+            var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / format.BitsPerSample : format.BitsPerSample / bitsPerSample);
+            var definition = new SampleDefinition(format.Type, bitsPerSample, audio.IsDataLittleEndian());
+
+            return Task.FromResult(audio.WithData(
+                data: audio.SelectAsync(sample => Selector(sample, format, isNewBigger, factor, definition), cancellationToken),
+                format: new AudioFormat(format.SampleRate, bitsPerSample, format.BitsPerSample, format.Type)));
         }
 
         public override string ToString()
@@ -42,21 +44,15 @@ namespace NtFreX.Audio.Samplers
             return base.ToString() + $", bitsPerSample={bitsPerSample}";
         }
 
-        private async IAsyncEnumerable<Sample> SampleInnerAsync(WaveEnumerableAudioContainer audio, [EnumeratorCancellation] CancellationToken cancellationToken)
+        private Sample Selector(Sample sample, IAudioFormat format, bool isNewBigger, double factor, SampleDefinition definition)
         {
-            var isNewBigger = bitsPerSample > audio.FmtSubChunk.BitsPerSample;
-            var factor = System.Math.Pow(256, isNewBigger ? bitsPerSample / audio.FmtSubChunk.BitsPerSample : audio.FmtSubChunk.BitsPerSample / bitsPerSample);
-            var definition = new SampleDefinition(audio.Format.Type, bitsPerSample, audio.IsDataLittleEndian());
-            await foreach (var sample in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
-            {
-                yield return new Sample(
-                    audio.Format.Type switch
-                    {
-                        AudioFormatType.Pcm => isNewBigger ? sample.Value * factor : sample.Value / factor,
-                        AudioFormatType.IeeFloat => sample.Value,
-                        _ => throw new Exception()
-                    }, definition);
-            }
+            return new Sample(
+                format.Type switch
+                {
+                    AudioFormatType.Pcm => isNewBigger ? sample.Value * factor : sample.Value / factor,
+                    AudioFormatType.IeeFloat => sample.Value,
+                    _ => throw new Exception()
+                }, definition);
         }
     }
 }

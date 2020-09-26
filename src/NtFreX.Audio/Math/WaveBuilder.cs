@@ -7,14 +7,13 @@ namespace NtFreX.Audio.Math
 {
     public static class WaveBuilder
     {
-        public static byte[] Silence(IAudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
+        public static IEnumerable<byte> Silence(IAudioFormat format, int lengthInSeconds, bool isLittleEndian = true)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
             return Enumerable
                 .Repeat(Number.ToRequiredBits(format.BitsPerSample, 0, isLittleEndian), (int)(format.SampleRate * format.Channels * lengthInSeconds))
-                .SelectMany(x => x)
-                .ToArray();
+                .SelectMany(x => x);
         }
 
         /// <summary>
@@ -24,12 +23,11 @@ namespace NtFreX.Audio.Math
         /// <param name="frequency">The frequency of the wave in hz</param>
         /// <param name="lengthInSeconds">The length of the audio</param>
         /// <returns>64 bit iee float mono audio</returns>
-        public static byte[] Sin(uint sampleRate, int frequency, int lengthInSeconds)
+        public static IEnumerable<byte> Sin(uint sampleRate, int frequency, int lengthInSeconds)
         {
             return SinIeeFloat64(sampleRate, frequency, lengthInSeconds)
                 .Select(x => BitConverter.GetBytes(x))
-                .SelectMany(x => x)
-                .ToArray();
+                .SelectMany(x => x);
         }
 
         private static IEnumerable<double> SinIeeFloat64(uint sampleRate, int frequency, int lengthInSeconds)

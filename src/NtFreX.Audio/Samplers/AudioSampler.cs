@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
-using System.Diagnostics.CodeAnalysis;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,11 +7,13 @@ namespace NtFreX.Audio.Samplers
 {
     public abstract class AudioSampler
     {
-        [return: NotNull]
-        public Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveStreamAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
-            => SampleAsync(audio.ToEnumerable(cancellationToken), cancellationToken);
+        public Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateListAudioContainer audio, CancellationToken cancellationToken = default)
+        {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-        [return: NotNull]
-        public abstract Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default);
+            return SampleAsync(audio.AsEnumerable(), cancellationToken);
+        }
+
+        public abstract Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default);
     }
 }

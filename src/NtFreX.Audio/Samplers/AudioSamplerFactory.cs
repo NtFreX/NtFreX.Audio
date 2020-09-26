@@ -21,6 +21,6 @@ namespace NtFreX.Audio.Samplers
 
         private AudioSamplerFactory() { }
 
-        public static AudioSamplerFactory Instance { [return: NotNull] get; } = new AudioSamplerFactory();
+        public static AudioSamplerFactory Instance { get; } = new AudioSamplerFactory();
     }
 }

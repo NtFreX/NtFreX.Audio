@@ -8,6 +8,7 @@ namespace NtFreX.Audio.Infrastructure
     public struct Sample : IEquatable<Sample>
     {
         public double Value { get; }
+        //TODO: get rid of this
         public SampleDefinition Definition { get; }
 
 #pragma warning disable SA1011 // Closing square brackets should be spaced correctly

@@ -3,7 +3,6 @@ using NtFreX.Audio.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,8 +10,7 @@ namespace NtFreX.Audio.Samplers
 {
     public static class WaveStretcher
     {
-        [return: NotNull]
-        public static async IAsyncEnumerable<Sample> StretchAsync([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken)
+        public static async IAsyncEnumerable<Sample> StretchAsync(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
@@ -21,13 +19,20 @@ namespace NtFreX.Audio.Samplers
                 throw new ArgumentException("Factor out of range", nameof(factor));
             }
 
-            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
-            var sizeOfParts = audio.DataSubChunk.ChunkSize / (double)System.Math.Abs(audio.DataSubChunk.ChunkSize - newDataSize);
-            var previous = Sample.Zero(new SampleDefinition(audio.FmtSubChunk.Type, audio.FmtSubChunk.BitsPerSample, audio.IsDataLittleEndian()));
+            var size = audio.GetDataLength();
+            var format = audio.GetFormat();
+            var newDataSize = System.Math.Round(factor * size, 0);
+            var sizeOfParts = size / (double)System.Math.Abs(size - newDataSize);
+            var previous = Sample.Zero(new SampleDefinition(format.Type, format.BitsPerSample, audio.IsDataLittleEndian()));
             var counter = 1d;
             var total = 0L;
-            await foreach (var value in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
+            await foreach(var sample in audio)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException();
+                }
+
                 var positionReached = counter > sizeOfParts;
 
                 // upsampling
@@ -35,11 +40,11 @@ namespace NtFreX.Audio.Samplers
                 {
                     if (positionReached)
                     {
-                        yield return new Sample[] { value, previous }.Average();
+                        yield return new Sample[] { sample, previous }.Average();
                         counter -= sizeOfParts;
                     }
 
-                    yield return value;
+                    yield return sample;
                 }
 
                 // downsampling
@@ -51,13 +56,13 @@ namespace NtFreX.Audio.Samplers
                     }
                     else if (total < newDataSize)
                     {
-                        yield return value;
-                        total += audio.FmtSubChunk.BitsPerSample / 8;
+                        yield return sample;
+                        total += format.BytesPerSample;
                     }
                 }
 
                 counter++;
-                previous = value;
+                previous = sample;
             }
 
             if (factor > 1 && counter > sizeOfParts && factor <= 2)

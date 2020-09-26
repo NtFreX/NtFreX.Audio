@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Samplers;
 using NUnit.Framework;
 using System.Linq;
@@ -24,20 +25,20 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
-            var oldData = await audio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
-            var newData = await newAudio.GetAudioSamplesAsync().ToArrayAsync().ConfigureAwait(false);
+            var oldData = await audio.ToArrayAsync().ConfigureAwait(false);
+            var newData = await newAudio.ToArrayAsync().ConfigureAwait(false);
 
             float factor = toSampleRate / (float)fromSampleRate;
-            int expectedNewSize = (int)(audio.DataSubChunk.ChunkSize * factor);
-            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Definition.Bits / 8) * factor);
-            var newDataSize = newData.Sum(x => x.Definition.Bits / 8);
+            int expectedNewSize = (int)(audio.GetByteLength() * factor);
+            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Definition.Bytes) * factor);
+            var newDataSize = newData.Sum(x => x.Definition.Bytes);
 
             Assert.AreEqual(expectedNewDataSize, newDataSize);
-            Assert.AreEqual(expectedNewDataSize, newAudio.DataSubChunk.ChunkSize);
+            Assert.AreEqual(expectedNewDataSize, newAudio.GetByteLength());
             Assert.AreEqual(expectedNewDataSize, expectedNewSize);
         }
 
@@ -47,7 +48,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = WaveEnumerableAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

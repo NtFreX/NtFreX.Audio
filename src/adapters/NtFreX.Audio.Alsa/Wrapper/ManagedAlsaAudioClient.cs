@@ -13,7 +13,7 @@ namespace NtFreX.Audio.Alsa.Wrapper
 
             Interop.Alsa.snd_pcm_hw_params_set_access(device, parameters, Interop.snd_pcm_access_t.SND_PCM_ACCESS_RW_INTERLEAVED).ThrowIfNotSucceded("Can not set access mode.");
 
-            var result = (format.BitsPerSample / 8) switch
+            var result = format.BytesPerSample switch
             {
                 1 => Interop.Alsa.snd_pcm_hw_params_set_format(device, parameters, Interop.snd_pcm_format_t.SND_PCM_FORMAT_U8),
                 2 => Interop.Alsa.snd_pcm_hw_params_set_format(device, parameters, Interop.snd_pcm_format_t.SND_PCM_FORMAT_S16_LE),

@@ -1,5 +1,7 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -15,35 +17,35 @@ namespace NtFreX.Audio.Samplers
     /// </summary>
     public class ToMonoAudioSampler : AudioSampler
     {
-        [return:NotNull] public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.FmtSubChunk.Channels == 1)
+            var format = audio.GetFormat();
+            if (format.Channels == 1)
             {
                 return Task.FromResult(audio);
             }
 
-            // TODO: change riff chunk size automaticaly when data changes?
-            var newSize = audio.DataSubChunk.ChunkSize / audio.FmtSubChunk.Channels;
-            
-            return Task.FromResult(audio
-                    .WithFmtSubChunk(x => x
-                        .WithChannels(1))
-                    .WithDataSubChunk(x => x
-                        .WithChunkSize(newSize)
-                        .WithData(InterleaveChannelData(audio, cancellationToken))));
+            return Task.FromResult(audio.WithData(
+                data: InterleaveChannelData(audio, format, cancellationToken)
+                    .ToNonSeekable(audio.GetDataLength() / format.Channels),
+                format: new AudioFormat(format.SampleRate, format.BitsPerSample, 1, format.Type)));
         }
 
-        [return:NotNull] private static async IAsyncEnumerable<Sample> InterleaveChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        private static async IAsyncEnumerable<Sample> InterleaveChannelData(ISeekableAsyncEnumerable<Sample> audio, IAudioFormat format, CancellationToken cancellationToken)
         {
-            var temp = new Sample[audio.FmtSubChunk.Channels];
+            var temp = new Sample[format.Channels];
             var counter = 0;
-            var samples = audio.GetAudioSamplesAsync(cancellationToken);
-            await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach(var sample in audio)
             {
-                temp[counter++] = value;
-                if (counter == audio.FmtSubChunk.Channels)
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw new OperationCanceledException();
+                }
+
+                temp[counter++] = sample;
+                if (counter == format.Channels)
                 {
                     yield return temp.Average();
                     counter = 0;

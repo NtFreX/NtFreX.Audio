@@ -28,7 +28,7 @@ namespace NtFreX.Audio.Infrastructure
         [return: NotNull]
         public static async IAsyncEnumerable<Sample> ToAudioSamplesAsync(this IAsyncEnumerable<byte[]> audio, SampleDefinition definition, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var sampleSize = definition.Bits / 8;
+            var sampleSize = definition.Bytes;
             await foreach (var buffer in audio.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 var currentIndex = 0;

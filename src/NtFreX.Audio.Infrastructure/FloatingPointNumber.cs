@@ -24,11 +24,11 @@ namespace NtFreX.Audio.Infrastructure
         {
             // 16 bits is no supported according to https://de.wikipedia.org/wiki/Gleitkommazahlen_in_digitaler_Audioanwendung
             // https://markheath.net/post/convert-16-bit-pcm-to-ieee-float
-            return (bits / 8) switch
+            return bits switch
             {
-                2 => ((short)(value * (short.MaxValue + 1f))).ToByteArray(isLittleEndian),
-                4 => ((float)value).ToByteArray(isLittleEndian),
-                8 => value.ToByteArray(isLittleEndian),
+                16 => ((short)(value * (short.MaxValue + 1f))).ToByteArray(isLittleEndian),
+                32 => ((float)value).ToByteArray(isLittleEndian),
+                64 => value.ToByteArray(isLittleEndian),
                 _ => throw new ArgumentException($"Floating point numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }

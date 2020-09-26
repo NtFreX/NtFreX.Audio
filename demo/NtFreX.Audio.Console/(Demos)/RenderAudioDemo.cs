@@ -14,7 +14,7 @@ namespace NtFreX.Audio.Console
             System.Console.Write("Enter the file you want to play: ");
             var file = System.Console.ReadLine();
 
-            using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
+            await using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
