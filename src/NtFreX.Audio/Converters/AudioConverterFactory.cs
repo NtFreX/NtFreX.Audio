@@ -22,7 +22,7 @@ namespace NtFreX.Audio.Converters
         public async Task<TTo> ConvertAsync<TTo>(IAudioContainer audio, CancellationToken cancellationToken = default)
             where TTo: IAudioContainer
         {
-            if(audio is TTo to)
+            if (audio is TTo to)
             {
                 return to;
             }

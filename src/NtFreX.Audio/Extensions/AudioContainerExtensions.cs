@@ -82,6 +82,12 @@ namespace NtFreX.Audio.Extensions
                 pipe.Add(factory => GetFormatTypeSampler(format.Type, targetFormat.Type, factory));
             }
 
+            if(source is IntermediateListAudioContainer listContainer)
+            {
+                // TODO: this is ugly?
+                source = listContainer.AsEnumerable();
+            }
+
             var intermediate = await AudioEnvironment.Converter
                 .ConvertAsync<IntermediateEnumerableAudioContainer>(source, cancellationToken)
                 .ConfigureAwait(false);
@@ -90,7 +96,7 @@ namespace NtFreX.Audio.Extensions
                 .RunAsync(intermediate, cancellationToken)
                 .ConfigureAwait(false);
         }
-
+        
         private static AudioSampler GetFormatTypeSampler(AudioFormatType sourceType, AudioFormatType targetType, AudioSamplerFactory audioSamplerFactory)
         {
             return (sourceType, targetType) switch
