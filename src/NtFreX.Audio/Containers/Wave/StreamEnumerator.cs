@@ -65,5 +65,7 @@ namespace NtFreX.Audio.Containers.Wave
             => readLockContext.Data?.CanSeek ?? false;
         public void SeekTo(long position)
             => readLockContext.Data?.Seek(startIndex + position, SeekOrigin.Begin);
+        public long GetPosition()
+            => readLockContext.Data?.Position ?? 0 - startIndex;
     }
 }

@@ -38,6 +38,7 @@ namespace NtFreX.Audio.Wasapi
         public void Stop() => managedAudioRender.Stop();
         public void Start() => managedAudioRender.Start();
         public TimeSpan GetPosition() => managedAudioRender.GetPosition();
+        public void SetPosition(TimeSpan position) => managedAudioRender.SetPosition(position);
         public IAudioFormat GetFormat() => managedAudioClient.InitializedFormat?.ToAudioFormat() ?? throw new Exception("No audio format is initialized");
 
         private async Task OnPositionChanged(object sender, EventArgs<double> args) => await PositionChanged.InvokeAsync(sender, args).ConfigureAwait(false);

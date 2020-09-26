@@ -29,6 +29,11 @@ namespace NtFreX.Audio.Alsa
             throw new NotImplementedException();
         }
 
+        public void SetPosition(TimeSpan position)
+        {
+            throw new NotImplementedException();
+        }
+
         public IAudioFormat GetFormat()
         {
             throw new NotImplementedException();

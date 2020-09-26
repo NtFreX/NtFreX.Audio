@@ -7,7 +7,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
     {
         private readonly ISeekableAsyncEnumerator<TSource> source;
         private readonly IAsyncEnumerator<TValue> value;
-
+        
         public TValue Current => value.Current;
 
         public SeekableAsyncEnumeratorWrapper(ISeekableAsyncEnumerator<TSource> source, IAsyncEnumerator<TValue> value)
@@ -22,6 +22,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
             => source.CanSeek();
         public void SeekTo(long position)
             => source.SeekTo(position);
+        public long GetPosition()
+            => source.GetPosition();
         public ValueTask<bool> MoveNextAsync()
             => value.MoveNextAsync();
         public ValueTask DisposeAsync()

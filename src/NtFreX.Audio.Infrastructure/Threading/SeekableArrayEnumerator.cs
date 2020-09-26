@@ -25,6 +25,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
             => true;
         public void SeekTo(long position)
             => this.position = position;
+        public long GetPosition()
+            => position;
 
         public ValueTask<bool> MoveNextAsync()
         {

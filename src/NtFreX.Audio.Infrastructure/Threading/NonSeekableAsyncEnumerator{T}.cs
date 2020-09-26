@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure.Threading
@@ -9,6 +8,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
     {
         private readonly IAsyncEnumerator<T> value;
         private readonly long length;
+        private long position = -1;
 
         public T Current => value.Current;
 
@@ -24,8 +24,13 @@ namespace NtFreX.Audio.Infrastructure.Threading
             => throw new NotSupportedException();
         public long GetDataLength()
             => length;
+        public long GetPosition()
+            => position;
         public ValueTask<bool> MoveNextAsync()
-            => value.MoveNextAsync();
+        {
+            position++;
+            return value.MoveNextAsync();
+        }
         public ValueTask DisposeAsync()
             => value.DisposeAsync();
     }

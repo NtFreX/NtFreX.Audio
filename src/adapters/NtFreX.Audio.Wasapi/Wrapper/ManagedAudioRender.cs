@@ -26,6 +26,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly IAudioRenderClient audioRenderClient;
         private readonly CancellationToken cancellationToken;
         private readonly IAudioContainer audio;
+        private readonly ISeekableAsyncEnumerator<IReadOnlyList<byte>> enumerator;
         private readonly Task audioPump;
         private readonly Task eventPump;
         private readonly uint bufferFrameCount;
@@ -40,6 +41,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IAudioContainer audio, CancellationToken cancellationToken)
         {
+            this.enumerator = audio.GetAsyncAudioEnumerator(cancellationToken);
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
             this.managedAudioClient = managedAudioClient;
             this.managedAudioClock = managedAudioClock;
@@ -76,11 +78,30 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             EndOfPositionReached.Dispose();
             PositionChanged.Dispose();
             RenderCanceled.Dispose();
+
+            await enumerator.DisposeAsync().ConfigureAwait(false);
         }
 
         public void Stop() => managedAudioClient.Stop();
         public void Start() => managedAudioClient.Start();
-        public TimeSpan GetPosition() => TimeSpan.FromSeconds(managedAudioClock.GetPosition());
+
+        public TimeSpan GetPosition()
+        {
+            // TODO: use enumerator.position? what to do with managedAudioClock
+            // TimeSpan.FromSeconds(managedAudioClock.GetPosition());
+            var positionInBuffer = enumerator.GetPosition();
+            var factor = positionInBuffer / enumerator.GetDataLength();
+            return audio.GetLength() * factor;
+        }
+        public void SetPosition(TimeSpan position)
+        {
+            var format = audio.GetFormat();
+            var totalInBytes = audio.GetByteLength();
+            var positionInBytes = position.TotalSeconds * format.SampleRate * format.Channels * format.BytesPerSample;
+            var factor = positionInBytes / totalInBytes;
+            var positionInBuffer = enumerator.GetDataLength() * factor;
+            enumerator.SeekTo((long) positionInBuffer);
+        }
 
         private async Task PumpEventsAsync()
         {
@@ -112,7 +133,6 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var hasStarted = false;
                 var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                await using var enumerator = audio.GetAsyncAudioEnumerator(cancellationToken);
                 while(await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
                     if (cancellationToken.IsCancellationRequested)

@@ -16,5 +16,6 @@ namespace NtFreX.Audio.AdapterInfrastructure
 
         IAudioFormat GetFormat();
         TimeSpan GetPosition();
+        void SetPosition(TimeSpan position);
     }
 }
