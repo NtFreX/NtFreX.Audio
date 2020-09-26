@@ -22,7 +22,7 @@ namespace NtFreX.Audio.Samplers
                 throw new ArgumentException("Factor out of range", nameof(factor));
             }
 
-            var size = audio.GetDataLength();
+            var size = audio.GetByteLength();
             var format = audio.GetFormat();
             var newDataSize = System.Math.Round(factor * size, 0);
             var sizeOfParts = size / (double)System.Math.Abs(size - newDataSize);

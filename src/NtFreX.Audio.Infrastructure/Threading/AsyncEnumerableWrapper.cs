@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
             this.enumerable = enumerable;
         }
 
-        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken _ = default)
-            => new AsyncEnumeratorWrapper<T>(enumerable.GetEnumerator());
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => new AsyncEnumeratorWrapper<T>(enumerable.GetEnumerator(), cancellationToken);
     }
 }
