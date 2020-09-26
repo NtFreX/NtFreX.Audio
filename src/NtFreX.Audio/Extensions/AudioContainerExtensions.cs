@@ -4,7 +4,6 @@ using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Samplers;
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +11,23 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AudioContainerExtensions
     {
+        public static async Task<IntermediateEnumerableAudioContainer> RunAudioPipeAsync(this Task<IntermediateEnumerableAudioContainer> containerTask, AudioSamplerPipe pipe, CancellationToken cancellationToken)
+        {
+            _ = containerTask ?? throw new ArgumentNullException(nameof(containerTask));
+            _ = pipe ?? throw new ArgumentNullException(nameof(pipe));
+
+            var container = await containerTask.ConfigureAwait(false);
+            return await RunAudioPipeAsync(container, pipe, cancellationToken).ConfigureAwait(false);
+        }
+
+        public static Task<IntermediateEnumerableAudioContainer> RunAudioPipeAsync(this IntermediateEnumerableAudioContainer container, AudioSamplerPipe pipe, CancellationToken cancellationToken)
+        {
+            _ = container ?? throw new ArgumentNullException(nameof(container));
+            _ = pipe ?? throw new ArgumentNullException(nameof(pipe));
+
+            return pipe.RunAsync(container, cancellationToken);
+        }
+
         public static async Task<T> ConvertAsync<T>(this Task<IAudioContainer> container, CancellationToken cancellationToken)
             where T : IAudioContainer
         {

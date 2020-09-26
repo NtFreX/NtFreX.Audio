@@ -63,21 +63,20 @@ namespace NtFreX.Audio.Console
                 }
             }
 
-            using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
-            var intermedaite = await AudioEnvironment.Converter.ConvertAsync<IntermediateEnumerableAudioContainer>(audio, cancellationToken).ConfigureAwait(false);
-
             System.Console.WriteLine($"Converting...");
             if (File.Exists(target))
             {
                 File.Delete(target);
             }
 
-            await using var convertedAudio = await pipe
-                .RunAsync(intermedaite, cancellationToken)
+            await using var audio = await AudioFactory
+                .GetSampleAudioAsync(file, cancellationToken)
+                .ConvertAsync<IntermediateEnumerableAudioContainer>(cancellationToken)
+                .RunAudioPipeAsync(pipe, cancellationToken)
                 .LogProgressAsync(ConsoleProgressBar.LogProgress, cancellationToken)
                 .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
-
+            
             System.Console.WriteLine();
         }
 
