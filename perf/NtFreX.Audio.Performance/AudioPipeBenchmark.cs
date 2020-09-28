@@ -27,7 +27,7 @@ namespace NtFreX.Audio.Performance
             ushort bitsPerSample = 64;
             var sinWave = WaveBuilder.Sin(sampleRate, 1000, 5);
             sourceFormat = new AudioFormat(sampleRate, bitsPerSample, 1, AudioFormatType.IeeFloat);
-            sourceAudio = await IntermediateAudioContainerBuilder.Build(sourceFormat, sinWave, sampleRate * bitsPerSample)
+            sourceAudio = await IntermediateAudioContainerBuilder.Build(sourceFormat, sinWave)
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);
         }
