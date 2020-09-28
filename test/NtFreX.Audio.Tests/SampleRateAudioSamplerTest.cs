@@ -28,9 +28,9 @@ namespace NtFreX.Audio.Tests
             var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
-            var oldData = await audio.ToArrayAsync().ConfigureAwait(false);
             var newData = await newAudio.ToArrayAsync().ConfigureAwait(false);
-
+            var oldData = await audio.ToArrayAsync().ConfigureAwait(false);
+            
             float factor = toSampleRate / (float)fromSampleRate;
             int expectedNewSize = (int)(audio.GetByteLength() * factor);
             var expectedNewDataSize = (uint)(oldData.Sum(x => x.Definition.Bytes) * factor);

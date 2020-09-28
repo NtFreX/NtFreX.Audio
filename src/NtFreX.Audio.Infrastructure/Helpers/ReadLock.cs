@@ -3,12 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Helpers
+namespace NtFreX.Audio.Infrastructure.Helpers
 {
     public class ReadLock<T> : IDisposable 
         where T : class, IDisposable
     {
-        private object locking = new object();
+        private readonly object locking = new object();
         private readonly SemaphoreSlim semaphore = new SemaphoreSlim(1);
         private readonly T? data;
         private readonly Action<T?>? aquireAction;

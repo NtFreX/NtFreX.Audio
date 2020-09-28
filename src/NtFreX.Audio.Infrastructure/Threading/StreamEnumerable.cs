@@ -1,12 +1,11 @@
-﻿using NtFreX.Audio.Helpers;
-using NtFreX.Audio.Infrastructure.Threading;
+﻿using NtFreX.Audio.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Containers.Wave
+namespace NtFreX.Audio.Infrastructure.Threading
 {
     public sealed class StreamEnumerable : ISeekableAsyncEnumerable<IReadOnlyList<byte>>, IAsyncDisposable
     {
@@ -22,7 +21,7 @@ namespace NtFreX.Audio.Containers.Wave
         }
 
         public long GetDataLength()
-            => endIndex - startIndex;
+            => (endIndex - startIndex) / StreamFactory.GetBufferSize();
 
         public ISeekableAsyncEnumerator<IReadOnlyList<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {

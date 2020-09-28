@@ -1,9 +1,7 @@
 ﻿using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Resources;
 using System;
 using System.Buffers;
@@ -24,31 +22,6 @@ namespace NtFreX.Audio.Containers.Serializers
             var headers = GetHeaderBytes(riff, fmt, unknown, data);
             await stream.WriteAsync(headers, cancellationToken).ConfigureAwait(false);
             return headers.Length;
-        }
-
-        public static async Task WriteDataAsync(ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, Stream stream, CancellationToken cancellationToken = default)
-        {
-            var bufferSize = StreamFactory.GetBufferSize();
-            var bufferIndex = 0;
-            var buffer = new byte[bufferSize];
-            await using var enumerator = data.GetAsyncEnumerator(cancellationToken);            
-            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            {
-                var value = enumerator.Current ?? throw new ArgumentNullException(nameof(data));
-                if (bufferSize < bufferIndex + value.Count)
-                {
-                    await stream.WriteAsync(buffer.AsMemory(0, bufferIndex), cancellationToken).ConfigureAwait(false);
-                    bufferIndex = 0;
-                }
-
-                value.ToArray().CopyTo(buffer, bufferIndex);
-                bufferIndex += value.Count;
-            }
-
-            if (bufferIndex > 0)
-            {
-                await stream.WriteAsync(buffer.AsMemory(0, bufferIndex), cancellationToken).ConfigureAwait(false);
-            }
         }
 
         public static byte[] GetHeaderBytes(IRiffSubChunk riff, FmtSubChunk fmt, IReadOnlyList<UnknownSubChunk> unknown, DataSubChunk data)

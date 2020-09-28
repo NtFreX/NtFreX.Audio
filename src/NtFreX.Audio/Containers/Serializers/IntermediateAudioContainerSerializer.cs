@@ -1,10 +1,7 @@
 ﻿using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
-using System.Collections.Generic;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,7 +21,8 @@ namespace NtFreX.Audio.Containers.Serializers
             ushort type = await stream.ReadUInt16Async(cancellationToken: cancellationToken).ConfigureAwait(false);
             var format = new AudioFormat(sampleRate, bitsPerSample, channels, (AudioFormatType) type);
 
-            return IntermediateAudioContainerBuilder.Build(format, ReadStreamAsync(stream, cancellationToken), stream.Length - HeaderSize);
+            var streammEnumerable = stream.ToEnumerable(HeaderSize).SelectManyAsync(x => x, stream.Length - HeaderSize, cancellationToken);
+            return IntermediateAudioContainerBuilder.Build(format, streammEnumerable);
         }
 
         public override async Task ToStreamAsync(IntermediateAudioContainer container, Stream stream, CancellationToken cancellationToken = default)
@@ -35,32 +33,7 @@ namespace NtFreX.Audio.Containers.Serializers
             await stream.WriteAsync(EndianAwareBitConverter.ToByteArray(format.Channels), cancellationToken).ConfigureAwait(false);
             await stream.WriteAsync(EndianAwareBitConverter.ToByteArray((ushort)format.Type), cancellationToken).ConfigureAwait(false);
 
-            await WriteStreamAsync(stream, container.GetAsyncAudioEnumerable(cancellationToken), cancellationToken).ConfigureAwait(false);
-        }
-
-        private static async Task WriteStreamAsync(Stream stream, ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, CancellationToken cancellationToken)
-        {
-            await using var enumerator = data.GetAsyncEnumerator(cancellationToken);
-            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
-            {
-                await stream.WriteAsync(enumerator.Current.ToArray(), cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        private static async IAsyncEnumerable<byte> ReadStreamAsync(Stream stream, CancellationToken cancellationToken)
-        {
-            var bufferSize = StreamFactory.GetBufferSize();
-            var buffer = new byte[bufferSize];
-            int size;
-            do
-            {
-                size = await stream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
-                for (var i = 0; i < size; i++)
-                {
-                    yield return buffer[i];
-                }
-            }
-            while (size == bufferSize);
+            await WriteDataAsync(container.GetAsyncAudioEnumerable(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
-namespace NtFreX.Audio.Helpers
+namespace NtFreX.Audio.Infrastructure.Helpers
 {
     public sealed class ReadLockContext<T> : IDisposable
         where T: class

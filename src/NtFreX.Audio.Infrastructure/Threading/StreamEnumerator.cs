@@ -1,5 +1,4 @@
-﻿using NtFreX.Audio.Helpers;
-using NtFreX.Audio.Infrastructure.Threading;
+﻿using NtFreX.Audio.Infrastructure.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Containers.Wave
+namespace NtFreX.Audio.Infrastructure.Threading
 {
     public sealed class StreamEnumerator : ISeekableAsyncEnumerator<IReadOnlyList<byte>>
     {
@@ -60,8 +59,9 @@ namespace NtFreX.Audio.Containers.Wave
             return true;
         }
 
+        // TODO: delete this or in stream enumerable
         public long GetDataLength()
-            => endIndex - startIndex;
+            => (endIndex - startIndex) / StreamFactory.GetBufferSize();
         public bool CanSeek()
             => readLockContext.Data?.CanSeek ?? false;
         public void SeekTo(long position)

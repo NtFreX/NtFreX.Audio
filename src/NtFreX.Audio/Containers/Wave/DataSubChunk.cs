@@ -1,6 +1,6 @@
-﻿using NtFreX.Audio.Containers.Wave;
-using NtFreX.Audio.Infrastructure.Container;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Resources;
 using System;
 using System.Collections.Generic;
@@ -29,7 +29,7 @@ namespace NtFreX.Audio.Containers
         private readonly ISeekableAsyncEnumerable<IReadOnlyList<byte>> data;
 
         public DataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
-            : this(chunkId, new StreamEnumerable(data, startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
+            : this(chunkId, data.ToEnumerable(startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
 
         public DataSubChunk(string chunkId, ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, uint size)
         {

@@ -35,7 +35,7 @@ namespace NtFreX.Audio.Console
             var format = new AudioFormat(sampleRate, 64, 1, AudioFormatType.IeeFloat);
             var data = WaveBuilder.Sin(sampleRate, frequency, length);
             await using var audio = await IntermediateAudioContainerBuilder
-                .Build(format, data, sampleRate * format.BitsPerSample * format.Channels * length)
+                .Build(format, data)
                 .ToFileAsync(file, FileMode.CreateNew, cancellationToken).ConfigureAwait(false);
         }
     }

@@ -1,10 +1,9 @@
-﻿using System;
+﻿using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure
 {
@@ -25,21 +24,23 @@ namespace NtFreX.Audio.Infrastructure
             return new Sample((double)(sum / data.Length), data[0].Definition);
         }
 
-        [return: NotNull]
-        public static async IAsyncEnumerable<Sample> ToAudioSamplesAsync(this IAsyncEnumerable<byte[]> audio, SampleDefinition definition, [MaybeNull][EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<byte[]> data, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
         {
-            var sampleSize = definition.Bytes;
-            await foreach (var buffer in audio.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                var currentIndex = 0;
-                while (buffer.Length > currentIndex)
-                {
-                    yield return new Sample(buffer.AsMemory(currentIndex, sampleSize).ToArray(), definition);
-                    currentIndex += sampleSize;
-                }
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+            _ = format ?? throw new ArgumentNullException(nameof(format));
 
-                Debug.Assert(currentIndex == buffer.Length, $"Byte buffers can only be converted to audio samples when their size is a multiple of the sample size '{sampleSize}'");
-            }
+            return data.SelectManyAsync(
+                x => ByteArrayToSamples(x, format, isLittleEndian), 
+                data.GetDataLength(), 
+                cancellationToken);
+        }
+
+        private static IEnumerable<Sample> ByteArrayToSamples(IReadOnlyList<byte> data, IAudioFormat format, bool isLittleEndian)
+        {
+            var value = data.ToArray();
+            Debug.Assert(value.Length == format.BytesPerSample, "GetNextAudioAsync must return arrays the size of format.BytesPerSample");
+
+            yield return new Sample(value.ToArray(), new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
         }
     }
 }
