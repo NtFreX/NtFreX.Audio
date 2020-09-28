@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,71 +11,50 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
         public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, long? length = null)
             => new NonSeekableAsyncEnumerable<T>(data, length);
 
-        public static ISeekableAsyncEnumerable<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerable<TOut> data, ISeekableAsyncEnumerable<TIn> source, long newLength)
-            => new SeekableAsyncEnumerableWrapper<TIn, TOut>(source, data, newLength);
+        public static IAsyncEnumerable<T[]> GroupByLengthAsync<T>(this IAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
+            => new AsyncEnumerable<T[]>(c => values.GetAsyncEnumerator(c).GroupByLengthAsync(length, cancellationToken));
 
-        public static async IAsyncEnumerable<byte[]> GroupByLengthAsync(this IAsyncEnumerable<byte> data, int length)
-        {
-            var buffer = new byte[length];
-            var index = 0;
-            await foreach (var value in data.ConfigureAwait(false))
-            {
-                buffer[index++] = value;
-                if (index == length)
-                {
-                    yield return buffer;
-                    buffer = new byte[length];
-                    index = 0;
-                }
-            }
-        }
+        public static Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
+            => values?.GetAsyncEnumerator(cancellationToken).ToArrayAsync(cancellationToken) ?? throw new ArgumentNullException(nameof(values));
 
-        public static async Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default) 
-            => (await values.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
+        public static Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
+            => values?.GetAsyncEnumerator(cancellationToken).ToListAsync(cancellationToken) ?? throw new ArgumentNullException(nameof(values));
 
-        public static async Task<List<T>> ToListAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
-        {
-            var list = new List<T>();
-            await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                list.Add(value);
-            }
-            return list;
-        }
+        public static IAsyncEnumerable<TOutput> SelectManyAsync<T, TOutput>(this IAsyncEnumerable<T> values, Func<T, IEnumerable<TOutput>> selector, CancellationToken cancellationToken = default)
+            => new AsyncEnumerable<TOutput>(c => values.GetAsyncEnumerator(c).SelectManyAsync(selector, cancellationToken));
 
-        public static async IAsyncEnumerable<TOutput> SelectManyAsync<T, TOutput>(this IAsyncEnumerable<T> values, Func<T, IEnumerable<TOutput>> selector, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            _ = selector ?? throw new ArgumentNullException(nameof(selector));
+        public static IAsyncEnumerable<TOutput> SelectAsync<T, TOutput>(this IAsyncEnumerable<T> values, Func<T, TOutput> selector, CancellationToken cancellationToken = default)
+            => new AsyncEnumerable<TOutput>(c => values.GetAsyncEnumerator(c).SelectAsync(selector, cancellationToken));
 
-            await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                foreach(var subValue in selector(value))
-                {
-                    yield return subValue;
-                }
-            }
-        }
+        public static IAsyncEnumerable<T> ForEachAsync<T>(this IAsyncEnumerable<T> values, Action<int, T> visitor, CancellationToken cancellationToken = default)
+            => new AsyncEnumerable<T>(c => values.GetAsyncEnumerator(c).ForEachAsync(visitor, cancellationToken));
 
-        public static async IAsyncEnumerable<TOutput> SelectAsync<T, TOutput>(this IAsyncEnumerable<T> values, Func<T, TOutput> selector, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            _ = selector ?? throw new ArgumentNullException(nameof(selector));
-
-            await foreach(var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                yield return selector(value);
-            }
-        }
-
-        public static async IAsyncEnumerable<T> ForEachAsync<T>(this IAsyncEnumerable<T> values, Action<int, T> visitor, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            _ = visitor ?? throw new ArgumentNullException(nameof(visitor));
-
-            var index = 0;
-            await foreach (var value in values.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                visitor(index++, value);
-                yield return value;
-            }
-        }
+        // TODO: make internal?
+        /*   How to write your own seekable enumerable manipulator
+         * 
+         *   public static ISeekableAsyncEnumerable<Sample> SelectAsync(ISeekableAsyncEnumerable<Sample> value, CancellationToken cancellationToken)
+         *   {
+         *       _ = value ?? throw new ArgumentNullException(nameof(value));
+         *
+         *       var enumerator = value.GetAsyncEnumerator(cancellationToken);
+         *       var enumerable = SelectInnerAsync(enumerator, cancellationToken);
+         *       return enumerable.ToSeekable(enumerator, value.DisposeAsync, value.GetDataLength());
+         *   }
+         *
+         *   private static async IAsyncEnumerable<Sample> SelectInnerAsync(ISeekableAsyncEnumerator<Sample> value, [EnumeratorCancellation] CancellationToken cancellationToken)
+         *   {
+         *       while (await value.MoveNextAsync().ConfigureAwait(false))
+         *       {
+         *           if (cancellationToken.IsCancellationRequested)
+         *           {
+         *               throw new OperationCanceledException();
+         *           }
+         *
+         *           yield return value.Current;
+         *       }
+         *   }
+         */
+        public static ISeekableAsyncEnumerable<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerable<TOut> data, ISeekableAsyncEnumerator<TIn> source, Func<ValueTask> disposeAction, long newLength)
+            => new SeekableAsyncEnumerableWrapper<TIn, TOut>(source, disposeAction, data, newLength);
     }
 }

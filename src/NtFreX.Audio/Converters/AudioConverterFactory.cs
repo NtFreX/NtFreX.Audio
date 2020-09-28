@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Infrastructure.Container;
+﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -27,13 +28,20 @@ namespace NtFreX.Audio.Converters
                 return to;
             }
 
+            var from = audio;
+            if (audio is IntermediateListAudioContainer listContainer)
+            {
+                // TODO: this is ugly?
+                from = listContainer.AsEnumerable();
+            }
+
             var converter = converters.FirstOrDefault(x => x.From.IsAssignableFrom(audio.GetType()) && x.To.FullName == typeof(TTo).FullName);
             if (converter == null)
             {
                 throw new NotImplementedException("The given conversion is not supported");
             }
 
-            return (TTo) await converter.ConvertAsync(audio, cancellationToken).ConfigureAwait(false);
+            return (TTo) await converter.ConvertAsync(from, cancellationToken).ConfigureAwait(false);
         }
     }
 }

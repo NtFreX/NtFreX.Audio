@@ -34,6 +34,18 @@ namespace NtFreX.Audio.Containers.Wave
             return new StreamEnumerator(readLockContext, startIndex, endIndex, cancellationToken);
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            var context = await stream.AquireAsync().ConfigureAwait(false);
+
+            _ = context.Data ?? throw new ArgumentNullException();
+
+            await context.Data.DisposeAsync().ConfigureAwait(false);
+
+            context.Dispose();
+            stream.Dispose();
+        }
+
         private static void SeekTo(Stream? stream, long startIndex, long position = 0)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
@@ -50,18 +62,6 @@ namespace NtFreX.Audio.Containers.Wave
             }
 
             stream.Seek(target, SeekOrigin.Begin);
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            var context = await stream.AquireAsync().ConfigureAwait(false);
-
-            _ = context.Data ?? throw new ArgumentNullException();
-
-            await context.Data.DisposeAsync().ConfigureAwait(false);
-
-            context.Dispose();
-            stream.Dispose();
         }
     }
 }

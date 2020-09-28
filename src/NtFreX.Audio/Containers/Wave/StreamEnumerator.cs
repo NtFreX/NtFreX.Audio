@@ -44,9 +44,10 @@ namespace NtFreX.Audio.Containers.Wave
             }
 
             var bufferSize = StreamFactory.GetBufferSize();
-            var buffer = new byte[readLockContext.Data.Position + bufferSize > endIndex 
+            var realBufferSize = readLockContext.Data.Position + bufferSize > endIndex
                 ? endIndex - readLockContext.Data.Position
-                : bufferSize];
+                : bufferSize;
+            var buffer = new byte[realBufferSize];
 
             var size = await readLockContext.Data.ReadAsync(buffer).ConfigureAwait(false);
             if(size == 0)

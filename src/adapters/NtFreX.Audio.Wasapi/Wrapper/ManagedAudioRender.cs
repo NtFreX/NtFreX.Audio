@@ -22,6 +22,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private const int EventDelay = 100;
 
         private readonly ManagedAudioClient managedAudioClient;
+        // TODO: what to do with ManagedAudioClock?
         private readonly ManagedAudioClock managedAudioClock;
         private readonly IAudioRenderClient audioRenderClient;
         private readonly CancellationToken cancellationToken;
@@ -41,7 +42,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IAudioContainer audio, CancellationToken cancellationToken)
         {
-            this.enumerator = audio.GetAsyncAudioEnumerator(cancellationToken);
+            this.enumerator = audio.GetAsyncAudioEnumerable(cancellationToken).GetAsyncEnumerator(cancellationToken);
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
             this.managedAudioClient = managedAudioClient;
             this.managedAudioClock = managedAudioClock;
@@ -108,7 +109,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var totalLength = audio.GetLength().TotalSeconds;
             while(!isDisposed && !cancellationToken.IsCancellationRequested)
             {
-                var position = managedAudioClock.GetPosition();
+                var position = GetPosition().TotalSeconds;
                 await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
                 // TODO: find out why pos bigger total pos
@@ -140,11 +141,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                         throw new OperationCanceledException();
                     }
 
-                    if (enumerator.Current != null)
-                    {
-                        realBuffer.AddRange(enumerator.Current);
-                    }
-
+                    realBuffer.AddRange(enumerator.Current);
                     while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {
                         if (!hasStarted)

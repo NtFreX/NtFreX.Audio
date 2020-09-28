@@ -26,17 +26,21 @@ namespace NtFreX.Audio.Console
             AudioFactory.PrintAudioFormat(format);
 
             var totalLength = audio.GetLength().TotalSeconds;
-            context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength)); 
+            context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
+            context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
             // TODO: allow seeking with left and right arrow key
             try
             {
-                await context.EndOfPositionReached.WaitForNextEvent(cancellationToken).ConfigureAwait(false);
+                await Task.WhenAny(
+                    context.EndOfPositionReached.NextEvent(cancellationToken),
+                    context.RenderExceptionOccured.NextEvent(cancellationToken))
+                    .ConfigureAwait(false);
             }
             finally
             {
                 System.Console.WriteLine();
-                System.Console.WriteLine("  Audio device has been disposed");
+                System.Console.WriteLine("  The end of the audio was reached or a render exception occurred or render was canceled");
             }
         }
     }

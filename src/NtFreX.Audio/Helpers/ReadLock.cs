@@ -43,7 +43,7 @@ namespace NtFreX.Audio.Helpers
         {
             lock (locking) 
             {
-                if(semaphore.CurrentCount <= 0)
+                if (semaphore.CurrentCount <= 0)
                 {
                     context = null;
                     return false;

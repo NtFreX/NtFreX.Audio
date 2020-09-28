@@ -34,8 +34,8 @@ namespace NtFreX.Audio.Containers
         public bool IsDataLittleEndian()
             => isLittleEndian;
 
-        public ISeekableAsyncEnumerator<IReadOnlyList<byte>?> GetAsyncAudioEnumerator(CancellationToken cancellationToken)
-            => this.SelectAsync(x => (IReadOnlyList<byte>?)x.AsByteArray().ToList(), cancellationToken).GetAsyncEnumerator(cancellationToken);
+        public ISeekableAsyncEnumerable<IReadOnlyList<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default)
+            => this.SelectAsync(x => (IReadOnlyList<byte>)x.AsByteArray().ToList(), cancellationToken);
 
         public abstract ISeekableAsyncEnumerator<Sample> GetAsyncEnumerator(CancellationToken cancellationToken = default);
     }

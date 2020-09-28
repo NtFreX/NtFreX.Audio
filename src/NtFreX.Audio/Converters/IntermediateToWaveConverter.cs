@@ -1,7 +1,5 @@
 ﻿using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Infrastructure.Container;
-using NtFreX.Audio.Infrastructure.Threading;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,9 +13,7 @@ namespace NtFreX.Audio.Converters
             var size = from.GetDataLength() * format.BytesPerSample;
 
             var container = WaveAudioContainerBuilder.Build(
-                new SeekableAsyncEnumerable<IReadOnlyList<byte>>(
-                    cancellationToken => from.GetAsyncAudioEnumerator(cancellationToken),
-                    size),
+                from.GetAsyncAudioEnumerable(cancellationToken),
                 (uint) size,
                 format,
                 from.IsDataLittleEndian());

@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,14 +35,15 @@ namespace NtFreX.Audio.Containers.Serializers
             await stream.WriteAsync(EndianAwareBitConverter.ToByteArray(format.Channels), cancellationToken).ConfigureAwait(false);
             await stream.WriteAsync(EndianAwareBitConverter.ToByteArray((ushort)format.Type), cancellationToken).ConfigureAwait(false);
 
-            await WriteStreamAsync(stream, container.GetAsyncAudioEnumerator(cancellationToken), cancellationToken).ConfigureAwait(false);
+            await WriteStreamAsync(stream, container.GetAsyncAudioEnumerable(cancellationToken), cancellationToken).ConfigureAwait(false);
         }
 
-        private static async Task WriteStreamAsync(Stream stream, IAsyncEnumerator<IReadOnlyList<byte>?> data, CancellationToken cancellationToken)
+        private static async Task WriteStreamAsync(Stream stream, ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, CancellationToken cancellationToken)
         {
-            while (await data.MoveNextAsync().ConfigureAwait(false))
+            await using var enumerator = data.GetAsyncEnumerator(cancellationToken);
+            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
-                await stream.WriteAsync(data.Current.ToArray(), cancellationToken).ConfigureAwait(false);
+                await stream.WriteAsync(enumerator.Current.ToArray(), cancellationToken).ConfigureAwait(false);
             }
         }
 

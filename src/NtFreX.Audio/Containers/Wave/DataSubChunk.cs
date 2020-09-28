@@ -28,6 +28,9 @@ namespace NtFreX.Audio.Containers
 
         private readonly ISeekableAsyncEnumerable<IReadOnlyList<byte>> data;
 
+        public DataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
+            : this(chunkId, new StreamEnumerable(data, startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
+
         public DataSubChunk(string chunkId, ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, uint size)
         {
             _ = data ?? throw new ArgumentNullException(nameof(data));
@@ -39,9 +42,6 @@ namespace NtFreX.Audio.Containers
 
             ThrowIfInvalid();
         }
-
-        public DataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
-            : this(chunkId, new StreamEnumerable(data, startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
 
         public DataSubChunk WithChunkId(string chunkId)
             => throw new NotSupportedException();

@@ -13,6 +13,6 @@ namespace NtFreX.Audio.Infrastructure.Container
         long GetByteLength();
         bool IsDataLittleEndian();
 
-        ISeekableAsyncEnumerator<IReadOnlyList<byte>> GetAsyncAudioEnumerator(CancellationToken cancellationToken);
+        ISeekableAsyncEnumerable<IReadOnlyList<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default);
     }
 }

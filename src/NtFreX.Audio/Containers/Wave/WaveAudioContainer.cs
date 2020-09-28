@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace NtFreX.Audio.Containers.Wave
         public ValueTask DisposeAsync()
             => DataSubChunk.DisposeAsync();
 
-        public ISeekableAsyncEnumerator<IReadOnlyList<byte>> GetAsyncAudioEnumerator(CancellationToken cancellationToken = default)
-            => DataSubChunk.GetAsyncEnumerator(cancellationToken);
+        public ISeekableAsyncEnumerable<IReadOnlyList<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default)
+            => DataSubChunk.SelectAsync(x => x, cancellationToken);
     }
 }

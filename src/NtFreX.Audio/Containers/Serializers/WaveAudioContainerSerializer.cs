@@ -3,6 +3,7 @@ using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Helpers;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
+using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Resources;
 using System;
 using System.Buffers;
@@ -25,14 +26,15 @@ namespace NtFreX.Audio.Containers.Serializers
             return headers.Length;
         }
 
-        public static async Task WriteDataAsync(IAsyncEnumerator<IReadOnlyList<byte>?> data, Stream stream, CancellationToken cancellationToken = default)
+        public static async Task WriteDataAsync(ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, Stream stream, CancellationToken cancellationToken = default)
         {
             var bufferSize = StreamFactory.GetBufferSize();
             var bufferIndex = 0;
             var buffer = new byte[bufferSize];
-            while (await data.MoveNextAsync().ConfigureAwait(false))
+            await using var enumerator = data.GetAsyncEnumerator(cancellationToken);            
+            while (await enumerator.MoveNextAsync().ConfigureAwait(false))
             {
-                var value = data.Current ?? throw new ArgumentNullException(nameof(data));
+                var value = enumerator.Current ?? throw new ArgumentNullException(nameof(data));
                 if (bufferSize < bufferIndex + value.Count)
                 {
                     await stream.WriteAsync(buffer.AsMemory(0, bufferIndex), cancellationToken).ConfigureAwait(false);
@@ -77,7 +79,7 @@ namespace NtFreX.Audio.Containers.Serializers
         public override async Task ToStreamAsync(WaveAudioContainer container, Stream stream, CancellationToken cancellationToken = default)
         {
             await WriteHeadersAsync(container.RiffSubChunk, container.FmtSubChunk, container.UnknownSubChunks, container.DataSubChunk, stream, cancellationToken).ConfigureAwait(false);
-            await WriteDataAsync(container.GetAsyncAudioEnumerator(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
+            await WriteDataAsync(container.GetAsyncAudioEnumerable(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
         }
 
         public override async Task<WaveAudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default)

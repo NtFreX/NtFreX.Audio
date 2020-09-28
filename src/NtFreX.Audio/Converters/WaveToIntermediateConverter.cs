@@ -16,28 +16,26 @@ namespace NtFreX.Audio.Converters
         {
             var format = from.GetFormat();
             var isLittleEndian = from.IsDataLittleEndian();
+            var seekableSamples = from.DataSubChunk.SelectManyAsync(
+                data => ByteArrayToSamples(data, format, isLittleEndian), 
+                from.GetByteLength() / format.BytesPerSample,
+                cancellationToken);
+
             var container = new IntermediateEnumerableAudioContainer(
-                ToSampleEnumerable(
-                    format,
-                    isLittleEndian,
-                    from.GetAsyncAudioEnumerator(cancellationToken))
-                .ToNonSeekable(from.DataSubChunk.ChunkSize / format.BytesPerSample),
+                seekableSamples,
                 format,
                 isLittleEndian);
             return Task.FromResult(container);
         }
 
-        private static async IAsyncEnumerable<Sample> ToSampleEnumerable(IAudioFormat format, bool isLittleEndian, IAsyncEnumerator<IReadOnlyList<byte>> data)
+        private static IEnumerable<Sample> ByteArrayToSamples(IReadOnlyList<byte> data, IAudioFormat format, bool isLittleEndian)
         {
-            while (await data.MoveNextAsync().ConfigureAwait(false))
-            {
-                var value = data.Current?.ToArray() ?? Array.Empty<byte>();
-                Debug.Assert(value.Length % format.BytesPerSample == 0, "GetNextAudioAsync must return arrays the size of format.BitsPerSample / 8");
+            var value = data.ToArray();
+            Debug.Assert(value.Length % format.BytesPerSample == 0, "GetNextAudioAsync must return arrays the size of format.BitsPerSample / 8");
 
-                for (var i = 0; i < value.Length; i += format.BytesPerSample)
-                {
-                    yield return new Sample(value.AsMemory(i, format.BytesPerSample).ToArray(), new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
-                }
+            for (var i = 0; i < value.Length; i += format.BytesPerSample)
+            {
+                yield return new Sample(value.AsMemory(i, format.BytesPerSample).ToArray(), new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
             }
         }
     }
