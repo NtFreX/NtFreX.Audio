@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,7 @@ namespace NtFreX.Audio.Infrastructure.Helpers
         private readonly Action<T?>? aquireAction;
         private bool isDisposed;
 
-        internal ReadLock([MaybeNull] T? data, [MaybeNull] Action<T?>? aquireAction)
+        internal ReadLock(T? data, Action<T?>? aquireAction = null)
         {
             this.data = data;
             this.aquireAction = aquireAction;

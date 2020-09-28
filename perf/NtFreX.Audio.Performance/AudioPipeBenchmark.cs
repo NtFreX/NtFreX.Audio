@@ -24,9 +24,8 @@ namespace NtFreX.Audio.Performance
         public async Task GenerateSinWaveAsync()
         {
             var sampleRate = WellKnownSampleRate.Hz48000;
-            ushort bitsPerSample = 64;
             var sinWave = WaveBuilder.Sin(sampleRate, 1000, 5);
-            sourceFormat = new AudioFormat(sampleRate, bitsPerSample, 1, AudioFormatType.IeeFloat);
+            sourceFormat = new AudioFormat(sampleRate, 64, 1, AudioFormatType.IeeFloat);
             sourceAudio = await IntermediateAudioContainerBuilder.Build(sourceFormat, sinWave)
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);

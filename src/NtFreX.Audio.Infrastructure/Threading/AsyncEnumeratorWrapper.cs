@@ -21,22 +21,12 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         public ValueTask<bool> MoveNextAsync()
         {
-            try
+            if (cancellationToken.IsCancellationRequested)
             {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    throw new OperationCanceledException();
-                }
+                throw new OperationCanceledException();
+            }
 
-                return new ValueTask<bool>(enumerator.MoveNext());
-            }
-            catch (Exception ex)
-            {
-                // TODO: catch exceptions in other implementations
-                var tcs = new TaskCompletionSource<bool>();
-                tcs.SetException(ex);
-                return new ValueTask<bool>(tcs.Task);
-            }
+            return new ValueTask<bool>(enumerator.MoveNext());
         }
 
         public void Dispose()
