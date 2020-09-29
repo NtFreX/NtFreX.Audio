@@ -36,7 +36,7 @@ namespace NtFreX.Audio.Containers.Wave
         public ValueTask DisposeAsync()
             => DataSubChunk.DisposeAsync();
 
-        public ISeekableAsyncEnumerable<IReadOnlyList<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default)
+        public ISeekableAsyncEnumerable<Memory<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default)
             => DataSubChunk.SelectAsync(x => x, cancellationToken);
     }
 }

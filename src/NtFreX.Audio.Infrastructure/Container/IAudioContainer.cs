@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Infrastructure.Threading;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace NtFreX.Audio.Infrastructure.Container
@@ -13,6 +12,6 @@ namespace NtFreX.Audio.Infrastructure.Container
         long GetByteLength();
         bool IsDataLittleEndian();
 
-        ISeekableAsyncEnumerable<IReadOnlyList<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default);
+        ISeekableAsyncEnumerable<Memory<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default);
     }
 }

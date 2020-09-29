@@ -19,7 +19,7 @@ namespace NtFreX.Audio.Math
 
             return Enumerable
                 .Repeat(valueToRepeat, (int)(format.SampleRate * format.Channels * lengthInSeconds))
-                .SelectMany(x => x)
+                .SelectMany(x => x.ToArray())
                 .ToAsyncEnumerable()
                 .ToNonSeekable(lengthInSeconds * format.SampleRate * format.BytesPerSample * format.Channels);
         }

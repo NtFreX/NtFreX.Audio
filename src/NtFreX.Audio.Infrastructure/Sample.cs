@@ -11,11 +11,9 @@ namespace NtFreX.Audio.Infrastructure
         //TODO: get rid of this
         public SampleDefinition Definition { get; }
 
-#pragma warning disable SA1011 // Closing square brackets should be spaced correctly
-        private byte[]? cache;
-#pragma warning restore SA1011 // Closing square brackets should be spaced correctly
+        private Memory<byte>? cache;
 
-        public Sample(byte[] value, SampleDefinition definition)
+        public Sample(Memory<byte> value, SampleDefinition definition)
         {
             Definition = definition;
 
@@ -55,13 +53,14 @@ namespace NtFreX.Audio.Infrastructure
         public static Sample Divide(Sample left, double right) => left / right;
         public static Sample Multiply(Sample left, double right) => left * right;
 
-        public byte[] AsByteArray()
+        public Memory<byte> AsByteArray()
         {
             if (cache == null)
             {
                 cache = NumberFactory.DeconstructNumber(Definition, Value);
             }
-            return cache;
+
+            return cache.Value;
         }
 
         public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
@@ -81,7 +80,7 @@ namespace NtFreX.Audio.Infrastructure
             unchecked
             {
                 var result = 0;
-                foreach (byte b in AsByteArray())
+                foreach (byte b in AsByteArray().Span)
                 {
                     result = (result * 31) ^ b;
                 }
@@ -90,6 +89,6 @@ namespace NtFreX.Audio.Infrastructure
         }
 
         public bool Equals([AllowNull] Sample other) 
-            => Definition == other.Definition && other.AsByteArray().SequenceEqual(AsByteArray());
+            => Definition == other.Definition && other.AsByteArray().Span.SequenceEqual(AsByteArray().Span);
     }
 }

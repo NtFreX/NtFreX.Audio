@@ -7,13 +7,11 @@ namespace NtFreX.Audio.Infrastructure
     /// </summary>
     public static class Number
     {
-        public static long FromGivenBits(byte[] value, bool isLittleEndian = true)
+        public static long FromGivenBits(Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
             return value.Length switch
             {
-                1 => (sbyte)value[0],
+                1 => (sbyte)value.Span[0],
                 2 => value.ToInt16(isLittleEndian),
                 4 => value.ToInt32(isLittleEndian),
                 8 => value.ToInt64(isLittleEndian),
@@ -21,7 +19,7 @@ namespace NtFreX.Audio.Infrastructure
             };
         }
 
-        public static byte[] ToRequiredBits(uint bits, long value = 0, bool isLittleEndian = true)
+        public static Memory<byte> ToRequiredBits(uint bits, long value = 0, bool isLittleEndian = true)
         {
             return bits switch
             {

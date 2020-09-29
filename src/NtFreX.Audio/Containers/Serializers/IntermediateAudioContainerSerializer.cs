@@ -21,8 +21,7 @@ namespace NtFreX.Audio.Containers.Serializers
             ushort type = await stream.ReadUInt16Async(cancellationToken: cancellationToken).ConfigureAwait(false);
             var format = new AudioFormat(sampleRate, bitsPerSample, channels, (AudioFormatType) type);
 
-            var streammEnumerable = stream.ToEnumerable(HeaderSize).SelectManyAsync(x => x, stream.Length - HeaderSize, cancellationToken);
-            return IntermediateAudioContainerBuilder.Build(format, streammEnumerable);
+            return IntermediateAudioContainerBuilder.Build(format, stream.ToEnumerable(HeaderSize), stream.Length - HeaderSize);
         }
 
         public override async Task ToStreamAsync(IntermediateAudioContainer container, Stream stream, CancellationToken cancellationToken = default)

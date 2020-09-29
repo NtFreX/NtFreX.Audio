@@ -21,7 +21,9 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+#pragma warning disable CA2000 // Dispose objects before losing scope => object is warpped by another disposable which cleans this up
             return RunAsync(audio.AsEnumerable(), cancellationToken);
+#pragma warning restore CA2000 // Dispose objects before losing scope
         }
 
         public async Task<IntermediateEnumerableAudioContainer> RunAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure.Threading
 {
-    // TODO: why is IAsyncEnumerator .Current not nullable?
     internal sealed class AsyncEnumeratorWrapper<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> enumerator;

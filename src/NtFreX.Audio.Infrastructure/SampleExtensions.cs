@@ -24,23 +24,25 @@ namespace NtFreX.Audio.Infrastructure
             return new Sample((double)(sum / data.Length), data[0].Definition);
         }
 
-        public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<byte[]> data, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, long realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
         {
             _ = data ?? throw new ArgumentNullException(nameof(data));
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
             return data.SelectManyAsync(
-                x => ByteArrayToSamples(x, format, isLittleEndian), 
-                data.GetDataLength(), 
+                x => BytesToSamples(x, format, isLittleEndian),
+                realByteLength / format.BytesPerSample, 
                 cancellationToken);
         }
 
-        private static IEnumerable<Sample> ByteArrayToSamples(IReadOnlyList<byte> data, IAudioFormat format, bool isLittleEndian)
+        private static IEnumerable<Sample> BytesToSamples(Memory<byte> data, IAudioFormat format, bool isLittleEndian)
         {
-            var value = data.ToArray();
-            Debug.Assert(value.Length == format.BytesPerSample, "GetNextAudioAsync must return arrays the size of format.BytesPerSample");
+            Debug.Assert(data.Length % format.BytesPerSample == 0, "GetNextAudioAsync must return arrays which size are multiplications of format.BytesPerSample");
 
-            yield return new Sample(value.ToArray(), new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
+            for (var i = 0; i < data.Length; i += format.BytesPerSample)
+            {
+                yield return new Sample(data.Slice(i, format.BytesPerSample), new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
+            }
         }
     }
 }

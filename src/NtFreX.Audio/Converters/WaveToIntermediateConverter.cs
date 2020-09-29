@@ -1,7 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,10 +12,7 @@ namespace NtFreX.Audio.Converters
         {
             var format = from.GetFormat();
             var isLittleEndian = from.IsDataLittleEndian();
-            var seekableSamples = from.DataSubChunk
-                .SelectManyAsync(x => x, from.GetByteLength(), cancellationToken)
-                .GroupByLengthAsync(format.BytesPerSample, cancellationToken)
-                .ToSamplesAsync(format, isLittleEndian, cancellationToken);
+            var seekableSamples = from.DataSubChunk.ToSamplesAsync(from.GetByteLength(), format, isLittleEndian, cancellationToken);
 
             var container = new IntermediateEnumerableAudioContainer(
                 seekableSamples,

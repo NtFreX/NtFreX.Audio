@@ -1,13 +1,12 @@
 ﻿using NtFreX.Audio.Infrastructure.Helpers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure.Threading
 {
-    public sealed class StreamEnumerable : ISeekableAsyncEnumerable<IReadOnlyList<byte>>, IAsyncDisposable
+    public sealed class StreamEnumerable : ISeekableAsyncEnumerable<Memory<byte>>, IAsyncDisposable
     {
         private readonly ReadLock<Stream> stream;
         private readonly long startIndex;
@@ -20,10 +19,18 @@ namespace NtFreX.Audio.Infrastructure.Threading
             this.endIndex = endIndex;
         }
 
-        public long GetDataLength()
-            => (endIndex - startIndex) / StreamFactory.GetBufferSize();
+        public static long GetDataLength(long startIndex, long endIndex)
+        {
+            var inBytes = endIndex - startIndex;
+            var bufferSize = StreamFactory.GetBufferSize();
+            var rest = inBytes % bufferSize;
+            return (inBytes / bufferSize) + (rest > 0 ? 1 : 0);
+        }
 
-        public ISeekableAsyncEnumerator<IReadOnlyList<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public long GetDataLength()
+            => GetDataLength(startIndex, endIndex);
+
+        public ISeekableAsyncEnumerator<Memory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             if (!stream.TryAquire(out var readLockContext) || readLockContext == null)
             {

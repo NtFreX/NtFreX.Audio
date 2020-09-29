@@ -27,7 +27,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly IAudioRenderClient audioRenderClient;
         private readonly CancellationToken cancellationToken;
         private readonly IAudioContainer audio;
-        private readonly ISeekableAsyncEnumerator<IReadOnlyList<byte>> enumerator;
+        private readonly ISeekableAsyncEnumerator<Memory<byte>> enumerator;
         private readonly Task audioPump;
         private readonly Task eventPump;
         private readonly uint bufferFrameCount;
@@ -103,6 +103,8 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var factor = positionInBytes / totalInBytes;
             var positionInBuffer = enumerator.GetDataLength() * factor;
             enumerator.SeekTo((long) positionInBuffer);
+
+            //TODO: restart audio and event pump if they allready stoped
         }
 
         private async Task PumpEventsAsync()
@@ -116,6 +118,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 if(position == totalLength)
                 {
                     await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
+                    break;
                 }
 
                 await Task.Delay(EventDelay, cancellationToken).ConfigureAwait(false);
@@ -141,7 +144,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                         throw new OperationCanceledException();
                     }
 
-                    realBuffer.AddRange(enumerator.Current);
+                    realBuffer.AddRange(enumerator.Current.ToArray());
                     while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {
                         if (!hasStarted)

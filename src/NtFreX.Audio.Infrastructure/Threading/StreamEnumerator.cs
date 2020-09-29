@@ -1,21 +1,20 @@
 ﻿using NtFreX.Audio.Infrastructure.Helpers;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Infrastructure.Threading
 {
-    public sealed class StreamEnumerator : ISeekableAsyncEnumerator<IReadOnlyList<byte>>
+    public sealed class StreamEnumerator : ISeekableAsyncEnumerator<Memory<byte>>
     {
+        private readonly byte[] buffer = new byte[StreamFactory.GetBufferSize()];
         private readonly ReadLockContext<Stream> readLockContext;
         private readonly long startIndex;
         private readonly long endIndex;
         private readonly CancellationToken cancellationToken;
 
-        public IReadOnlyList<byte> Current { get; private set; }
+        public Memory<byte> Current { get; private set; }
 
         public StreamEnumerator(ReadLockContext<Stream> readLockContext, long startIndex, long endIndex, CancellationToken cancellationToken)
         {
@@ -46,22 +45,23 @@ namespace NtFreX.Audio.Infrastructure.Threading
             var realBufferSize = readLockContext.Data.Position + bufferSize > endIndex
                 ? endIndex - readLockContext.Data.Position
                 : bufferSize;
-            var buffer = new byte[realBufferSize];
+            var memory = buffer.AsMemory(0, (int) realBufferSize);
 
-            var size = await readLockContext.Data.ReadAsync(buffer).ConfigureAwait(false);
+            var size = await readLockContext.Data.ReadAsync(memory).ConfigureAwait(false);
             if(size == 0)
             {
                 Current = default!;
                 return false;
             }
 
-            Current = buffer.Take(size).ToList();
+            Current = memory;
             return true;
         }
 
         // TODO: delete this or in stream enumerable
         public long GetDataLength()
-            => (endIndex - startIndex) / StreamFactory.GetBufferSize();
+            => StreamEnumerable.GetDataLength(startIndex, endIndex);
+
         public bool CanSeek()
             => readLockContext.Data?.CanSeek ?? false;
         public void SeekTo(long position)

@@ -32,7 +32,9 @@ namespace NtFreX.Audio.Converters
             if (audio is IntermediateListAudioContainer listContainer)
             {
                 // TODO: this is ugly?
+#pragma warning disable CA2000 // Dispose objects before losing scope => object is wrapped by another dispsable which cleans this up
                 from = listContainer.AsEnumerable();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             }
 
             var converter = converters.FirstOrDefault(x => x.From.IsAssignableFrom(audio.GetType()) && x.To.FullName == typeof(TTo).FullName);

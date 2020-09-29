@@ -22,13 +22,18 @@ namespace NtFreX.Audio.Containers
             => Build(format, data.ToNonSeekable(length), isLittleEndian);
 
         public static IntermediateEnumerableAudioContainer Build(IAudioFormat format, ISeekableAsyncEnumerable<byte> data, bool isLittleEndian = true)
+            => Build(
+                format, 
+                data.GroupByLengthAsync(format?.BytesPerSample ?? throw new ArgumentNullException(nameof(format))).SelectAsync(x => x.AsMemory()),
+                data?.GetDataLength() ?? throw new ArgumentNullException(nameof(data)),
+                isLittleEndian);
+
+        public static IntermediateEnumerableAudioContainer Build(IAudioFormat format, ISeekableAsyncEnumerable<Memory<byte>> data, long realByteLength, bool isLittleEndian = true)
         {
             _ = format ?? throw new ArgumentNullException(nameof(format));
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
-            var enumerable = data
-                .GroupByLengthAsync(format.BytesPerSample)
-                .ToSamplesAsync(format, isLittleEndian);
+            var enumerable = data.ToSamplesAsync(realByteLength, format, isLittleEndian);
 
             return new IntermediateEnumerableAudioContainer(
                 enumerable,

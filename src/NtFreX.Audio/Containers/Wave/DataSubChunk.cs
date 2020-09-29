@@ -3,15 +3,13 @@ using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Resources;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
-    // TODO: make ref strcut and use span propery?
-    public sealed class DataSubChunk : ISubChunk<DataSubChunk>, ISubChunk, ISeekableAsyncEnumerable<IReadOnlyList<byte>>
+    public sealed class DataSubChunk : ISubChunk<DataSubChunk>, ISubChunk, ISeekableAsyncEnumerable<Memory<byte>>
     {
         public const string ChunkIdentifer = "data";
         public const int ChunkHeaderSize = 8;
@@ -26,12 +24,12 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public uint ChunkSize { get; }
 
-        private readonly ISeekableAsyncEnumerable<IReadOnlyList<byte>> data;
+        private readonly ISeekableAsyncEnumerable<Memory<byte>> data;
 
         public DataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
             : this(chunkId, data.ToEnumerable(startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
 
-        public DataSubChunk(string chunkId, ISeekableAsyncEnumerable<IReadOnlyList<byte>> data, uint size)
+        public DataSubChunk(string chunkId, ISeekableAsyncEnumerable<Memory<byte>> data, uint size)
         {
             _ = data ?? throw new ArgumentNullException(nameof(data));
 
@@ -53,7 +51,7 @@ namespace NtFreX.Audio.Containers
         public long GetDataLength()
             => data.GetDataLength();
 
-        public ISeekableAsyncEnumerator<IReadOnlyList<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public ISeekableAsyncEnumerator<Memory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => data.GetAsyncEnumerator(cancellationToken);
 
         private void ThrowIfInvalid()
