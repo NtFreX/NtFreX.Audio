@@ -17,6 +17,7 @@ namespace NtFreX.Audio.Containers.Serializers
 
         private AudioContainerSerializerFactory() { }
 
+        public Task<IAudioContainer> FromFileAsync(string path, CancellationToken cancellationToken = default) => FromFileAsync(path, Path.GetExtension(path), cancellationToken);
         public Task<IAudioContainer> FromFileAsync(string path, string extension, CancellationToken cancellationToken = default) => ForExtension(extension).FromFileAsync(path, cancellationToken);
         public Task<IAudioContainer> FromDataAsync(byte[] data, string extension, CancellationToken cancellationToken = default) => ForExtension(extension).FromDataAsync(data, cancellationToken);
         public Task<IAudioContainer> FromStreamAsync(Stream stream, string extension, CancellationToken cancellationToken = default) => ForExtension(extension).FromStreamAsync(stream, cancellationToken);

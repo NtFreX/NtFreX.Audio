@@ -1,6 +1,5 @@
 ﻿using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace NtFreX.Audio.Console
         {
             System.Console.WriteLine($"Reading...");
             // TODO: choose serializer
-            var audio = await AudioEnvironment.Serializer.FromFileAsync(file, Path.GetExtension(file), cancellationToken).ConfigureAwait(false);
+            var audio = await AudioEnvironment.Serializer.FromFileAsync(file, cancellationToken).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
 
             PrintAudioFormat(audio.GetFormat());
