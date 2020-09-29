@@ -64,9 +64,18 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         public bool CanSeek()
             => readLockContext.Data?.CanSeek ?? false;
+        
         public void SeekTo(long position)
-            => readLockContext.Data?.Seek(startIndex + position, SeekOrigin.Begin);
+        {
+            var positionInBytes = StreamFactory.GetBufferSize() * position;
+            readLockContext.Data?.Seek(startIndex + positionInBytes, SeekOrigin.Begin);
+        }
+
         public long GetPosition()
-            => readLockContext.Data?.Position ?? 0 - startIndex;
+        {
+            var bufferSize = StreamFactory.GetBufferSize();
+            var positionInBytes = readLockContext.Data?.Position ?? 0 - startIndex;
+            return (long) (1.0f * positionInBytes / bufferSize);
+        }
     }
 }

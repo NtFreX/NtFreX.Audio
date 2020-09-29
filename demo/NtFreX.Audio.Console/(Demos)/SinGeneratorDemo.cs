@@ -2,6 +2,7 @@
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -19,6 +20,7 @@ namespace NtFreX.Audio.Console
         {
             System.Console.Write("Enter the file you want to create: ");
             var file = System.Console.ReadLine();
+            _ = file ?? throw new Exception("Enter a valid file name");
 
             if (File.Exists(file))
             {
@@ -26,10 +28,10 @@ namespace NtFreX.Audio.Console
             }
 
             System.Console.Write("Enter the frequency: ");
-            var frequency = int.Parse(System.Console.ReadLine(), NumberFormatInfo.InvariantInfo);
+            var frequency = int.Parse(System.Console.ReadLine() ?? string.Empty, NumberFormatInfo.InvariantInfo);
 
             System.Console.Write("Enter the length: ");
-            var length = int.Parse(System.Console.ReadLine(), NumberFormatInfo.InvariantInfo);
+            var length = int.Parse(System.Console.ReadLine() ?? string.Empty, NumberFormatInfo.InvariantInfo);
 
             uint sampleRate = 44100;
             var format = new AudioFormat(sampleRate, 64, 1, AudioFormatType.IeeFloat);

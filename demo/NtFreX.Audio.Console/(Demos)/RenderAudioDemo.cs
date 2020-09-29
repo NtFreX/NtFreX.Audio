@@ -1,4 +1,6 @@
-﻿using NtFreX.Audio.Extensions;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Extensions;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,8 +13,13 @@ namespace NtFreX.Audio.Console
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            System.Console.WriteLine();
+            System.Console.WriteLine("Use the left and the right arrow seek");
+            System.Console.WriteLine();
+
             System.Console.Write("Enter the file you want to play: ");
             var file = System.Console.ReadLine();
+            _ = file ?? throw new Exception("Enter a valid file name");
 
             await using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
@@ -29,7 +36,9 @@ namespace NtFreX.Audio.Console
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
             context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
-            // TODO: allow seeking with left and right arrow key
+            using var keyboardListenerCancelSource = new CancellationTokenSource();
+            _ = Task.Run(() => KeyboardMessageLoop(context, keyboardListenerCancelSource.Token), keyboardListenerCancelSource.Token).ConfigureAwait(false);
+
             try
             {
                 await Task.WhenAny(
@@ -39,8 +48,32 @@ namespace NtFreX.Audio.Console
             }
             finally
             {
+                keyboardListenerCancelSource.Cancel();
+
                 System.Console.WriteLine();
                 System.Console.WriteLine("  The end of the audio was reached or a render exception occurred or render was canceled");
+            }
+        }
+
+        private static void KeyboardMessageLoop(IRenderContext renderContext, CancellationToken cancellationToken)
+        {
+            while (true)
+            {
+                var input = System.Console.ReadKey(true);
+                if(cancellationToken.IsCancellationRequested)
+                {
+                    // TODO: simulate key so it is not swallowed
+                    break;
+                }
+
+                if (input.Key == ConsoleKey.LeftArrow)
+                {
+                    renderContext.SetPosition(renderContext.GetPosition() - TimeSpan.FromSeconds(0.5));
+                }
+                else if (input.Key == ConsoleKey.RightArrow)
+                {
+                    renderContext.SetPosition(renderContext.GetPosition() + TimeSpan.FromSeconds(0.5));
+                }
             }
         }
     }

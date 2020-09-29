@@ -20,9 +20,11 @@ namespace NtFreX.Audio.Console
         {
             System.Console.Write("Enter the file you want to convert: ");
             var file = System.Console.ReadLine();
+            _ = file ?? throw new Exception("Enter a valid file name");
 
             System.Console.Write("Enter the path where you want to save your converted file to: ");
             var target = System.Console.ReadLine();
+            _ = target ?? throw new Exception("Enter a valid file name");
 
             System.Console.WriteLine("Configure your pipeline");
             var pipe = new AudioSamplerPipe();
@@ -37,13 +39,12 @@ namespace NtFreX.Audio.Console
                 System.Console.WriteLine($"  {runCommand} - runs the pipeline");
 
                 var input = System.Console.ReadLine();
-
                 if(input == runCommand)
                 {
                     break;
                 }
 
-                var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                var parts = input?.Split(' ', StringSplitOptions.RemoveEmptyEntries) ?? new[] { string.Empty };
                 if(!int.TryParse(parts[0], out var number) || number <= 0 || number > samplers.Length)
                 {
                     System.Console.WriteLine("Invalid input");

@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.Devices;
 using NtFreX.Audio.Extensions;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -17,6 +18,7 @@ namespace NtFreX.Audio.Console
         {
             System.Console.Write("Enter the file you want to create: ");
             var file = System.Console.ReadLine();
+            _ = file ?? throw new Exception("Enter a valid file name");
 
             if (File.Exists(file))
             {
@@ -24,7 +26,7 @@ namespace NtFreX.Audio.Console
             }
 
             System.Console.Write("Enter the amount of seconds you want to record: ");
-            var time = int.Parse(System.Console.ReadLine(), NumberFormatInfo.InvariantInfo) * 1000;
+            var time = int.Parse(System.Console.ReadLine() ?? string.Empty, NumberFormatInfo.InvariantInfo) * 1000;
 
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();

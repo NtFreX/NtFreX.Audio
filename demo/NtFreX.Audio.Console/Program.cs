@@ -33,11 +33,17 @@ namespace NtFreX.Audio.Console
         {
             var cancellationTokenSources = new Stack<CancellationTokenSource>();
 
+            System.Console.ForegroundColor = ConsoleColor.Green;
             PrintTitle();
+
+            System.Console.ForegroundColor = ConsoleColor.White;
+            PrintInstructions();
+
+            System.Console.ForegroundColor = ConsoleColor.Gray;
             PrintSampleAudioFiles();
 
             System.Console.ForegroundColor = ConsoleColor.White;
-            System.Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
+            System.Console.CancelKeyPress += (object? sender, ConsoleCancelEventArgs e) =>
             {
                 if(cancellationTokenSources.TryPeek(out var tokenSource))
                 {
@@ -97,7 +103,6 @@ namespace NtFreX.Audio.Console
 
         private static void PrintSampleAudioFiles()
         {
-            System.Console.ForegroundColor = ConsoleColor.Gray;
             System.Console.WriteLine("Test audio files:");
             foreach (var file in SampleAudios)
             {
@@ -108,7 +113,6 @@ namespace NtFreX.Audio.Console
 
         private static void PrintTitle()
         {
-            System.Console.ForegroundColor = ConsoleColor.Green;
             System.Console.WriteLine();
             System.Console.WriteLine(@" ________   _________  ________ ________  _______      ___    ___ ________  ___  ___  ________  ___  ________     ");
             System.Console.WriteLine(@"|\   ___  \|\___   ___\\  _____\\   __  \|\  ___ \    |\  \  /  /|\   __  \|\  \|\  \|\   ___ \|\  \|\   __  \    ");
@@ -119,6 +123,13 @@ namespace NtFreX.Audio.Console
             System.Console.WriteLine(@"    \|__| \|__|    \|__|  \|__|    \|__|\|__|\|_______/__/ /\ __\|__|\|__|\|__|\|_______|\|_______|\|__|\|_______|");
             System.Console.WriteLine(@"                                                      |__|/ \|__|                                                 ");
             System.Console.WriteLine();
+            System.Console.WriteLine();
+        }
+
+        private static void PrintInstructions()
+        {
+            System.Console.WriteLine();
+            System.Console.WriteLine("ctrl + c => cancel current action");
             System.Console.WriteLine();
         }
 

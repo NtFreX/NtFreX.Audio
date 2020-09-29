@@ -12,6 +12,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
         private readonly IAsyncEnumerable<TValue> data;
         private readonly long dataLength;
 
+        // TODO: was this the poor mans choise? still nessesary to work with enumerator in samplers so multiple enumeration does work without reset?
         public SeekableAsyncEnumerableWrapper(ISeekableAsyncEnumerator<TSource> source, Func<ValueTask> disposeAction, IAsyncEnumerable<TValue> data, long dataLength)
         {
             this.source = source;

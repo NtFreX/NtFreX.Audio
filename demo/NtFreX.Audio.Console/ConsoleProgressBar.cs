@@ -18,6 +18,11 @@ namespace NtFreX.Audio.Console
             var diff = System.Math.Abs(progress - lastProgress);
             if (diff > 0.01 || progress == 0 || progress == 1)
             {
+                // clear
+                System.Console.CursorLeft = StartAtFromLeft;
+                System.Console.Write(string.Join(string.Empty, Enumerable.Repeat(" ", MaxLength + 2)));
+
+                // draw
                 System.Console.CursorLeft = StartAtFromLeft;
                 System.Console.Write("<" + string.Join(string.Empty, Enumerable.Repeat("█", (int)(MaxLength * progress))));
                 System.Console.CursorLeft = MaxLength + 1 + StartAtFromLeft;

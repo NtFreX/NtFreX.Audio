@@ -97,11 +97,23 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         }
         public void SetPosition(TimeSpan position)
         {
+            if (position.TotalSeconds < 0)
+            {
+                position = TimeSpan.FromSeconds(0);
+            }
+
             var format = audio.GetFormat();
             var totalInBytes = audio.GetByteLength();
             var positionInBytes = position.TotalSeconds * format.SampleRate * format.Channels * format.BytesPerSample;
             var factor = positionInBytes / totalInBytes;
-            var positionInBuffer = enumerator.GetDataLength() * factor;
+            var lengthInBuffer = enumerator.GetDataLength();
+            var positionInBuffer = (long) (lengthInBuffer * factor);
+
+            if(positionInBuffer > lengthInBuffer)
+            {
+                positionInBuffer = lengthInBuffer;
+            }
+
             enumerator.SeekTo((long) positionInBuffer);
 
             //TODO: restart audio and event pump if they allready stoped

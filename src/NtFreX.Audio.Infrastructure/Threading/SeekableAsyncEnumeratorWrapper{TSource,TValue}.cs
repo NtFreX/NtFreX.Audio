@@ -24,7 +24,11 @@ namespace NtFreX.Audio.Infrastructure.Threading
         public bool CanSeek()
             => source.CanSeek();
         public void SeekTo(long position)
-            => source.SeekTo((long) (source.GetDataLength() * (1.0f * position / GetDataLength())));
+        {
+            source.SeekTo((long)(source.GetDataLength() * (1.0f * position / GetDataLength())));
+            this.position = position;
+        }
+
         public long GetPosition()
             => position;
         public ValueTask<bool> MoveNextAsync()
