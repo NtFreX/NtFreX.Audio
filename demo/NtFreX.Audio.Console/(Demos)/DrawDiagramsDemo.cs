@@ -28,9 +28,11 @@ namespace NtFreX.Audio.Console
         {
             System.Console.Write("Enter the file you want to draw: ");
             var file = System.Console.ReadLine();
+            _ = file ?? throw new Exception("Enter a valid file name");
 
             System.Console.Write("Enter the file you write to: ");
             var target = System.Console.ReadLine();
+            _ = target ?? throw new Exception("Enter a valid file name");
 
             await using var audio = await AudioFactory
                 .GetSampleAudioAsync(file, cancellationToken)

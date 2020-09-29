@@ -37,7 +37,7 @@ namespace NtFreX.Audio.Console
             PrintSampleAudioFiles();
 
             System.Console.ForegroundColor = ConsoleColor.White;
-            System.Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs e) =>
+            System.Console.CancelKeyPress += (object? sender, ConsoleCancelEventArgs e) =>
             {
                 if(cancellationTokenSources.TryPeek(out var tokenSource))
                 {

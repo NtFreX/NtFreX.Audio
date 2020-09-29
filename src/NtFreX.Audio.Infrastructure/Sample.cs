@@ -8,7 +8,7 @@ namespace NtFreX.Audio.Infrastructure
     public struct Sample : IEquatable<Sample>
     {
         public double Value { get; }
-        //TODO: get rid of this
+        //TODO: get rid of this?
         public SampleDefinition Definition { get; }
 
         private Memory<byte>? cache;
