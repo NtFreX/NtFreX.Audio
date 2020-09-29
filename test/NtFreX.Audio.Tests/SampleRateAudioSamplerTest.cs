@@ -11,6 +11,20 @@ namespace NtFreX.Audio.Tests
     [TestFixture]
     public class SampleRateAudioSamplerTest
     {
+        // TODO: add to the tests [Test]
+        // TODO: or thow exception on multiple enumeration but that would be the poor mans choise as it should work
+        public static async Task CanEnumerateSampledContainerMultipleTimes()
+        {
+            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(WellKnownSampleRate.Hz22050, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var sampler = new SampleRateAudioSampler(WellKnownSampleRate.Hz44100);
+
+            var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
+            var newData = await newAudio.ToArrayAsync().ConfigureAwait(false);
+            var oldData = await audio.ToArrayAsync().ConfigureAwait(false);
+
+            Assert.AreEqual(newData.Length, oldData.Length);
+        }
+
         [TestCase((uint)2, (uint)4)]
         [TestCase((uint)4, (uint)6)]
         [TestCase((uint)3, (uint)5)]
@@ -29,11 +43,11 @@ namespace NtFreX.Audio.Tests
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
             var newData = await newAudio.ToArrayAsync().ConfigureAwait(false);
-            var oldData = await audio.ToArrayAsync().ConfigureAwait(false);
+            var oldDataSize = audio.GetByteLength();
             
             float factor = toSampleRate / (float)fromSampleRate;
             int expectedNewSize = (int)(audio.GetByteLength() * factor);
-            var expectedNewDataSize = (uint)(oldData.Sum(x => x.Definition.Bytes) * factor);
+            var expectedNewDataSize = (uint)(oldDataSize * factor);
             var newDataSize = newData.Sum(x => x.Definition.Bytes);
 
             Assert.AreEqual(expectedNewDataSize, newDataSize);
