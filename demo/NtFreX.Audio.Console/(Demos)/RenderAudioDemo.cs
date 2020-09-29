@@ -13,6 +13,10 @@ namespace NtFreX.Audio.Console
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            System.Console.WriteLine();
+            System.Console.WriteLine("Use the left and the right arrow seek");
+            System.Console.WriteLine();
+
             System.Console.Write("Enter the file you want to play: ");
             var file = System.Console.ReadLine();
             _ = file ?? throw new Exception("Enter a valid file name");
@@ -53,9 +57,15 @@ namespace NtFreX.Audio.Console
 
         private static void KeyboardMessageLoop(IRenderContext renderContext, CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while (true)
             {
                 var input = System.Console.ReadKey(true);
+                if(cancellationToken.IsCancellationRequested)
+                {
+                    // TODO: simulate key so it is not swallowed
+                    break;
+                }
+
                 if (input.Key == ConsoleKey.LeftArrow)
                 {
                     renderContext.SetPosition(renderContext.GetPosition() - TimeSpan.FromSeconds(0.5));
