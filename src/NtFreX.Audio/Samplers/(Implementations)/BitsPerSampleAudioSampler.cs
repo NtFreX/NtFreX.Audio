@@ -34,7 +34,7 @@ namespace NtFreX.Audio.Samplers
 
             return Task.FromResult(audio.WithData(
                 data: audio.SelectAsync(sample => ToRequiredBitsPerSample(sample, format, isNewBigger, factor, definition), cancellationToken),
-                format: new AudioFormat(format.SampleRate, bitsPerSample, format.BitsPerSample, format.Type)));
+                format: new AudioFormat(format.SampleRate, bitsPerSample, format.Channels, format.Type)));
         }
 
         public override string ToString()

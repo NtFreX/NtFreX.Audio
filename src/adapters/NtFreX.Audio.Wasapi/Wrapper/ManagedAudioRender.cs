@@ -90,8 +90,9 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         {
             // TODO: use enumerator.position? what to do with managedAudioClock
             // TimeSpan.FromSeconds(managedAudioClock.GetPosition());
+            // differentiate between filled buffer position and rendered position
             var positionInBuffer = enumerator.GetPosition();
-            var factor = positionInBuffer / enumerator.GetDataLength();
+            var factor = 1.0f * positionInBuffer / enumerator.GetDataLength();
             return audio.GetLength() * factor;
         }
         public void SetPosition(TimeSpan position)
@@ -112,8 +113,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var position = GetPosition().TotalSeconds;
                 await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
-                // TODO: find out why pos bigger total pos
-                if(position >= totalLength)
+                if(position == totalLength)
                 {
                     await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
                 }

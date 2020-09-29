@@ -19,7 +19,7 @@ namespace NtFreX.Audio.Containers
         public override TimeSpan GetLength()
         {
             var format = GetFormat();
-            return TimeSpan.FromSeconds(1.0f * GetDataLength() / format.BitsPerSample / format.Channels / format.SampleRate);
+            return TimeSpan.FromSeconds(1.0f * GetDataLength() / format.Channels / format.SampleRate);
         }
         public override long GetDataLength()
             => data.GetDataLength();
