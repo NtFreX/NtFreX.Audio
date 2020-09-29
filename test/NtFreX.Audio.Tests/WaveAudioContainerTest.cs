@@ -1,4 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Containers.Wave;
+using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
 using System;
 
@@ -10,15 +12,23 @@ namespace NtFreX.Audio.Tests
         [Test]
         public void ShouldBeLittleEndianWhenRiff()
         {
-            var audio = TestHelper.Build(10, 32, 44100, riffChunkId: RiffChunkDescriptor.ChunkIdentifierRIFF);
-            
+            var isLittleEndian = true;
+            var format = new AudioFormat(44100, 32, 1, AudioFormatType.Pcm);
+            var audio = WaveAudioContainerBuilder.Build(Array.Empty<byte>(), format, isLittleEndian);
+
+            Assert.AreEqual(RiffSubChunk.ChunkIdentifierRIFF, audio.RiffSubChunk.ChunkId);
             Assert.IsTrue(audio.IsDataLittleEndian());
         }
 
         [Test]
-        public void ShouldBeBigEndianWhenRiffOrNotSupportedYet()
+        public void ShouldBeBigEndianWhenRifX()
         {
-            Assert.Throws<ArgumentException>(() => TestHelper.Build(10, 32, 44100, riffChunkId: RiffChunkDescriptor.ChunkIdentifierRIFX));
+            var isLittleEndian = false;
+            var format = new AudioFormat(44100, 32, 1, AudioFormatType.Pcm);
+            var audio = WaveAudioContainerBuilder.Build(Array.Empty<byte>(), format, isLittleEndian);
+
+            Assert.AreEqual(RiffSubChunk.ChunkIdentifierRIFX, audio.RiffSubChunk.ChunkId);
+            Assert.IsFalse(audio.IsDataLittleEndian());
         }
     }
 }

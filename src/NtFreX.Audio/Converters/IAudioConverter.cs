@@ -1,4 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +10,6 @@ namespace NtFreX.Audio.Converters
         Type From { get; }
         Type To { get; }
 
-        Task<IAudioContainer> ConvertAsync(IStreamAudioContainer from, CancellationToken cancellationToken = default);
+        Task<IAudioContainer> ConvertAsync(IAudioContainer from, CancellationToken cancellationToken = default);
     }
 }

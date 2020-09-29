@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,17 +15,18 @@ namespace NtFreX.Audio.Samplers
             this.sampleRate = sampleRate;
         }
 
-        [return:NotNull] public override async Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override async Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if (audio.FmtSubChunk.SampleRate == sampleRate)
+            var format = audio.GetFormat();
+            if (format.SampleRate == sampleRate)
             {
                 return audio;
             }
 
             var pipe = new AudioSamplerPipe();
-            var currentSampleRate = audio.FmtSubChunk.SampleRate;
+            var currentSampleRate = format.SampleRate;
             if (sampleRate > currentSampleRate)
             {
                 while (currentSampleRate * 2 < sampleRate)
@@ -53,14 +54,13 @@ namespace NtFreX.Audio.Samplers
             return base.ToString() + $", sampleRate={sampleRate}";
         }
 
-        private WaveEnumerableAudioContainer SampleInner([NotNull] WaveEnumerableAudioContainer audio, double factor, [MaybeNull] CancellationToken cancellationToken = default)
+        private IntermediateEnumerableAudioContainer SampleInner(IntermediateEnumerableAudioContainer audio, double factor, CancellationToken cancellationToken = default)
         {
-            var newDataSize = System.Math.Round(factor * audio.DataSubChunk.ChunkSize, 0);
-            return audio
-                .WithFmtSubChunk(x => x.WithSampleRate(sampleRate))
-                .WithDataSubChunk(x => x
-                    .WithChunkSize((uint)newDataSize)
-                    .WithData(WaveStretcher.StretchAsync(audio, factor, cancellationToken)));
+            var format = audio.GetFormat();
+
+            return audio.WithData(
+                data: WaveStretcher.StretchAsync(audio, factor, cancellationToken),
+                format: new AudioFormat(sampleRate, format.BitsPerSample, format.Channels, format.Type));
         }
     }
 }

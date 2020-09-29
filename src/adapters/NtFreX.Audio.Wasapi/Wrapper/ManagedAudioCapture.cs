@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Runtime.InteropServices;
@@ -11,7 +12,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
     /// <summary>
     /// https://docs.microsoft.com/en-us/windows/win32/coreaudio/capturing-a-stream
     /// </summary>
-    internal class ManagedAudioCapture : IDisposable
+    internal class ManagedAudioCapture : IAsyncDisposable
     {
         public const int RefTimesPerSec = 10000000;
         public const int RefTimesPerMilisec = 10000;
@@ -24,7 +25,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly Task audioPump;
         private readonly uint bufferFrameCount;
 
-        private bool isDisposed = false;
+        private bool isDisposed;
 
         internal ManagedAudioCapture(ManagedAudioClient managedAudioClient, IAudioCaptureClient audioCaptureClient, IAudioSink sink, CancellationToken cancellationToken)
         {
@@ -35,18 +36,28 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             this.sink = sink;
             this.cancellationToken = cancellationToken;
 
-            audioPump = Task.Run(PumpAudioAsync, cancellationToken);
+            var taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
+            audioPump = Task.Factory.StartNew(PumpAudioAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
         }
 
         public AudioFormat GetFormat() => managedWaveFormat.ToAudioFormat();
 
-        public void Dispose()
+        public async ValueTask DisposeAsync()
         {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            isDisposed = true;
+
+            await audioPump.IgnoreCancelationError().ConfigureAwait(false);
+
             managedWaveFormat.Dispose();
             managedAudioClient.Stop();
             Marshal.ReleaseComObject(audioCaptureClient);
-            _ = audioPump.ContinueWith(x => x.Dispose(), TaskScheduler.Default);
-            isDisposed = true;
+
+            audioPump.Dispose();
         }
 
         private async Task PumpAudioAsync()
@@ -55,7 +66,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
             managedAudioClient.Start();
 
-            while(!isDisposed)
+            while(!isDisposed && !cancellationToken.IsCancellationRequested)
             {
                 // Sleep for half the buffer duration.
                 await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);

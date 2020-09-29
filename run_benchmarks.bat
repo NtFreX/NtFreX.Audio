@@ -1,0 +1,1 @@
+dotnet run -c Release -f netcoreapp3.1 --runtimes netcoreapp2.1 netcoreapp3.1 netcoreapp5.0 corert3.1 --project perf/NtFreX.Audio.Performance/NtFreX.Audio.Performance.csproj

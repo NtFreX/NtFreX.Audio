@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SolutionDir)'==''">
+    <!-- Define solution dir to be able to reference solution items even if only this project is build without solution -->
+    <SolutionDir>$(ProjectDir)..\..\</SolutionDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
+  </ItemGroup>
+
+</Project>

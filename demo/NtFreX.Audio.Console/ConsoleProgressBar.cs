@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace NtFreX.Audio.Sampler.Console
+namespace NtFreX.Audio.Console
 {
     /// <summary>
     /// Simple progressbar which logs to the current line.
@@ -11,7 +11,7 @@ namespace NtFreX.Audio.Sampler.Console
         private const int MaxLength = 40;
         private const int StartAtFromLeft = 2;
 
-        private static double lastProgress = 0;
+        private static double lastProgress;
 
         public static void LogProgress(double progress)
         {

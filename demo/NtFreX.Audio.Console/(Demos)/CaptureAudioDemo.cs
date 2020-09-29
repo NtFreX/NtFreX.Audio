@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Sampler.Console
+namespace NtFreX.Audio.Console
 {
     internal class CaptureAudioDemo : IDemo
     {
@@ -30,21 +30,21 @@ namespace NtFreX.Audio.Sampler.Console
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
 
             var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-           
-            using var sink = new FileAudioSink(file);
-            await sink.InitializeAsync(format).ConfigureAwait(false);
+            AudioFactory.PrintAudioFormat(format);
 
-            (var context, var client) = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
+            await using var sink = await FileWaveAudioSink.CreateAsync(file, format).ConfigureAwait(false);
 
-            await Task.Delay(time).ConfigureAwait(false);
+            await using var context = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
 
-            context.Dispose();
-            client.Dispose();
-
-            sink.Finish();
-
-            System.Console.WriteLine();
-            System.Console.WriteLine("  Audio device has been disposed");
+            try
+            {
+                await Task.Delay(time, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                System.Console.WriteLine();
+                System.Console.WriteLine("  Audio device has been disposed");
+            }
         }
     }
 }

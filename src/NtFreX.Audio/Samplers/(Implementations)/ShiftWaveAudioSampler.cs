@@ -1,8 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
-using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Math;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,17 +15,17 @@ namespace NtFreX.Audio.Samplers
             this.shiftAdder = shiftAdder;
         }
 
-        [return: NotNull]
-        public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var max = (long) System.Math.Pow(256, audio.FmtSubChunk.BitsPerSample / 8) / 2;
+            var format = audio.GetFormat();
+            var max = (long) System.Math.Pow(256, format.BytesPerSample) / 2;
             var min = max * -1;
 
-            var samples = audio.GetAudioSamplesAsync(cancellationToken).SelectAsync(x => x + shiftAdder);
-            
-            return Task.FromResult(audio.WithDataSubChunk(x => x.WithData(samples)));
+            return Task.FromResult(
+                audio.WithData(
+                    data: audio.SelectAsync(x => x + shiftAdder, cancellationToken)));
         }
 
         public override string ToString()

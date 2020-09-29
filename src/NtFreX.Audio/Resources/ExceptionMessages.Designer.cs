@@ -61,15 +61,6 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loading audio samples failed.
-        /// </summary>
-        internal static string AudioSampleLoadingFailed {
-            get {
-                return ResourceManager.GetString("AudioSampleLoadingFailed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A cancelation has been requested.
         /// </summary>
         internal static string CancelationRequested {
@@ -133,7 +124,7 @@ namespace NtFreX.Audio.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value has to contain the letters &apos;RIFF&apos; (0x52494646 big-endian form).
+        ///   Looks up a localized string similar to The value has to contain the letters &apos;RIFF&apos; or &apos;RIFX&apos;.
         /// </summary>
         internal static string InvalidRiffChunkId {
             get {

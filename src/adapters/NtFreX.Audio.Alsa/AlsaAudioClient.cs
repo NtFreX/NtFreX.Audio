@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Alsa.Wrapper;
-using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -24,7 +24,7 @@ namespace NtFreX.Audio.Alsa
         }
 
         [return: NotNull]
-        public Task<IRenderContext> RenderAsync(IWaveAudioContainer audio, CancellationToken cancellationToken = default)
+        public Task<IRenderContext> RenderAsync(IAudioContainer audio, CancellationToken cancellationToken = default)
         {
             var render = new ManagedAlsaAudioRender(device.GetManagedDevice(), cancellationToken);
             return Task.FromResult(new AlsaRenderContext(render) as IRenderContext);

@@ -1,5 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
-using System.Diagnostics.CodeAnalysis;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,15 +7,15 @@ namespace NtFreX.Audio.Containers.Serializers
 {
     internal interface IAudioContainerSerializer
     {
-        string PreferredFileExtension { [return: NotNull] get; }
+        string PreferredFileExtension { get; }
 
-        [return: NotNull] Task ToFileAsync([NotNull] string path, [NotNull] IStreamAudioContainer container, [MaybeNull] CancellationToken cancellationToken = default);
-        [return: NotNull] Task<IStreamAudioContainer> FromFileAsync([NotNull] string path, [MaybeNull] CancellationToken cancellationToken = default);
+        Task ToFileAsync(string path, IAudioContainer container, CancellationToken cancellationToken = default);
+        Task<IAudioContainer> FromFileAsync(string path, CancellationToken cancellationToken = default);
 
-        [return: NotNull] Task<byte[]> ToDataAsync([NotNull] IStreamAudioContainer container, [MaybeNull] CancellationToken cancellationToken = default);
-        [return: NotNull] Task<IStreamAudioContainer> FromDataAsync([NotNull] byte[] data, [MaybeNull] CancellationToken cancellationToken = default);
+        Task<byte[]> ToDataAsync(IAudioContainer container, CancellationToken cancellationToken = default);
+        Task<IAudioContainer> FromDataAsync(byte[] data, CancellationToken cancellationToken = default);
 
-        [return: NotNull] Task ToStreamAsync([NotNull] IStreamAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
-        [return: NotNull] Task<IStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default);
+        Task ToStreamAsync(IAudioContainer container, Stream stream, CancellationToken cancellationToken = default);
+        Task<IAudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default);
     }
 }

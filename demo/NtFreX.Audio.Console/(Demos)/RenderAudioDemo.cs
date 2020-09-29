@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Sampler.Console
+namespace NtFreX.Audio.Console
 {
     internal class RenderAudioDemo : IDemo
     {
@@ -14,24 +14,34 @@ namespace NtFreX.Audio.Sampler.Console
             System.Console.Write("Enter the file you want to play: ");
             var file = System.Console.ReadLine();
 
-            using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
+            await using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
-            System.Console.WriteLine($"Playing...");
             var audioPlatform = AudioEnvironment.Platform.Get();
             using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
 
-            (var context, var client) = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
+            System.Console.WriteLine($"Playing on {device.GetId()}...");
+            await using var context = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
+
+            var format = context.GetFormat();
+            AudioFactory.PrintAudioFormat(format);
 
             var totalLength = audio.GetLength().TotalSeconds;
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
+            context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
-            await context.EndOfPositionReached.WaitForNextEvent().ConfigureAwait(false);
-
-            context.Dispose();
-            client.Dispose();
-
-            System.Console.WriteLine();
-            System.Console.WriteLine("  Audio device has been disposed");
+            // TODO: allow seeking with left and right arrow key
+            try
+            {
+                await Task.WhenAny(
+                    context.EndOfPositionReached.NextEvent(cancellationToken),
+                    context.RenderExceptionOccured.NextEvent(cancellationToken))
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                System.Console.WriteLine();
+                System.Console.WriteLine("  The end of the audio was reached or a render exception occurred or render was canceled");
+            }
         }
     }
 }

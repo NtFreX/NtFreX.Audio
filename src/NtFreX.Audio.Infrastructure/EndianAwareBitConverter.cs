@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
@@ -8,115 +6,71 @@ namespace NtFreX.Audio.Infrastructure
 {
     public static class EndianAwareBitConverter
     {
-        [return: NotNull]
         public static byte[] ToByteArray(this float value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-
-        [return: NotNull]
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
         public static byte[] ToByteArray(this double value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this long value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this int value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this short value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this sbyte value)
+            => new[] { (byte)(value + sbyte.MinValue) };
+        public static byte[] ToByteArray(this uint value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this ushort value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian).ToArray();
+        public static byte[] ToByteArray(this string value, bool isLittleEndian = true)
+            => SwitcheEndiannessWhenNotSameAsBitConverter(Encoding.ASCII.GetBytes(value), isLittleEndian).ToArray();
 
-        [return: NotNull] public static byte[] ToByteArray(this long value, int targetLength, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(ParseByLength(value, targetLength), isLittleEndian);
-
-        [return: NotNull] public static byte[] ToByteArray(this int value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        [return: NotNull] public static byte[] ToByteArray(this short value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        [return: NotNull] public static byte[] ToByteArray(this uint value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        [return: NotNull] public static byte[] ToByteArray(this ushort value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(BitConverter.GetBytes(value), isLittleEndian);
-        [return: NotNull] public static byte[] ToByteArray([NotNull] this string value, bool isLittleEndian = true)
-            => SwitcheEndiannessWhenNotSameAsBitConverter(Encoding.ASCII.GetBytes(value), isLittleEndian);
-
-        public static double ToFloat([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static double ToFloat(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
-            return BitConverter.ToSingle(switched);
+            return BitConverter.ToSingle(switched.Span);
         }
-        public static double ToDouble([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static double ToDouble(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
-            return BitConverter.ToDouble(switched);
+            return BitConverter.ToDouble(switched.Span);
         }
-        public static long ToInt64([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static long ToInt64(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return ParseByLength(value, isLittleEndian);
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToInt64(switched.Span);
         }
-        public static int ToInt32([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static int ToInt32(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return (int) ParseByLength(value, isLittleEndian);
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToInt32(switched.Span);
         }
-        public static sbyte ToInt8([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static short ToInt16(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return (sbyte)ParseByLength(value, isLittleEndian);
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToInt16(switched.Span);
         }
-        public static short ToInt16([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static sbyte ToInt8(this Memory<byte> value)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return (short) ParseByLength(value, isLittleEndian);
+            return (sbyte) (value.Span[0] + sbyte.MinValue);
         }
-        public static uint ToUInt32([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static uint ToUInt32(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return (uint)ParseByLength(value, isLittleEndian);
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToUInt32(switched.Span);
         }
-        public static ushort ToUInt16([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static ushort ToUInt16(this Memory<byte> value, bool isLittleEndian = true)
         {
-            _ = value ?? throw new ArgumentNullException(nameof(value));
-
-            return (ushort)ParseByLength(value, isLittleEndian);
+            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
+            return BitConverter.ToUInt16(switched.Span);
         }
+        public static string ToAscii(this Memory<byte> value, bool isLittleEndian = true)
+            => Encoding.ASCII.GetString(value.SwitcheEndiannessWhenNotSameAsBitConverter(isLittleEndian).Span);
 
-        [return:NotNull] public static string ToAscii([NotNull] this byte[] value, bool isLittleEndian = true)
-            => Encoding.ASCII.GetString(value.SwitcheEndiannessWhenNotSameAsBitConverter(isLittleEndian));
-
-        [return: NotNull] public static int[] ToInt32([NotNull] this IEnumerable<byte[]> value, bool isLittleEndian = true) => value.Select(x => x.ToInt32(isLittleEndian)).ToArray();
-        [return: NotNull] public static int[][] ToInt32([NotNull] this IEnumerable<byte[]>[] value, bool isLittleEndian = true) => value.Select(x => x.Select(y => y.ToInt32(isLittleEndian)).ToArray()).ToArray();
-        
-        [return: NotNull] public static byte[] SwitcheEndiannessWhenNotSameAsBitConverter([NotNull] this byte[] value, bool isLittleEndian = true)
+        public static Memory<byte> SwitcheEndiannessWhenNotSameAsBitConverter(this Memory<byte> value, bool isLittleEndian = true)
             => isLittleEndian != BitConverter.IsLittleEndian ? SwitchEndianness(value) : value;
 
-        [return: NotNull] public static byte[] SwitchEndianness([NotNull] this byte[] value)
-            => value.Reverse().ToArray();
-
-        // TODO: make this stuff work
-        [return: NotNull]
-        private static byte[] ParseByLength(this long value, int targetLength)
-        {
-            return targetLength switch
-            {
-                1 => new[] { (byte)value }, //new[] { value >= 0 ? (byte) (value + 128) : (byte)((128 + value) * -1) },
-                2 => BitConverter.GetBytes((short)value),
-                4 => BitConverter.GetBytes((int)value),
-                8 => BitConverter.GetBytes(value),
-                _ => throw new ArgumentException("The given target length is not supported", nameof(targetLength)),
-            };
-        }
-        private static long ParseByLength([NotNull] this byte[] value, bool isLittleEndian = true)
-        {
-            var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
-            return value.Length switch
-            {
-                1 => (sbyte)value[0], //value[0] < 128 ? (128 - value[0]) * -1 : value[0] - 128,
-                2 => BitConverter.ToInt16(switched),
-                4 => BitConverter.ToInt32(switched),
-                8 => BitConverter.ToInt64(switched),
-                _ => throw new ArgumentException("The given array is not in a supported length", nameof(value)),
-            };
-        }
+        public static byte[] SwitchEndianness(this Memory<byte> value)
+            => value.ToArray().Reverse().ToArray();
     }
 }

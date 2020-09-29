@@ -5,12 +5,25 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(SolutionDir)'==''">
+    <!-- Define solution dir to be able to reference solution items even if only this project is build without solution -->
+    <SolutionDir>$(ProjectDir)..\..\</SolutionDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>Portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <!--TODO: include platform assembly only on matching config => validate if working -->
     <!--<ProjectReference Include="..\..\src\adapters\NtFreX.Audio.PulseAudio\NtFreX.Audio.PulseAudio.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />-->
-    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj" Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''" />
-    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''" />
+    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj" /> <!--Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''"-->
+    <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" /> <!--Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''"-->
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
   </ItemGroup>
-
 </Project>

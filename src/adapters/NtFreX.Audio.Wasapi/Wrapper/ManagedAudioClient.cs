@@ -1,4 +1,4 @@
-﻿using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -36,7 +36,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return new ManagedAudioCapture(this, audioCaptureClient, sink, cancellationToken);
         }
 
-        public ManagedAudioRender GetAudioRenderer(IWaveAudioContainer audio, CancellationToken cancellationToken)
+        public ManagedAudioRender GetAudioRenderer(IAudioContainer audio, CancellationToken cancellationToken)
         {
             var error = "Could not get the audio renderer client";
             audioClient.GetService(new Guid(ClsId.IAudioRendererClient), out object audioRenderClientObj).ThrowIfNotSucceded(error);
@@ -90,6 +90,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 return false;
             }
 
+            // TODO: loopback recording support https://docs.microsoft.com/en-us/windows/win32/coreaudio/loopback-recording
             var initializeResult = audioClient.Initialize(AudioClientShareMode.Shared, AudioClientStreamFlags.None, ManagedAudioRender.RefimesPerSec, 0, audioFormat.Ptr, Guid.Empty);
             if (initializeResult != HResult.S_OK)
             {

@@ -3,7 +3,7 @@ using System;
 
 namespace NtFreX.Audio.AdapterInfrastructure
 {
-    public interface ICaptureContext : IDisposable
+    public interface ICaptureContext : IAsyncDisposable
     {
         AudioFormat GetFormat();
     }

@@ -1,9 +1,8 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,39 +17,31 @@ namespace NtFreX.Audio.Samplers
             this.targetChannels = targetChannels;
         }
 
-        [return: NotNull]
-        public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            if(audio.FmtSubChunk.Channels != 1)
+            var format = audio.GetFormat();
+            if(format.Channels != 1)
             {
                 throw new ArgumentException("Only mono is supported");
             }
 
-            if (audio.FmtSubChunk.Channels == targetChannels)
+            if (format.Channels == targetChannels)
             {
                 return Task.FromResult(audio);
             }
-            
-            return Task.FromResult(audio
-                    .WithFmtSubChunk(x => x
-                        .WithChannels(2))
-                    .WithDataSubChunk(x => x
-                        .WithChunkSize((uint)(audio.DataSubChunk.ChunkSize * targetChannels))
-                        .WithData(MultiplicateChannelData(audio, cancellationToken))));
+
+            return Task.FromResult(audio.WithData(
+                data: audio.SelectManyAsync(FromMono, audio.GetDataLength() * targetChannels, cancellationToken),
+                format: new AudioFormat(format.SampleRate, format.BitsPerSample, (ushort) targetChannels, format.Type)));
         }
 
-        [return: NotNull]
-        private async IAsyncEnumerable<Sample> MultiplicateChannelData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
+        private IEnumerable<Sample> FromMono(Sample sample)
         {
-            var samples = audio.GetAudioSamplesAsync(cancellationToken);
-            await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
+            for (var i = 0; i < targetChannels; i++)
             {
-                for (var i = 0; i < targetChannels; i++)
-                {
-                    yield return value;
-                }
+                yield return sample;
             }
         }
     }
