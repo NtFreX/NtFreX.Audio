@@ -10,6 +10,7 @@ namespace NtFreX.Audio.Alsa
     {
         private readonly ManagedAlsaAudioRender managedAlsaAudioRender;
 
+        public Observable<EventArgs<Exception>> RenderExceptionOccured => throw new NotImplementedException();
         public Observable<EventArgs> EndOfDataReached => throw new NotImplementedException();
         public Observable<EventArgs> EndOfPositionReached => throw new NotImplementedException();
         public Observable<EventArgs<double>> PositionChanged => throw new NotImplementedException();
@@ -25,6 +26,11 @@ namespace NtFreX.Audio.Alsa
         public void Start() => managedAlsaAudioRender.Start();
 
         public TimeSpan GetPosition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetPosition(TimeSpan position)
         {
             throw new NotImplementedException();
         }

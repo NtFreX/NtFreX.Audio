@@ -6,5 +6,7 @@
         ushort BitsPerSample { get; }
         ushort Channels { get; }
         AudioFormatType Type { get; }
+
+        ushort BytesPerSample => (ushort) (BitsPerSample / 8);
     }
 }

@@ -1,10 +1,9 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -59,49 +58,25 @@ namespace NtFreX.Audio.Samplers
             this.targetSpeaker = ChannelFactory.GetDefaultMapping(targetChannels);
         }
 
-        [return: NotNull]
-        public override Task<WaveEnumerableAudioContainer> SampleAsync([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] CancellationToken cancellationToken = default)
+        public override Task<IntermediateEnumerableAudioContainer> SampleAsync(IntermediateEnumerableAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             // TODO: check if channel config is allready matching
             var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
-            var factor = targetChannels / (double) audio.FmtSubChunk.Channels;
-            var newSize = (uint) (factor * audio.DataSubChunk.ChunkSize);
+            var format = audio.GetFormat();
+            var factor = targetChannels / (double) format.Channels;
 
-            return Task.FromResult(audio
-                    .WithFmtSubChunk(x => x
-                        .WithChannels(targetChannels))
-                    .WithDataSubChunk(x => x
-                        .WithChunkSize(newSize)
-                        .WithData(ManipulateAudioData(audio, cancellationToken))));
-        }
-
-        [return: NotNull]
-        private async IAsyncEnumerable<Sample> ManipulateAudioData([NotNull] WaveEnumerableAudioContainer audio, [MaybeNull] [EnumeratorCancellation] CancellationToken cancellationToken)
-        {
-            //TODO: better way to get source channels
-            Speakers sourceSpeaker = ChannelFactory.GetDefaultMapping(audio.FmtSubChunk.Channels);
+            Speakers sourceSpeaker = ChannelFactory.GetDefaultMapping(format.Channels);
             var channelMapping = channelMappings.First(x => x.Speaker == sourceSpeaker);
-            var samples = audio.GetAudioSamplesAsync(cancellationToken);
             var converter = converterResolver[targetSpeaker].Invoke(channelMapping);
-            var temp = new Sample[audio.FmtSubChunk.Channels];
-            var targetChannels = ChannelFactory.GetChannels(targetSpeaker);
 
-            var counter = 0;
-            await foreach (var value in samples.WithCancellation(cancellationToken).ConfigureAwait(false))
-            {
-                temp[counter] = value;
-                if (++counter == audio.FmtSubChunk.Channels)
-                {
-                    var convertedSample = converter.Invoke(temp);
-                    foreach(var sample in convertedSample)
-                    {
-                        yield return sample;
-                    }
-                    counter = 0;
-                }
-            }
+            return Task.FromResult(audio.WithData(
+                data: audio
+                    .GroupByLengthAsync(format.Channels, cancellationToken)
+                    .SelectAsync(x => converter.Invoke(x), cancellationToken)
+                    .SelectManyAsync(x => x, (long)(factor * audio.GetDataLength()), cancellationToken),
+                format: new AudioFormat(format.SampleRate, format.BitsPerSample, targetChannels, format.Type)));
         }
     }
 }

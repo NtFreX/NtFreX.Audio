@@ -23,7 +23,7 @@ namespace NtFreX.Audio.Performance
             var length = 5;
             var format = new AudioFormat(sampleRate, bitsPerSample, channels, AudioFormatType.Pcm);
             // TODO: better test data
-            var audio = WaveEnumerableAudioContainerBuilder.Build(format, length, isLittleEndian);
+            var audio = IntermediateAudioContainerBuilder.Build(format, length, isLittleEndian);
             var sampler = new SampleRateAudioSampler(48000);
 
             await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -39,7 +39,7 @@ namespace NtFreX.Audio.Performance
             var length = 5;
             var format = new AudioFormat(sampleRate, bitsPerSample, channels, AudioFormatType.Pcm);
             // TODO: better test data
-            var audio = WaveEnumerableAudioContainerBuilder.Build(format, length, isLittleEndian);
+            var audio = IntermediateAudioContainerBuilder.Build(format, length, isLittleEndian);
             var sampler = new SampleRateAudioSampler(44100);
 
             await sampler.SampleAsync(audio).ConfigureAwait(false);

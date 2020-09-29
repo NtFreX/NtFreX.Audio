@@ -16,6 +16,7 @@ namespace NtFreX.Audio.Console
             @"..\..\..\..\..\resources\audio\1000hz_sinwave.wav"
         };
 
+        //TODO: converter demo
         private static IDemo[] Demos => new IDemo[]
         {
             new RenderAudioDemo(),

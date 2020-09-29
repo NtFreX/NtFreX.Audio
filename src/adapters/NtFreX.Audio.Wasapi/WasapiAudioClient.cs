@@ -17,7 +17,7 @@ namespace NtFreX.Audio.Wasapi
         }
 
         [return: NotNull]
-        public Task<IRenderContext> RenderAsync(IWaveAudioContainer audio, CancellationToken cancellationToken = default)
+        public Task<IRenderContext> RenderAsync(IAudioContainer audio, CancellationToken cancellationToken = default)
         {
             var audioRender = audioClient.GetAudioRenderer(audio, cancellationToken);
             var context = new WasapiRenderContext(audioRender, audioClient);

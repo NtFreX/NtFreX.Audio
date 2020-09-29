@@ -1,10 +1,9 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Containers.Serializers;
+using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Devices;
-using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NUnit.Framework;
-using System;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -40,7 +39,7 @@ namespace NtFreX.Audio.Tests
 
             var serializer = new WaveAudioContainerSerializer();
             var audio = await serializer.FromStreamAsync(stream).ConfigureAwait(false);
-            var expectedTotalSize = (uint)((size * count) + WaveAudioContainer<IDataSubChunk>.DefaultHeaderSize);
+            var expectedTotalSize = (uint)((size * count) + WaveAudioContainer.DefaultHeaderSize);
 
             Assert.AreEqual(expectedTotalSize, audio.RiffSubChunk.ChunkSize);
         }

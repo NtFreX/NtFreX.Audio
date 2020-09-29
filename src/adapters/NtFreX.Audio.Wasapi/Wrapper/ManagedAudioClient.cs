@@ -36,7 +36,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return new ManagedAudioCapture(this, audioCaptureClient, sink, cancellationToken);
         }
 
-        public ManagedAudioRender GetAudioRenderer(IWaveAudioContainer audio, CancellationToken cancellationToken)
+        public ManagedAudioRender GetAudioRenderer(IAudioContainer audio, CancellationToken cancellationToken)
         {
             var error = "Could not get the audio renderer client";
             audioClient.GetService(new Guid(ClsId.IAudioRendererClient), out object audioRenderClientObj).ThrowIfNotSucceded(error);

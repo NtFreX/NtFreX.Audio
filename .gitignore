@@ -1,6 +1,10 @@
 **/bin/
 **/obj/
-.vs/
+**/BenchmarkDotNet.Artifacts
+
 **/*.csproj.user
 **/*.pubxml.user
-**/BenchmarkDotNet.Artifacts
+**/*.diagsession
+
+/Backup
+/.vs

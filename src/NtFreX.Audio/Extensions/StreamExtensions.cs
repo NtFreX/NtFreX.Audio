@@ -36,31 +36,31 @@ namespace NtFreX.Audio.Extensions
         [return: NotNull] public static async Task<string> ReadStringAsync([NotNull] this Stream stream, int length, bool isLittleEndian = true, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var buffer = await stream.ReadBytesAsync(length, cancellationToken).ConfigureAwait(false);
-            return buffer.ToAscii(isLittleEndian);
+            return buffer.AsMemory().ToAscii(isLittleEndian);
         }
 
         [return: NotNull] public static async Task<int> ReadInt32Async([NotNull] this Stream stream, bool isLittleEndian = true, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var buffer = await stream.ReadBytesAsync(4, cancellationToken).ConfigureAwait(false);
-            return buffer.ToInt32(isLittleEndian);
+            return buffer.AsMemory().ToInt32(isLittleEndian);
         }
 
         [return: NotNull] public static async Task<uint> ReadUInt32Async([NotNull] this Stream stream, bool isLittleEndian = true, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var buffer = await stream.ReadBytesAsync(4, cancellationToken).ConfigureAwait(false);
-            return buffer.ToUInt32(isLittleEndian);
+            return buffer.AsMemory().ToUInt32(isLittleEndian);
         }
 
         [return: NotNull] public static async Task<short> ReadInt16Async([NotNull] this Stream stream, bool isLittleEndian = true, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var buffer = await stream.ReadBytesAsync(2, cancellationToken).ConfigureAwait(false);
-            return buffer.ToInt16(isLittleEndian);
+            return buffer.AsMemory().ToInt16(isLittleEndian);
         }
 
         [return: NotNull] public static async Task<ushort> ReadUInt16Async([NotNull] this Stream stream, bool isLittleEndian = true, [MaybeNull] CancellationToken cancellationToken = default)
         {
             var buffer = await stream.ReadBytesAsync(2, cancellationToken).ConfigureAwait(false);
-            return buffer.ToUInt16(isLittleEndian);
+            return buffer.AsMemory().ToUInt16(isLittleEndian);
         }
 
         [return: NotNull] public static async Task<byte[]> ReadBytesAsync([NotNull] this Stream stream, int requiredLength, [MaybeNull] CancellationToken cancellationToken = default)

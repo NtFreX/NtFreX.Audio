@@ -8,7 +8,7 @@ namespace NtFreX.Audio.AdapterInfrastructure
 {
     public interface IAudioClient : IDisposable
     {
-        [return: NotNull] Task<IRenderContext> RenderAsync(IWaveAudioContainer audio, CancellationToken cancellationToken = default);
+        [return: NotNull] Task<IRenderContext> RenderAsync(IAudioContainer audio, CancellationToken cancellationToken = default);
         [return: NotNull] Task<ICaptureContext> CaptureAsync(IAudioSink sink, CancellationToken cancellationToken = default);
     }
 }

@@ -9,18 +9,18 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AudioDeviceExtensions
     {
-        public static async Task<IRenderContext> RenderAsync(this IAudioDevice device, IWaveAudioContainer audio, CancellationToken cancellationToken = default)
+        public static async Task<IRenderContext> RenderAsync(this IAudioDevice device, IAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
             var audioPlatform = AudioEnvironment.Platform.Get();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope => IRenderContext wraps the client and disposes it
-            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
+            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.GetFormat(), device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
             {
                 audio = await audio.ToFormatAsync(supportedFormat, cancellationToken).ConfigureAwait(false);
 
-                if (!audioPlatform.AudioClientFactory.TryInitialize(audio.Format, device, out audioClient, out _) || audioClient == null)
+                if (!audioPlatform.AudioClientFactory.TryInitialize(audio.GetFormat(), device, out audioClient, out _) || audioClient == null)
                 {
                     throw new Exception("The given audio is not supported");
                 }

@@ -8,6 +8,7 @@ namespace NtFreX.Audio.Infrastructure
         public AudioFormatType Type { get; }
         public ushort Bits { get; }
         public bool IsLittleEndian { get; }
+        public ushort Bytes => (ushort) (Bits / 8);
 
         public SampleDefinition(AudioFormatType type, ushort bits, bool isLittleEndian)
         {

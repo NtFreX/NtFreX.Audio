@@ -17,7 +17,7 @@ namespace NtFreX.Audio.Tests
         }
         public static void AssertChannelAverage(int channelToTest, Sample[] resultChannelSamples, ushort bitsPerSample, params long[] expectedValues)
         {
-            var channelValue = Number.FromGivenBits(resultChannelSamples.SelectMany(x => x.AsByteArray()).Skip(channelToTest * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray());
+            var channelValue = Number.FromGivenBits(resultChannelSamples.SelectMany(x => x.AsByteArray().ToArray()).Skip(channelToTest * bitsPerSample / 8).Take(bitsPerSample / 8).ToArray());
             Assert.AreEqual(System.Math.Round(expectedValues.Sum() / (double)expectedValues.Length, 0), channelValue);
         }
     }

@@ -1,15 +1,15 @@
-﻿using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Container;
+﻿using NtFreX.Audio.Infrastructure.Container;
+using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Resources;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers
 {
-    public abstract class DataSubChunk<T> : ISubChunk<T>, IDataSubChunk
-        where T: ISubChunk
+    public sealed class DataSubChunk : ISubChunk<DataSubChunk>, ISubChunk, ISeekableAsyncEnumerable<Memory<byte>>
     {
         public const string ChunkIdentifer = "data";
         public const int ChunkHeaderSize = 8;
@@ -24,18 +24,35 @@ namespace NtFreX.Audio.Containers
         /// </summary>
         public uint ChunkSize { get; }
 
-        protected DataSubChunk([NotNull] string chunkId, uint chunkSize)
+        private readonly ISeekableAsyncEnumerable<Memory<byte>> data;
+
+        public DataSubChunk(long startIndex, string chunkId, uint chunkSize, Stream data)
+            : this(chunkId, data.ToEnumerable(startIndex + ChunkHeaderSize, chunkSize + startIndex + ChunkHeaderSize), chunkSize) { }
+
+        public DataSubChunk(string chunkId, ISeekableAsyncEnumerable<Memory<byte>> data, uint size)
         {
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+
             ChunkId = chunkId;
-            ChunkSize = chunkSize;
+            ChunkSize = size;
+
+            this.data = data;
 
             ThrowIfInvalid();
         }
 
-        public abstract void SeekTo(long position);
-        [return: NotNull] public abstract T WithChunkId([NotNull] string chunkId);
-        [return: NotNull] public abstract T WithChunkSize(uint chunkSize); 
-        [return: NotNull] public abstract IAsyncEnumerable<Sample> GetAudioSamplesAsync([MaybeNull] CancellationToken cancellationToken = default);
+        public DataSubChunk WithChunkId(string chunkId)
+            => throw new NotSupportedException();
+        public DataSubChunk WithChunkSize(uint chunkSize)
+            => throw new NotSupportedException();
+
+        public ValueTask DisposeAsync()
+            => data.DisposeAsync();
+        public long GetDataLength()
+            => data.GetDataLength();
+
+        public ISeekableAsyncEnumerator<Memory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+            => data.GetAsyncEnumerator(cancellationToken);
 
         private void ThrowIfInvalid()
         {

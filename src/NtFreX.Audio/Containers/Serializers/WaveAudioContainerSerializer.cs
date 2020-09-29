@@ -1,13 +1,11 @@
-﻿using NtFreX.Audio.Extensions;
-using NtFreX.Audio.Helpers;
+﻿using NtFreX.Audio.Containers.Wave;
+using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Container;
-using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Resources;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -15,44 +13,18 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Containers.Serializers
 {
-    internal class WaveAudioContainerSerializer : AudioContainerSerializer<WaveStreamAudioContainer>
+    internal class WaveAudioContainerSerializer : AudioContainerSerializer<WaveAudioContainer>
     {
-        public override string PreferredFileExtension { [return: NotNull] get; } = "wav";
+        public override string PreferredFileExtension { get; } = ".wav";
 
-        [return: NotNull]
-        public static async Task<int> WriteHeadersAsync([NotNull] IRiffSubChunk riff, [NotNull] FmtSubChunk fmt, [NotNull] IReadOnlyList<UnknownSubChunk> unknown, [NotNull] IDataSubChunk data, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        public static async Task<int> WriteHeadersAsync(IRiffSubChunk riff, FmtSubChunk fmt, IReadOnlyList<UnknownSubChunk> unknown, DataSubChunk data, Stream stream, CancellationToken cancellationToken = default)
         {
             var headers = GetHeaderBytes(riff, fmt, unknown, data);
             await stream.WriteAsync(headers, cancellationToken).ConfigureAwait(false);
             return headers.Length;
         }
 
-        [return: NotNull]
-        public static async Task WriteDataAsync([NotNull] IAsyncEnumerable<Sample> data, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
-        {
-            var bufferSize = StreamFactory.GetBufferSize();
-            var bufferIndex = 0;
-            var buffer = new byte[bufferSize];
-            await foreach (var value in data.SelectAsync(x => x.AsByteArray(), cancellationToken).ConfigureAwait(false).WithCancellation(cancellationToken))
-            {
-                if (bufferSize < bufferIndex + value.Length)
-                {
-                    await stream.WriteAsync(buffer.AsMemory(0, bufferIndex), cancellationToken).ConfigureAwait(false);
-                    bufferIndex = 0;
-                }
-
-                value.CopyTo(buffer, bufferIndex);
-                bufferIndex += value.Length;
-            }
-
-            if (bufferIndex > 0)
-            {
-                await stream.WriteAsync(buffer.AsMemory(0, bufferIndex), cancellationToken).ConfigureAwait(false);
-            }
-        }
-
-        [return: NotNull]
-        public static byte[] GetHeaderBytes([NotNull] IRiffSubChunk riff, [NotNull] FmtSubChunk fmt, [NotNull] IReadOnlyList<UnknownSubChunk> unknown, [NotNull] IDataSubChunk data)
+        public static byte[] GetHeaderBytes(IRiffSubChunk riff, FmtSubChunk fmt, IReadOnlyList<UnknownSubChunk> unknown, DataSubChunk data)
         {
             return new List<byte>()
                 .Concat(riff.ChunkId.ToByteArray(isLittleEndian: true /* Doc says it is big endian? */))
@@ -77,26 +49,25 @@ namespace NtFreX.Audio.Containers.Serializers
                 .ToArray();
         }
 
-        [return: NotNull] 
-        public override async Task ToStreamAsync([NotNull] WaveStreamAudioContainer container, [NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        public override async Task ToStreamAsync(WaveAudioContainer container, Stream stream, CancellationToken cancellationToken = default)
         {
             await WriteHeadersAsync(container.RiffSubChunk, container.FmtSubChunk, container.UnknownSubChunks, container.DataSubChunk, stream, cancellationToken).ConfigureAwait(false);
-            await WriteDataAsync(container.GetAudioSamplesAsync(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
+            await WriteDataAsync(container.GetAsyncAudioEnumerable(cancellationToken), stream, cancellationToken).ConfigureAwait(false);
         }
 
-        [return: NotNull] public override async Task<WaveStreamAudioContainer> FromStreamAsync([NotNull] Stream stream, [MaybeNull] CancellationToken cancellationToken = default)
+        public override async Task<WaveAudioContainer> FromStreamAsync(Stream stream, CancellationToken cancellationToken = default)
         {
-            StreamBufferSubChunk? data = null;
+            DataSubChunk? data = null;
             FmtSubChunk? fmt = null;
             RiffSubChunk? riff = null;
             var subChunks = new List<UnknownSubChunk>();
             while (stream.Position < stream.Length)
             {
                 var chunckId = await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false);
-                if (chunckId == DataSubChunk<ISubChunk>.ChunkIdentifer)
+                if (chunckId == DataSubChunk.ChunkIdentifer)
                 {
 #pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-                    data = new StreamBufferSubChunk(
+                    data = new DataSubChunk(
                           startIndex: stream.Position - 4,
                           chunkId: chunckId,
                           chunkSize: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
@@ -154,11 +125,8 @@ namespace NtFreX.Audio.Containers.Serializers
             {
                 throw new Exception(ExceptionMessages.WaveAudioContainerNoDataSubChunk);
             }
-
-#pragma warning disable CA2000 // Dispose objects before losing scope => The method that raised the warning returns an IDisposable object that wraps your object
-            var wrapper = new StreamDataSubChunk(data, new SampleDefinition(fmt.Type, fmt.BitsPerSample, riff.IsDataLittleEndian()));
-#pragma warning restore CA2000 // Dispose objects before losing scope
-            return new WaveStreamAudioContainer(riff, fmt, wrapper, subChunks.ToArray());
+                
+            return new WaveAudioContainer(riff, fmt, data, subChunks.ToArray());
         }
     }
 }

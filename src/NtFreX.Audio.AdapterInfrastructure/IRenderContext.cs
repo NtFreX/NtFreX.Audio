@@ -3,8 +3,9 @@ using System;
 
 namespace NtFreX.Audio.AdapterInfrastructure
 {
-    public interface IRenderContext : IAsyncDisposable 
+    public interface IRenderContext : IAsyncDisposable
     {
+        Observable<EventArgs<Exception>> RenderExceptionOccured { get; }
         Observable<EventArgs> EndOfDataReached { get; }
         Observable<EventArgs> EndOfPositionReached { get; }
         Observable<EventArgs<double>> PositionChanged { get; }
@@ -16,5 +17,6 @@ namespace NtFreX.Audio.AdapterInfrastructure
 
         IAudioFormat GetFormat();
         TimeSpan GetPosition();
+        void SetPosition(TimeSpan position);
     }
 }

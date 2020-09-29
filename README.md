@@ -5,9 +5,9 @@
 This .net core library provides functionality to 
 
  - read audio containers
- - sample wave data
+ - sample audio
  - convert between audio formats
- - play/record wave data
+ - play/record audio
 
 ## Supported formats
 
@@ -26,14 +26,11 @@ For a demo look into the demo/NtFrex.Audio.Console project.
 **Read/Write an audio file**
 
 ```
-var filePath = "myAudio.wave";
-using IStreamAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath);
-
-// other audio types are currently not supported
-using var convertedAudio = AudioEnvironment.Converter.Convert<WaveStreamAudioContainer>(audio);
+var filePath = "myAudio.wav";
+await using IAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath);
 ```
 
-Other methods which resolve/write an `IStreamAudioContainer` are:
+Other methods which resolve/write an `IAudioContainer` are:
 
  - `AudioEnvironment.Serializer.FromDataAsync`
  - `AudioEnvironment.Serializer.FromStreamAsync`
@@ -41,19 +38,25 @@ Other methods which resolve/write an `IStreamAudioContainer` are:
  - `AudioEnvironment.Serializer.ToFileAsync`
  - `AudioEnvironment.Serializer.ToDataAsync`
 
-There are serval extension methods which make use of those methods. If you want to build your own container you can use the `WaveEnumerableAudioContainerBuilder`.
+There are serval extension methods which make use of those methods. If you want to build your own container you can use the `WaveAudioContainerBuilder` or the `IntermediateAudioContainerBuilder`.
+
+**Convert an audio file**
+
+```
+await using var converted = await audio.ConvertAsync<IntermediateEnumerableAudioContainer>();
+```
 
 **Audio sampling**
 
 ```
-var newAudio = await AudioEnvironment.Sampler
-                                     .SampleRateAudioSampler(WellKnownSampleRate.Hz44100)
-                                     .SampleAsync(audio, cancellationToken)
+await using var newAudio = await AudioEnvironment.Sampler
+                                                 .SampleRateAudioSampler(WellKnownSampleRate.Hz44100)
+                                                 .SampleAsync(audio, cancellationToken)
 ```
 
 The sampler is not executed until the new audio is moved into an in memory container or written into another stream.
 Other samplers are available under `AudioEnvironment.Sampler`.
-Audio samplers can only be used with wave data.
+Audio samplers can only be used with intermediate containers.
 
 Other samplers are:
 
@@ -79,7 +82,7 @@ await using var context = await device.RenderAsync(audio);
 var totalLength = audio.GetLength().TotalSeconds;
 context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
 
-await context.EndOfPositionReached.WaitForNextEvent();
+await context.EndOfPositionReached.NextEvent();
 ```
 
 **Audio capture**
@@ -106,7 +109,3 @@ You need to install the `NtFreX.Audio` nuget package and then addtional nuget pa
 ## Architecture
  
 The entry point should most of the time be the `AudioEnvironment` class.
-
-This is a takeout of the library architecture. A speciality of this library is the `WaveEnumerableAudioContainer` which allows you to create audio modification pipelines which do not allocate/copy the whole stream.
-
-![img](./resources/doc/architecture.jpg)

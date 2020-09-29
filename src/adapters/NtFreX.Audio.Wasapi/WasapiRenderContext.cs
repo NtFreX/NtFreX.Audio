@@ -11,6 +11,7 @@ namespace NtFreX.Audio.Wasapi
         private readonly ManagedAudioRender managedAudioRender;
         private readonly ManagedAudioClient managedAudioClient;
 
+        public Observable<EventArgs<Exception>> RenderExceptionOccured { get; } = new Observable<EventArgs<Exception>>();
         public Observable<EventArgs> EndOfDataReached { get; } = new Observable<EventArgs>();
         public Observable<EventArgs> EndOfPositionReached { get; } = new Observable<EventArgs>();
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
@@ -19,7 +20,8 @@ namespace NtFreX.Audio.Wasapi
         {
             this.managedAudioRender = managedAudioRender;
             this.managedAudioClient = managedAudioClient;
-            
+
+            managedAudioRender.RenderExceptionOccured.Subscribe(async (obj, args) => await RenderExceptionOccured.InvokeAsync(obj, args).ConfigureAwait(false));
             managedAudioRender.EndOfDataReached.Subscribe(async (obj, args) => await EndOfDataReached.InvokeAsync(obj, args).ConfigureAwait(false));
             managedAudioRender.EndOfPositionReached.Subscribe(async (obj, args) => await EndOfPositionReached.InvokeAsync(obj, args).ConfigureAwait(false));
             managedAudioRender.PositionChanged.Subscribe(async (obj, args) => await PositionChanged.InvokeAsync(obj, args).ConfigureAwait(false));
@@ -30,6 +32,7 @@ namespace NtFreX.Audio.Wasapi
             await managedAudioRender.DisposeAsync().ConfigureAwait(false);
             managedAudioClient.Dispose();
 
+            RenderExceptionOccured.Dispose();
             EndOfDataReached.Dispose();
             PositionChanged.Dispose();
             EndOfPositionReached.Dispose();
@@ -38,10 +41,7 @@ namespace NtFreX.Audio.Wasapi
         public void Stop() => managedAudioRender.Stop();
         public void Start() => managedAudioRender.Start();
         public TimeSpan GetPosition() => managedAudioRender.GetPosition();
+        public void SetPosition(TimeSpan position) => managedAudioRender.SetPosition(position);
         public IAudioFormat GetFormat() => managedAudioClient.InitializedFormat?.ToAudioFormat() ?? throw new Exception("No audio format is initialized");
-
-        private async Task OnPositionChanged(object sender, EventArgs<double> args) => await PositionChanged.InvokeAsync(sender, args).ConfigureAwait(false);
-        private async Task OnEndOfDataReached(object sender, EventArgs args) => await EndOfDataReached.InvokeAsync(sender, args).ConfigureAwait(false);
-        private async Task OnEndOfPositionReached(object sender, EventArgs args) => await EndOfPositionReached.InvokeAsync(sender, args).ConfigureAwait(false);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NtFreX.Audio.Helpers
+﻿namespace NtFreX.Audio.Infrastructure.Helpers
 {
     internal static class StreamFactory
     {

@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace NtFreX.Audio.Infrastructure.Threading
+namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 {
     public static class TaskExtensions
     {
-        [return: NotNull]
-        public static async Task IgnoreCancelationError([NotNull] this Task task)
+        public static async Task IgnoreCancelationError(this Task task)
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
 
@@ -21,16 +19,15 @@ namespace NtFreX.Audio.Infrastructure.Threading
             }
         }
 
-        [return: MaybeNull]
-        public static async Task<TOutput?> CastAsync<TSource, TOutput>([NotNull] this Task<TSource> task)
+        public static async Task<TOutput> CastAsync<TSource, TOutput>(this Task<TSource> task)
             where TOutput : class
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));
-            return await task.ConfigureAwait(false) as TOutput;
+            var casted = await task.ConfigureAwait(false) as TOutput;
+            return casted ?? throw new InvalidCastException();
         }
 
-        [return: NotNull]
-        public static async Task DisposeAsync<T>([NotNull] this Task<T> task)
+        public static async Task DisposeAsync<T>(this Task<T> task)
             where T : IDisposable
         {
             _ = task ?? throw new ArgumentNullException(nameof(task));

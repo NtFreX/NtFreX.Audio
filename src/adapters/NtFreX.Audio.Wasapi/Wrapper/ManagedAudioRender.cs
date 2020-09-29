@@ -1,6 +1,7 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,12 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private const int EventDelay = 100;
 
         private readonly ManagedAudioClient managedAudioClient;
+        // TODO: what to do with ManagedAudioClock?
         private readonly ManagedAudioClock managedAudioClock;
         private readonly IAudioRenderClient audioRenderClient;
         private readonly CancellationToken cancellationToken;
-        private readonly IWaveAudioContainer audio;
+        private readonly IAudioContainer audio;
+        private readonly ISeekableAsyncEnumerator<Memory<byte>> enumerator;
         private readonly Task audioPump;
         private readonly Task eventPump;
         private readonly uint bufferFrameCount;
@@ -37,8 +40,9 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         public Observable<EventArgs<double>> PositionChanged { get; } = new Observable<EventArgs<double>>();
         public Observable<EventArgs> RenderCanceled { get; } = new Observable<EventArgs>();
 
-        internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IWaveAudioContainer audio, CancellationToken cancellationToken)
+        internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IAudioContainer audio, CancellationToken cancellationToken)
         {
+            this.enumerator = audio.GetAsyncAudioEnumerable(cancellationToken).GetAsyncEnumerator(cancellationToken);
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
             this.managedAudioClient = managedAudioClient;
             this.managedAudioClock = managedAudioClock;
@@ -75,24 +79,46 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             EndOfPositionReached.Dispose();
             PositionChanged.Dispose();
             RenderCanceled.Dispose();
+
+            await enumerator.DisposeAsync().ConfigureAwait(false);
         }
 
         public void Stop() => managedAudioClient.Stop();
         public void Start() => managedAudioClient.Start();
-        public TimeSpan GetPosition() => TimeSpan.FromSeconds(managedAudioClock.GetPosition());
+
+        public TimeSpan GetPosition()
+        {
+            // TODO: use enumerator.position? what to do with managedAudioClock
+            // TimeSpan.FromSeconds(managedAudioClock.GetPosition());
+            // differentiate between filled buffer position and rendered position
+            var positionInBuffer = enumerator.GetPosition();
+            var factor = 1.0f * positionInBuffer / enumerator.GetDataLength();
+            return audio.GetLength() * factor;
+        }
+        public void SetPosition(TimeSpan position)
+        {
+            var format = audio.GetFormat();
+            var totalInBytes = audio.GetByteLength();
+            var positionInBytes = position.TotalSeconds * format.SampleRate * format.Channels * format.BytesPerSample;
+            var factor = positionInBytes / totalInBytes;
+            var positionInBuffer = enumerator.GetDataLength() * factor;
+            enumerator.SeekTo((long) positionInBuffer);
+
+            //TODO: restart audio and event pump if they allready stoped
+        }
 
         private async Task PumpEventsAsync()
         {
             var totalLength = audio.GetLength().TotalSeconds;
             while(!isDisposed && !cancellationToken.IsCancellationRequested)
             {
-                var position = managedAudioClock.GetPosition();
+                var position = GetPosition().TotalSeconds;
                 await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
-                // TODO: find out why pos bigger total pos
-                if(position >= totalLength)
+                if(position == totalLength)
                 {
                     await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
+                    break;
                 }
 
                 await Task.Delay(EventDelay, cancellationToken).ConfigureAwait(false);
@@ -111,10 +137,14 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var hasStarted = false;
                 var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                await foreach (var buffer in audio.GetAudioSamplesAsync(cancellationToken).ConfigureAwait(false))
+                while(await enumerator.MoveNextAsync().ConfigureAwait(false))
                 {
-                    realBuffer.AddRange(buffer.AsByteArray());
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        throw new OperationCanceledException();
+                    }
 
+                    realBuffer.AddRange(enumerator.Current.ToArray());
                     while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {
                         if (!hasStarted)

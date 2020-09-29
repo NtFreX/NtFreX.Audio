@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Infrastructure;
-using NtFreX.Audio.Infrastructure.Threading;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Runtime.InteropServices;

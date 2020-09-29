@@ -8,13 +8,11 @@ namespace NtFreX.Audio.Infrastructure.Threading
     internal sealed class AsyncEnumeratorWrapper<T> : IAsyncEnumerator<T>
     {
         private readonly IEnumerator<T> enumerator;
-        private readonly bool runSynchronously;
         private readonly CancellationToken cancellationToken;
 
-        public AsyncEnumeratorWrapper(IEnumerator<T> enumerator, bool runSynchronously, CancellationToken cancellationToken)
+        public AsyncEnumeratorWrapper(IEnumerator<T> enumerator, CancellationToken cancellationToken)
         {
             this.enumerator = enumerator;
-            this.runSynchronously = runSynchronously;
             this.cancellationToken = cancellationToken;
         }
 
@@ -22,23 +20,12 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         public ValueTask<bool> MoveNextAsync()
         {
-            if (runSynchronously)
+            if (cancellationToken.IsCancellationRequested)
             {
-                try
-                {
-                    return new ValueTask<bool>(enumerator.MoveNext());
-                }
-                catch (Exception ex)
-                {
-                    var tcs = new TaskCompletionSource<bool>();
-                    tcs.SetException(ex);
-                    return new ValueTask<bool>(tcs.Task);
-                }
+                throw new OperationCanceledException();
             }
-            else
-            {
-                return new ValueTask<bool>(Task.Run(() => enumerator.MoveNext(), cancellationToken));
-            }
+
+            return new ValueTask<bool>(enumerator.MoveNext());
         }
 
         public void Dispose()

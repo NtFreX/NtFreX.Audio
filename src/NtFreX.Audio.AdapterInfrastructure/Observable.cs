@@ -86,7 +86,7 @@ namespace NtFreX.Audio.AdapterInfrastructure
             }
         }
 
-        public Task<(object Sender, T Args)> WaitForNextEvent(CancellationToken cancellationToken = default)
+        public Task<(object Sender, T Args)> NextEvent(CancellationToken cancellationToken = default)
         {
             lock (myLock)
             {
