@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Console
             context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
             using var keyboardListenerCancelSource = new CancellationTokenSource();
-            _ = Task.Run(() => KeyboardMessageLoopAsync(context, keyboardListenerCancelSource.Token), keyboardListenerCancelSource.Token).ConfigureAwait(false);
+            using var messageLoopTask = Task.Run(() => KeyboardMessageLoopAsync(context, keyboardListenerCancelSource.Token), keyboardListenerCancelSource.Token);
 
             try
             {

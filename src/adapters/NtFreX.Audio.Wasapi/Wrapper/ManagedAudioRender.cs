@@ -30,6 +30,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly ISeekableAsyncEnumerator<Memory<byte>> enumerator;
         private readonly uint bufferFrameCount;
         private readonly ConcurrentExclusiveSchedulerPair taskSchedulerPair;
+        private readonly List<byte> realBuffer;
 
         private Task? audioPump;
         private Task? eventPump;
@@ -52,6 +53,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             this.cancellationToken = cancellationToken;
             this.audio = audio;
             this.isStopped = false;
+            this.realBuffer = new List<byte>();
 
             taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
             StartEventPump();
@@ -135,6 +137,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             }
 
             enumerator.SeekTo((long) positionInBuffer);
+            realBuffer.Clear();
 
             if (audioPump?.Status == TaskStatus.RanToCompletion)
             {
@@ -154,7 +157,8 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var position = GetPosition().TotalSeconds;
                 await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
-                if(position == totalLength)
+                // TODO: is the position bigger then the total length because the last buffer may not be full?
+                if(position >= totalLength)
                 {
                     await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
                     break;
@@ -174,16 +178,21 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
                 var format = managedAudioClient.InitializedFormat.Unmanaged;
                 var hasStarted = false;
-                var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                while(!isDisposed && await enumerator.MoveNextAsync().ConfigureAwait(false))
+                var hasAudio = true;
+                while(!isDisposed && hasAudio)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         throw new OperationCanceledException();
                     }
 
-                    realBuffer.AddRange(enumerator.Current.ToArray());
+                    if (!isStopped)
+                    {
+                        hasAudio = await enumerator.MoveNextAsync().ConfigureAwait(false);
+                        realBuffer.AddRange(enumerator.Current.ToArray());
+                    }
+
                     while (!isDisposed && realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {
                         if (!hasStarted)
