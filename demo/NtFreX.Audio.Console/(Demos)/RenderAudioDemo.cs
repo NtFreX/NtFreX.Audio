@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.AdapterInfrastructure;
 using NtFreX.Audio.Extensions;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,7 @@ namespace NtFreX.Audio.Console
             finally
             {
                 keyboardListenerCancelSource.Cancel();
+                await messageLoopTask.IgnoreCancelationError().ConfigureAwait(false);
 
                 System.Console.WriteLine();
                 System.Console.WriteLine("  The end of the audio was reached or a render exception occurred or render was canceled");
