@@ -22,6 +22,7 @@ namespace NtFreX.Audio.Alsa
 
         public ValueTask DisposeAsync() => new ValueTask(Task.CompletedTask);
 
+        public bool IsStopped() => managedAlsaAudioRender.IsStopped();
         public void Stop() => managedAlsaAudioRender.Stop();
         public void Start() => managedAlsaAudioRender.Start();
 

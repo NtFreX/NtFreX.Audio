@@ -42,14 +42,16 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         public async ValueTask DisposeAsync()
         {
-            var context = await stream.AquireAsync().ConfigureAwait(false);
-
-            _ = context.Data ?? throw new ArgumentNullException();
-
-            await context.Data.DisposeAsync().ConfigureAwait(false);
-
-            context.Dispose();
-            stream.Dispose();
+            if(stream.TryAquire(out var context))
+            {
+                context?.Dispose();
+                await DisposeInnerAsync(context?.Data).ConfigureAwait(false);
+            }
+            else
+            {
+                context?.Dispose();
+                await DisposeInnerAsync(stream.UnsafeAccess()).ConfigureAwait(false);
+            }
         }
 
         private static void SeekTo(Stream? stream, long startIndex, long position = 0)
@@ -68,6 +70,15 @@ namespace NtFreX.Audio.Infrastructure.Threading
             }
 
             stream.Seek(target, SeekOrigin.Begin);
+        }
+
+        private async ValueTask DisposeInnerAsync(Stream? data)
+        {
+            _ = data ?? throw new ArgumentNullException(nameof(data));
+
+            await data.DisposeAsync().ConfigureAwait(false);
+
+            stream.Dispose();
         }
     }
 }
