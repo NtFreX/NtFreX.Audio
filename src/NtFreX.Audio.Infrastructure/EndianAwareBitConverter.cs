@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NtFreX.Audio.Infrastructure
@@ -45,10 +46,13 @@ namespace NtFreX.Audio.Infrastructure
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
             return BitConverter.ToInt32(switched.Span);
         }
+
         public static short ToInt16(this Memory<byte> value, bool isLittleEndian = true)
         {
             var switched = SwitcheEndiannessWhenNotSameAsBitConverter(value, isLittleEndian);
-            return BitConverter.ToInt16(switched.Span);
+            // TODO: no pining needed?
+            // TODO: if this is good like this change other methods and rename class into something like unsafe**
+            return Unsafe.ReadUnaligned<short>(ref switched.Span[0]);
         }
         public static sbyte ToInt8(this Memory<byte> value)
         {
@@ -66,10 +70,12 @@ namespace NtFreX.Audio.Infrastructure
         }
         public static string ToAscii(this Memory<byte> value, bool isLittleEndian = true)
             => Encoding.ASCII.GetString(value.SwitcheEndiannessWhenNotSameAsBitConverter(isLittleEndian).Span);
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Memory<byte> SwitcheEndiannessWhenNotSameAsBitConverter(this Memory<byte> value, bool isLittleEndian = true)
             => isLittleEndian != BitConverter.IsLittleEndian ? SwitchEndianness(value) : value;
-
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte[] SwitchEndianness(this Memory<byte> value)
             => value.ToArray().Reverse().ToArray();
     }

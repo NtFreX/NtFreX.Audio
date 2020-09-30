@@ -50,8 +50,10 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 
         public static async IAsyncEnumerator<TTarget> SelectAsync<TSource, TTarget>(this IAsyncEnumerator<TSource> value, Func<TSource, TTarget> selector, CancellationToken cancellationToken = default)
         {
+#if DEBUG
             _ = value ?? throw new ArgumentNullException(nameof(value));
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
+#endif
 
             while (await value.MoveNextAsync().ConfigureAwait(false))
             {
@@ -66,8 +68,10 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 
         public static async IAsyncEnumerator<TOutput> SelectManyAsync<T, TOutput>(this IAsyncEnumerator<T> value, Func<T, IEnumerable<TOutput>> selector, CancellationToken cancellationToken = default)
         {
+#if DEBUG
             _ = selector ?? throw new ArgumentNullException(nameof(selector));
             _ = value ?? throw new ArgumentNullException(nameof(value));
+#endif
 
             while (await value.MoveNextAsync().ConfigureAwait(false))
             {

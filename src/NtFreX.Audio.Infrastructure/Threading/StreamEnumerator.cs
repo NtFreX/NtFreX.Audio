@@ -47,7 +47,17 @@ namespace NtFreX.Audio.Infrastructure.Threading
                 : bufferSize;
             var memory = buffer.AsMemory(0, (int) realBufferSize);
 
-            var size = await readLockContext.Data.ReadAsync(memory).ConfigureAwait(false);
+            var task = readLockContext.Data.ReadAsync(memory);
+            int size;
+            if(task.IsCompleted)
+            {
+                size = task.GetAwaiter().GetResult();
+            }
+            else
+            {
+                size = await task.ConfigureAwait(false);
+            }
+
             if(size == 0)
             {
                 Current = default!;

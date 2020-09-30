@@ -16,7 +16,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
     /// </summary>
     internal class ManagedAudioRender : IAsyncDisposable
     {
-        public const int RefimesPerSec = 10000000;
+        public const int RefimesPerSec = RefTimesPerMilisec * 1000;
         public const int RefTimesPerMilisec = 10000;
 
         private const int EventDelay = 100;
