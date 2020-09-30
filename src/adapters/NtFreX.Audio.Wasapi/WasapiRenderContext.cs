@@ -38,6 +38,7 @@ namespace NtFreX.Audio.Wasapi
             EndOfPositionReached.Dispose();
         }
 
+        public bool IsStopped() => managedAudioRender.IsStopped();
         public void Stop() => managedAudioRender.Stop();
         public void Start() => managedAudioRender.Start();
         public TimeSpan GetPosition() => managedAudioRender.GetPosition();

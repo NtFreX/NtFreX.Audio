@@ -129,7 +129,7 @@ namespace NtFreX.Audio.Console
         private static void PrintInstructions()
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("ctrl + c => cancel current action");
+            System.Console.WriteLine("<ctrl> + c => cancel current action");
             System.Console.WriteLine();
         }
 

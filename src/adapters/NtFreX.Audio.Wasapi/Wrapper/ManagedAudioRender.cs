@@ -28,10 +28,13 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly CancellationToken cancellationToken;
         private readonly IAudioContainer audio;
         private readonly ISeekableAsyncEnumerator<Memory<byte>> enumerator;
-        private readonly Task audioPump;
-        private readonly Task eventPump;
         private readonly uint bufferFrameCount;
+        private readonly ConcurrentExclusiveSchedulerPair taskSchedulerPair;
+        private readonly List<byte> realBuffer;
 
+        private Task? audioPump;
+        private Task? eventPump;
+        private bool isStopped;
         private bool isDisposed;
 
         public Observable<EventArgs<Exception>> RenderExceptionOccured { get; } = new Observable<EventArgs<Exception>>();
@@ -49,10 +52,12 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             this.audioRenderClient = audioRenderClient;
             this.cancellationToken = cancellationToken;
             this.audio = audio;
+            this.isStopped = false;
+            this.realBuffer = new List<byte>();
 
-            var taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
-            eventPump = Task.Factory.StartNew(PumpEventsAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
-            audioPump = Task.Factory.StartNew(PumpAudioAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
+            taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
+            StartEventPump();
+            StartAudioPump();
         }
 
         public async ValueTask DisposeAsync()
@@ -64,15 +69,23 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
             isDisposed = true;
 
-            await audioPump.IgnoreCancelationError().ConfigureAwait(false);
-            await eventPump.IgnoreCancelationError().ConfigureAwait(false);
+            if (audioPump != null)
+            {
+                await audioPump.IgnoreCancelationError().ConfigureAwait(false);
+                audioPump.Dispose();
+            }
+            if (eventPump != null)
+            {
+                await eventPump.IgnoreCancelationError().ConfigureAwait(false);
+                eventPump.Dispose();
+            }
 
             managedAudioClock.Dispose();
-            managedAudioClient.Stop();
+            if (!isStopped)
+            {
+                managedAudioClient.Stop();
+            }
             Marshal.ReleaseComObject(audioRenderClient);
-
-            audioPump.Dispose();
-            eventPump.Dispose();
 
             RenderExceptionOccured.Dispose();
             EndOfDataReached.Dispose();
@@ -83,8 +96,17 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             await enumerator.DisposeAsync().ConfigureAwait(false);
         }
 
-        public void Stop() => managedAudioClient.Stop();
-        public void Start() => managedAudioClient.Start();
+        public bool IsStopped() => isStopped;
+        public void Stop()
+        {
+            isStopped = true;
+            managedAudioClient.Stop();
+        }
+        public void Start()
+        {
+            isStopped = false;
+            managedAudioClient.Start();
+        }
 
         public TimeSpan GetPosition()
         {
@@ -115,8 +137,16 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             }
 
             enumerator.SeekTo((long) positionInBuffer);
+            realBuffer.Clear();
 
-            //TODO: restart audio and event pump if they allready stoped
+            if (audioPump?.Status == TaskStatus.RanToCompletion)
+            {
+                StartAudioPump();
+            }
+            if(eventPump?.Status == TaskStatus.RanToCompletion)
+            {
+                StartEventPump();
+            }
         }
 
         private async Task PumpEventsAsync()
@@ -127,7 +157,8 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 var position = GetPosition().TotalSeconds;
                 await PositionChanged.InvokeAsync(this, new EventArgs<double>(position)).ConfigureAwait(false);
                 
-                if(position == totalLength)
+                // TODO: is the position bigger then the total length because the last buffer may not be full?
+                if(position >= totalLength)
                 {
                     await EndOfPositionReached.InvokeAsync(this, EventArgs.Empty).ConfigureAwait(false);
                     break;
@@ -147,17 +178,22 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
                 var format = managedAudioClient.InitializedFormat.Unmanaged;
                 var hasStarted = false;
-                var realBuffer = new List<byte>();
                 var hnsActualDuration = (double)RefimesPerSec * bufferFrameCount / format.Format.SamplesPerSec;
-                while(await enumerator.MoveNextAsync().ConfigureAwait(false))
+                var hasAudio = true;
+                while(!isDisposed && hasAudio)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
                         throw new OperationCanceledException();
                     }
 
-                    realBuffer.AddRange(enumerator.Current.ToArray());
-                    while (realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
+                    if (!isStopped)
+                    {
+                        hasAudio = await enumerator.MoveNextAsync().ConfigureAwait(false);
+                        realBuffer.AddRange(enumerator.Current.ToArray());
+                    }
+
+                    while (!isDisposed && realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
                     {
                         if (!hasStarted)
                         {
@@ -179,7 +215,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                     }
                 }
 
-                while (realBuffer.Count > 0)
+                while (!isDisposed && realBuffer.Count > 0)
                 {
                     // Fill buffer when audio client request new data
                     await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
@@ -203,6 +239,18 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             {
                 await RenderExceptionOccured.InvokeAsync(this, new EventArgs<Exception>(exce)).ConfigureAwait(false);
             }
+        }
+
+        private void StartEventPump()
+        {
+            eventPump?.Dispose();
+            eventPump = Task.Factory.StartNew(PumpEventsAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
+        }
+
+        private void StartAudioPump()
+        {
+            audioPump?.Dispose();
+            audioPump = Task.Factory.StartNew(PumpAudioAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
         }
 
         private void RenderFrames(List<byte> realBuffer, uint numFramesAvailable)

@@ -19,13 +19,13 @@ namespace NtFreX.Audio.Infrastructure.Helpers
             this.aquireAction = aquireAction;
         }
 
-        public async Task<ReadLockContext<T>> AquireAsync(CancellationToken cancellationToken = default)
+        public async Task<ReadLockContext<T>> AquireAsync(int timeoutInMiliseconds = -1, CancellationToken cancellationToken = default)
         {
             bool wasLockTaken = false;
             try 
             {
                 Monitor.Enter(locking, ref wasLockTaken);
-                await semaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await semaphore.WaitAsync(timeoutInMiliseconds, cancellationToken).ConfigureAwait(false);
                 aquireAction?.Invoke(data);
                 return new ReadLockContext<T>(semaphore, data);
             }

@@ -11,10 +11,15 @@ namespace NtFreX.Audio.Console
         public string Name => nameof(RenderAudioDemo);
         public string Description => "Plays the given audio file";
 
+        private const int InputLoopDelay = 100;
+        private const float SeekSkipInSeconds = 0.5f;
+
         public async Task RunAsync(CancellationToken cancellationToken)
         {
             System.Console.WriteLine();
-            System.Console.WriteLine("Use the left and the right arrow seek");
+            System.Console.WriteLine($"left arrow  => skip {SeekSkipInSeconds} seconds to the past");
+            System.Console.WriteLine($"right arrow => skip {SeekSkipInSeconds} seconds to the future");
+            System.Console.WriteLine($"space       => pause/continue playing");
             System.Console.WriteLine();
 
             System.Console.Write("Enter the file you want to play: ");
@@ -37,7 +42,7 @@ namespace NtFreX.Audio.Console
             context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
             using var keyboardListenerCancelSource = new CancellationTokenSource();
-            _ = Task.Run(() => KeyboardMessageLoop(context, keyboardListenerCancelSource.Token), keyboardListenerCancelSource.Token).ConfigureAwait(false);
+            using var messageLoopTask = Task.Run(() => KeyboardMessageLoopAsync(context, keyboardListenerCancelSource.Token), keyboardListenerCancelSource.Token);
 
             try
             {
@@ -55,17 +60,17 @@ namespace NtFreX.Audio.Console
             }
         }
 
-        private static void KeyboardMessageLoop(IRenderContext renderContext, CancellationToken cancellationToken)
+        private static async Task KeyboardMessageLoopAsync(IRenderContext renderContext, CancellationToken cancellationToken)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                var input = System.Console.ReadKey(true);
-                if(cancellationToken.IsCancellationRequested)
+                if(!System.Console.KeyAvailable)
                 {
-                    // TODO: simulate key so it is not swallowed
-                    break;
+                    await Task.Delay(InputLoopDelay, cancellationToken).ConfigureAwait(false);
+                    continue;
                 }
 
+                var input = System.Console.ReadKey(true);
                 if (input.Key == ConsoleKey.LeftArrow)
                 {
                     renderContext.SetPosition(renderContext.GetPosition() - TimeSpan.FromSeconds(0.5));
@@ -73,6 +78,17 @@ namespace NtFreX.Audio.Console
                 else if (input.Key == ConsoleKey.RightArrow)
                 {
                     renderContext.SetPosition(renderContext.GetPosition() + TimeSpan.FromSeconds(0.5));
+                }
+                else if (input.Key == ConsoleKey.Spacebar)
+                {
+                    if (renderContext.IsStopped())
+                    {
+                        renderContext.Start();
+                    }
+                    else
+                    {
+                        renderContext.Stop();
+                    }
                 }
             }
         }
