@@ -74,7 +74,7 @@ namespace NtFreX.Audio.Console
                 .GetSampleAudioAsync(file, cancellationToken)
                 .ConvertAsync<IntermediateEnumerableAudioContainer>(cancellationToken)
                 .RunAudioPipeAsync(pipe, cancellationToken)
-                .LogProgressAsync(ConsoleProgressBar.LogProgress, cancellationToken)
+                .LogProgressAsync(ConsoleHelper.LogProgress, cancellationToken)
                 .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
             

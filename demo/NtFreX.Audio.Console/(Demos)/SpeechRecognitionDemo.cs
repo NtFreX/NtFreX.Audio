@@ -1,6 +1,6 @@
 ﻿using NtFreX.Audio.Devices;
 using NtFreX.Audio.Extensions;
-using System;
+using NtFreX.Audio.SpeechRecognition;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -8,15 +8,23 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Console
 {
-    internal class CaptureAudioDemo : IDemo
+    internal class SpeechRecognitionDemo : IDemo
     {
-        public string Name => nameof(CaptureAudioDemo);
+        public string Name => nameof(SpeechRecognitionDemo);
 
-        public string Description => "Captures audio for a given time and saves it to a given file";
+        public string Description => "Recognizes speech for a given time and saves it to a given text file";
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            var file = ConsoleHelper.AquireNewFile();
+            var speechModel = ConsoleHelper.AquireFile("Enter the file with the speech model: ");
+            if (!File.Exists(speechModel))
+            {
+                var speechRecognizer = SpeechRecognizer.Initialize();
+                await speechRecognizer.NeuralNetwork.SaveToFileAsync(speechModel).ConfigureAwait(false);
+                System.Console.WriteLine("The given speech model does not exist. A new one was created.");
+            }
+
+            var outputFile = ConsoleHelper.AquireNewFile("Enter the file to write to: ");
 
             System.Console.Write("Enter the amount of seconds you want to record: ");
             var time = int.Parse(System.Console.ReadLine() ?? string.Empty, NumberFormatInfo.InvariantInfo) * 1000;
@@ -27,7 +35,10 @@ namespace NtFreX.Audio.Console
             var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
             AudioFactory.PrintAudioFormat(format);
 
-            await using var sink = await FileWaveAudioSink.CreateAsync(file, format).ConfigureAwait(false);
+            await using var fileSink = await FileWaveAudioSink.CreateAsync(outputFile, format).ConfigureAwait(false);
+            var sink = await SpeechRecognitionAudioSink.InitializeAsync(format, speechModel, fileSink).ConfigureAwait(false);
+
+            sink.OnSpeechRecognized.Subscribe((sender, args) => System.Console.Write(args.Value));
 
             await using var context = await device.CaptureAsync(format, sink, cancellationToken).ConfigureAwait(false);
 

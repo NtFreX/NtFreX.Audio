@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+    <TargetFrameworks>net5.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(SolutionDir)'==''">
@@ -25,5 +25,6 @@
     <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Alsa\NtFreX.Audio.Alsa.csproj" /> <!--Condition="'$(RuntimeIdentifier)'=='%linux%' OR '$(RuntimeIdentifier)'=='%osx%' OR '$(RuntimeIdentifier)'==''"-->
     <ProjectReference Include="..\..\src\adapters\NtFreX.Audio.Wasapi\NtFreX.Audio.Wasapi.csproj" /> <!--Condition="'$(RuntimeIdentifier)'=='%win%' OR '$(RuntimeIdentifier)'==''"-->
     <ProjectReference Include="..\..\src\NtFreX.Audio\NtFreX.Audio.csproj" />
+    <ProjectReference Include="..\..\src\NtFreX.Audio.SpeechRecognition\NtFreX.Audio.SpeechRecognition.csproj" />
   </ItemGroup>
 </Project>

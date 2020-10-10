@@ -24,7 +24,8 @@ namespace NtFreX.Audio.Console
             new SampleAudioDemo(),
             new SinGeneratorDemo(),
             new GetDefaulRenderDeviceDemo(),
-            new DrawDiagramsDemo()
+            new DrawDiagramsDemo(),
+            new SpeechRecognitionDemo()
         };
 
         private const string ExitKey = "x";

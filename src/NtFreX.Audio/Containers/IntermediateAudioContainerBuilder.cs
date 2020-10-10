@@ -15,6 +15,9 @@ namespace NtFreX.Audio.Containers
             return Build(format, data, isLittleEndian);
         }
 
+        public static IntermediateEnumerableAudioContainer Build(IAudioFormat format, byte[] data, bool isLittleEndian = true)
+            => Build(format, data.ToAsyncEnumerable(), data?.Length ?? throw new ArgumentNullException(nameof(data)), isLittleEndian);
+
         public static IntermediateEnumerableAudioContainer Build(IAudioFormat format, IEnumerable<byte> data, long length, bool isLittleEndian = true)
             => Build(format, data.ToAsyncEnumerable(), length, isLittleEndian);
 

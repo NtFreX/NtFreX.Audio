@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Infrastructure;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Infrastructure;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -6,12 +7,12 @@ namespace NtFreX.Audio.Devices
 {
     public sealed class FileWaveAudioSink : StreamWaveAudioSink
     {
-        private FileWaveAudioSink(string path, FileMode mode)
-            : base(File.Open(path, mode)) { }
+        private FileWaveAudioSink(string path, FileMode mode, IAudioSink innerSink)
+            : base(File.Open(path, mode), innerSink) { }
 
-        public static async Task<FileWaveAudioSink> CreateAsync(string path, IAudioFormat format, FileMode mode = FileMode.Create)
+        public static async Task<FileWaveAudioSink> CreateAsync(string path, IAudioFormat format, FileMode mode = FileMode.Create, IAudioSink? innerSink = null)
         {
-            var sink = new FileWaveAudioSink(path, mode);
+            var sink = new FileWaveAudioSink(path, mode, innerSink ?? new VoidAudioSink());
             await sink.InitializeAsync(format).ConfigureAwait(false);
             return sink;
         }

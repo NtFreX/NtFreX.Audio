@@ -39,7 +39,7 @@ namespace NtFreX.Audio.Console
             AudioFactory.PrintAudioFormat(format);
 
             var totalLength = audio.GetLength().TotalSeconds;
-            context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
+            context.PositionChanged.Subscribe((sender, args) => ConsoleHelper.LogProgress(args.Value / totalLength));
             context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
             using var keyboardListenerCancelSource = new CancellationTokenSource();

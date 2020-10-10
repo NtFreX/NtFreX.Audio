@@ -12,10 +12,11 @@ namespace NtFreX.Audio.Devices
     {
         private uint size;
         private bool isDisposed;
+        private readonly IAudioSink sink;
 
         public Stream Stream { get; }
 
-        protected StreamWaveAudioSink(Stream stream)
+        protected StreamWaveAudioSink(Stream stream, IAudioSink sink)
         {
             _ = stream ?? throw new ArgumentNullException(nameof(stream));
 
@@ -25,24 +26,14 @@ namespace NtFreX.Audio.Devices
             }
 
             Stream = stream;
+            this.sink = sink;
         }
 
-        public static async Task<StreamWaveAudioSink> CreateAsync(Stream stream, IAudioFormat format)
+        public static async Task<StreamWaveAudioSink> CreateAsync(Stream stream, IAudioFormat format, IAudioSink? innerSink = null)
         {
-            var sink = new StreamWaveAudioSink(stream);
+            var sink = new StreamWaveAudioSink(stream, innerSink ?? new VoidAudioSink());
             await sink.InitializeAsync(format).ConfigureAwait(false);
             return sink;
-        }
-
-        public void DataReceived(byte[] data)
-        {
-            if(isDisposed)
-            {
-                throw new Exception("The sink has allready been closed");
-            }
-
-            size += (uint) (data == null ? 0 : data.Length);
-            Stream.Write(data);
         }
 
         public async ValueTask DisposeAsync()
@@ -52,6 +43,19 @@ namespace NtFreX.Audio.Devices
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
             GC.SuppressFinalize(this);
 #pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        }
+
+        public void DataReceived(byte[] data)
+        {
+            sink.DataReceived(data);
+
+            if (isDisposed)
+            {
+                throw new Exception("The sink has allready been closed");
+            }
+
+            size += (uint)(data == null ? 0 : data.Length);
+            Stream.Write(data);
         }
 
         protected async Task InitializeAsync(IAudioFormat format)
