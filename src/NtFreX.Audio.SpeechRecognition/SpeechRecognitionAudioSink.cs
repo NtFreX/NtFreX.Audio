@@ -45,41 +45,35 @@ namespace NtFreX.Audio.SpeechRecognition
 
             lock (objectToLock)
             {
-                Func<Task> taskStarter = () => IntermediateAudioContainerBuilder
-                    .Build(format, data)
-                    .ToFormatAsync(speechRecognizer.Format)
-                    .ContinueWith(
-                        async previous =>
-                        {
-                            var formated = await previous.ConfigureAwait(false);
-                            await RecognizeSpeechAsync(formated).ConfigureAwait(false);
-                        }, TaskScheduler.Default)
-                    .Unwrap();
-
-                if (previousRecognitionTask != null)
+                if (previousRecognitionTask == null)
+                {
+                    previousRecognitionTask = RecognizeSpeechAsync(data);
+                }
+                else
                 {
                     previousRecognitionTask = previousRecognitionTask.ContinueWith(
                         async previous =>
                         {
                             await previous.ConfigureAwait(false);
-                            await taskStarter.Invoke().ConfigureAwait(false);
+                            await RecognizeSpeechAsync(data).ConfigureAwait(false);
                         }, TaskScheduler.Default).Unwrap();
-                }
-                else
-                {
-                    previousRecognitionTask = taskStarter.Invoke();
                 }
             }
         }
 
-        private async Task RecognizeSpeechAsync(IntermediateAudioContainer container)
+        private async Task RecognizeSpeechAsync(byte[] data)
         {
-            var data = await container
+            var container = await IntermediateAudioContainerBuilder
+                .Build(format, data)
+                .ToFormatAsync(speechRecognizer.Format)
+                .ConfigureAwait(false);
+
+            var samples = await container
                 .GetAsyncEnumerator()
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 
-            var speech = await speechRecognizer.ContinueRecognizeAsync(data).ConfigureAwait(false);
+            var speech = await speechRecognizer.ContinueRecognizeAsync(samples).ConfigureAwait(false);
 
             await OnSpeechRecognized.InvokeAsync(this, new EventArgs<string>(speech)).ConfigureAwait(false);
         }
