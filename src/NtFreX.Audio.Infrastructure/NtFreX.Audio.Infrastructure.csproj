@@ -3,5 +3,13 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>net5.0</TargetFrameworks>
+    <Configurations>Debug;Release;Test001</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="csFastFloat">
+      <HintPath>..\..\..\csFastFloat\csFastFloat\bin\Debug\net5.0\csFastFloat.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

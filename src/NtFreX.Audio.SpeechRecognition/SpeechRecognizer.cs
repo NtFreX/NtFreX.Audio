@@ -3,13 +3,54 @@ using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Math;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.SpeechRecognition
 {
+    // one to build words and one to build sentences
+    public class StatisticalModel
+    {
+        public static State EmptyRootState { get; } = new State()
+        {
+            Value = string.Empty,
+            NextStates = Array.Empty<State>()
+        };
+
+        private readonly State rootState;
+
+        private State[] currentStates;
+        private float[] currentProbabilities;
+
+        private StatisticalModel(State rootState)
+        {
+            this.rootState = rootState;
+        }
+
+        public static StatisticalModel Initialize()
+            => new StatisticalModel(EmptyRootState);
+
+        public static async Task<StatisticalModel> InitializeFromFileAsync(string path)
+        {
+            using var stream = File.OpenRead(path);
+            var rootState = await JsonSerializer.DeserializeAsync<State>(stream).ConfigureAwait(false);
+            return new StatisticalModel(rootState ?? throw new Exception($"Loading the root state from a '{path}' failed"));
+        }
+
+    }
+
+    public class State
+    {
+        // TODO: replace string with int which represents a string in the background to make it more generic
+        public string Value { get; set; }
+        public float[] NextStateProbabilities { get; set; }
+        public State[] NextStates { get; set; }
+    }
+
     public class SpeechRecognizer
     {
         public IAudioFormat Format { get; } = new AudioFormat(WellKnownSampleRate.Hz48000, 32, 1, AudioFormatType.IeeFloat);

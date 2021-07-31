@@ -38,7 +38,7 @@ namespace NtFreX.Audio.Infrastructure.Helpers
             }
         }
 
-        public bool TryAquire(out ReadLockContext<T>? context)
+        public bool TryAquire(out ReadLockContext<T>? context, bool runAquireAction = true)
         {
             lock (locking) 
             {
@@ -49,7 +49,10 @@ namespace NtFreX.Audio.Infrastructure.Helpers
                 }
 
                 semaphore.Wait();
-                aquireAction?.Invoke(data);
+                if (runAquireAction)
+                {
+                    aquireAction?.Invoke(data);
+                }
                 context = new ReadLockContext<T>(semaphore, data);
                 return true;
             }

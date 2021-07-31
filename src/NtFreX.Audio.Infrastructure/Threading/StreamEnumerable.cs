@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
         public async ValueTask DisposeAsync()
         {
-            if(stream.TryAquire(out var context))
+            if(stream.TryAquire(out var context, runAquireAction: false))
             {
                 context?.Dispose();
                 await DisposeInnerAsync(context?.Data).ConfigureAwait(false);
@@ -66,10 +66,21 @@ namespace NtFreX.Audio.Infrastructure.Threading
 
             if (!stream.CanSeek)
             {
-                throw new Exception("The stream is non seekable an therefore can only be read once");
+                if (stream.Position < target)
+                {
+                    // TODO: improve
+                    var length = target - stream.Position;
+                    stream.Read(new byte[length], 0, (int)length);
+                }
+                else
+                {
+                    throw new Exception($"The stream is non seekable and the current position {stream.Position} is larger then the tartget position {target}.");
+                }
             }
-
-            stream.Seek(target, SeekOrigin.Begin);
+            else
+            {
+                stream.Seek(target, SeekOrigin.Begin);
+            }
         }
 
         private async ValueTask DisposeInnerAsync(Stream? data)

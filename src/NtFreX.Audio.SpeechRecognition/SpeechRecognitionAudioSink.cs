@@ -4,7 +4,6 @@ using NtFreX.Audio.Devices;
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
-using System;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.SpeechRecognition
@@ -73,9 +72,13 @@ namespace NtFreX.Audio.SpeechRecognition
                 .ToArrayAsync()
                 .ConfigureAwait(false);
 
-            var speech = await speechRecognizer.ContinueRecognizeAsync(samples).ConfigureAwait(false);
+            var speech = await speechRecognizer
+                .ContinueRecognizeAsync(samples)
+                .ConfigureAwait(false);
 
-            await OnSpeechRecognized.InvokeAsync(this, new EventArgs<string>(speech)).ConfigureAwait(false);
+            await OnSpeechRecognized
+                .InvokeAsync(this, new EventArgs<string>(speech))
+                .ConfigureAwait(false);
         }
     }
 }
