@@ -1,5 +1,6 @@
 ﻿using NtFreX.Audio.Containers;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
+using NtFreX.Audio.Samplers;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,11 +9,36 @@ namespace NtFreX.Audio.Extensions
 {
     public static class IntermediateEnumerableAudioContainerExtensions
     {
+        public static async Task<IntermediateEnumerableAudioContainer> RunAudioPipeAsync(this Task<IntermediateEnumerableAudioContainer> containerTask, AudioSamplerPipe pipe, CancellationToken cancellationToken)
+        {
+            _ = containerTask ?? throw new ArgumentNullException(nameof(containerTask));
+            _ = pipe ?? throw new ArgumentNullException(nameof(pipe));
+
+            var container = await containerTask.ConfigureAwait(false);
+            return await RunAudioPipeAsync(container, pipe, cancellationToken).ConfigureAwait(false);
+        }
+
+        public static Task<IntermediateEnumerableAudioContainer> RunAudioPipeAsync(this IntermediateEnumerableAudioContainer container, AudioSamplerPipe pipe, CancellationToken cancellationToken)
+        {
+            _ = container ?? throw new ArgumentNullException(nameof(container));
+            _ = pipe ?? throw new ArgumentNullException(nameof(pipe));
+
+            return pipe.RunAsync(container, cancellationToken);
+        }
+
+        public static async Task<IntermediateEnumerableAudioContainer> LogProgressAsync(this Task<IntermediateEnumerableAudioContainer> audio, Action<double> onProgress, CancellationToken cancellationToken = default)
+        {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            var data = await audio.ConfigureAwait(false);
+            return data.LogProgress(onProgress, cancellationToken);
+        }
+
         public static IntermediateEnumerableAudioContainer LogProgress(this IntermediateEnumerableAudioContainer audio, Action<double> onProgress, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
-            var modifier = audio.GetDataLength();
+            double modifier = audio.GetDataLength();
             return new IntermediateEnumerableAudioContainer(
                 audio.ForEachAsync((index, _) => onProgress.Invoke((index + 1) / modifier), cancellationToken),
                 audio.GetFormat(),

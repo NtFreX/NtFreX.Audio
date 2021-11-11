@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Containers.Wave;
 using NtFreX.Audio.Extensions;
 using NtFreX.Audio.Samplers;
 using System;
@@ -75,7 +76,11 @@ namespace NtFreX.Audio.Console
                 .ConvertAsync<IntermediateEnumerableAudioContainer>(cancellationToken)
                 .RunAudioPipeAsync(pipe, cancellationToken)
                 .LogProgressAsync(ConsoleProgressBar.LogProgress, cancellationToken)
-                .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            using var wav = await audio
+                .ConvertAsync<WaveAudioContainer>(cancellationToken)
+                .ToFileAsync(target, FileMode.OpenOrCreate, cancellationToken)
                 .ConfigureAwait(false);
             
             System.Console.WriteLine();

@@ -42,6 +42,9 @@ namespace NtFreX.Audio.Console
             System.Console.ForegroundColor = ConsoleColor.Gray;
             PrintSampleAudioFiles();
 
+            System.Console.WriteLine("Using dotnet v" + Environment.Version);
+            System.Console.WriteLine();
+
             System.Console.ForegroundColor = ConsoleColor.White;
             System.Console.CancelKeyPress += (object? sender, ConsoleCancelEventArgs e) =>
             {
