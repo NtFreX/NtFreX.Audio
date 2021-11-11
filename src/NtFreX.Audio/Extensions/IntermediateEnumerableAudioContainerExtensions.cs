@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Samplers;
 using System;
@@ -9,6 +10,10 @@ namespace NtFreX.Audio.Extensions
 {
     public static class IntermediateEnumerableAudioContainerExtensions
     {
+        public static Task<TTarget> ConvertAsync<TTarget>(this Task<IntermediateEnumerableAudioContainer> container, CancellationToken cancellationToken)
+            where TTarget : IAudioContainer
+            => container.ConvertAsync<IntermediateEnumerableAudioContainer, TTarget>(cancellationToken);
+
         public static async Task<IntermediateEnumerableAudioContainer> RunAudioPipeAsync(this Task<IntermediateEnumerableAudioContainer> containerTask, AudioSamplerPipe pipe, CancellationToken cancellationToken)
         {
             _ = containerTask ?? throw new ArgumentNullException(nameof(containerTask));

@@ -11,12 +11,17 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AudioContainerExtensions
     {
-        public static async Task<T> ConvertAsync<T>(this Task<IAudioContainer> container, CancellationToken cancellationToken)
-            where T : IAudioContainer
+        public static Task<TTarget> ConvertAsync<TTarget>(this Task<IAudioContainer> container, CancellationToken cancellationToken)
+            where TTarget : IAudioContainer
+            => ConvertAsync<IAudioContainer, TTarget>(container, cancellationToken);
+
+        public static async Task<TTarget> ConvertAsync<TSource, TTarget>(this Task<TSource> container, CancellationToken cancellationToken)
+            where TSource : IAudioContainer
+            where TTarget : IAudioContainer
         {
             _ = container ?? throw new ArgumentNullException(nameof(container));
 
-            return await ConvertAsync<T>(await container.ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
+            return await ConvertAsync<TTarget>(await container.ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         }
 
         public static Task<T> ConvertAsync<T>(this IAudioContainer container, CancellationToken cancellationToken)
