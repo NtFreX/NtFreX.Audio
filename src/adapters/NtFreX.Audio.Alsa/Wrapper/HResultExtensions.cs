@@ -15,7 +15,7 @@ namespace NtFreX.Audio.Alsa.Wrapper
 
             var resultCode = (int)result;
             var errorPtr = Interop.Alsa.snd_strerror(resultCode);
-            var errorMsg = errorPtr != null && errorPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(errorPtr) : "Unknown interop error code";
+            var errorMsg = errorPtr != IntPtr.Zero ? Marshal.PtrToStringAnsi(errorPtr) : "Unknown interop error code";
 
             throw new Exception(message, new COMException(errorMsg, resultCode));
         }

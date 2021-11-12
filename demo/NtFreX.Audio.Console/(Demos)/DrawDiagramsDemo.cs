@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -71,10 +72,11 @@ namespace NtFreX.Audio.Console
 
         private static string DrawAudioControls(string path)
         {
-            StringBuilder html = new StringBuilder();
-            html.AppendLine("<audio controls>");
-            html.AppendLine($"<source src=\"{path}\" type=\"audio/wav\">");
-            html.AppendLine("</audio>");
+            var html = new StringBuilder();
+            using var writer = new StringWriter(html, CultureInfo.InvariantCulture);
+            writer.WriteLine("<audio controls>");
+            writer.WriteLine($"<source src=\"{path}\" type=\"audio/wav\">");
+            writer.WriteLine("</audio>");
             return html.ToString();
         }
 
@@ -108,7 +110,8 @@ namespace NtFreX.Audio.Console
             var modifier = SvgHeight / (maxValue * 2f);
 
             var image = new StringBuilder();
-            image.AppendLine($"<svg height=\"{SvgHeight}\" width=\"{width}\" style=\"border: 1px solid black;\">");
+            using var writer = new StringWriter(image, CultureInfo.InvariantCulture);
+            writer.WriteLine($"<svg height=\"{SvgHeight}\" width=\"{width}\" style=\"border: 1px solid black;\">");
             for (int i = 0; i < data.Length; i++)
             {
                 image.AppendLine(DrawPath(data[i], colors[i], opacities[i], modifier));
@@ -117,38 +120,39 @@ namespace NtFreX.Audio.Console
             var textSpacing = SvgHeight / 50f;
             var topDescription = SvgHeight / 10f;
             var leftDescription = 20;
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 1)}\">SampleRate: {format.SampleRate}</text>");
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 2)}\">BitsPerSample: {format.BitsPerSample}</text>");
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 3)}\">Channels: {format.Channels}</text>");
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 4)}\">Type: {format.Type}</text>");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 1)}\">SampleRate: {format.SampleRate}</text>");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 2)}\">BitsPerSample: {format.BitsPerSample}</text>");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 3)}\">Channels: {format.Channels}</text>");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{topDescription + (textSpacing * 4)}\">Type: {format.Type}</text>");
 
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{textSpacing}\">max {maxValue}</text>");
-            image.AppendLine($"<line x1=\"0\" y1=\"{SvgMiddle}\" x2=\"{width}\" y2=\"{SvgMiddle}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
-            image.AppendLine($"<text x=\"{leftDescription}\" y=\"{SvgHeight - textSpacing}\">min {-maxValue}</text>");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{textSpacing}\">max {maxValue}</text>");
+            writer.WriteLine($"<line x1=\"0\" y1=\"{SvgMiddle}\" x2=\"{width}\" y2=\"{SvgMiddle}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
+            writer.WriteLine($"<text x=\"{leftDescription}\" y=\"{SvgHeight - textSpacing}\">min {-maxValue}</text>");
 
             for (int i = 0; i < width; i += (int)(format.SampleRate / 100f))
             {
                 var second = i / (format.SampleRate * 1f);
 
-                image.AppendLine($"<text x=\"{i}\" y=\"{SvgMiddle}\">{second}s</text>");
-                image.AppendLine($"<line x1=\"{i}\" y1=\"{0}\" x2=\"{i}\" y2=\"{SvgHeight}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
+                writer.WriteLine($"<text x=\"{i}\" y=\"{SvgMiddle}\">{second}s</text>");
+                writer.WriteLine($"<line x1=\"{i}\" y1=\"{0}\" x2=\"{i}\" y2=\"{SvgHeight}\" style=\"stroke: rgb(0, 0, 0); stroke-width:1;\" />");
             }
 
-            image.AppendLine("</svg>");
+            writer.WriteLine("</svg>");
             return image.ToString();
         }
 
         private static string DrawPath(Sample[] data, string color, float opacity, double modifier)
         {
             var path = new StringBuilder();
+            using var writer = new StringWriter(path, CultureInfo.InvariantCulture);
 
-            path.AppendLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {SvgMiddle}");
+            writer.WriteLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {SvgMiddle}");
             for (int i = 0; i < data.Length; i++)
             {
                 var value = data[i].Value * modifier;
-                path.AppendLine($"L{i} {SvgMiddle + value} ");
+                writer.WriteLine($"L{i} {SvgMiddle + value} ");
             }
-            path.AppendLine("\" />");
+            writer.WriteLine("\" />");
             return path.ToString();
         }
 

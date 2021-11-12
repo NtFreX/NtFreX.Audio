@@ -108,6 +108,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             managedAudioClient.Start();
         }
 
+        public TimeSpan GetLength() => audio.GetLength();
         public TimeSpan GetPosition()
         {
             // TODO: use enumerator.position? what to do with managedAudioClock

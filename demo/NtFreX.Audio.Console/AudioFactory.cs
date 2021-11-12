@@ -10,7 +10,6 @@ namespace NtFreX.Audio.Console
         public static async Task<IAudioContainer> GetSampleAudioAsync(string file, CancellationToken cancellationToken)
         {
             System.Console.WriteLine($"Reading...");
-            // TODO: choose serializer
             var audio = await AudioEnvironment.Serializer.FromFileAsync(file, cancellationToken).ConfigureAwait(false);
             System.Console.WriteLine($"  Length = {audio.GetLength()}");
 

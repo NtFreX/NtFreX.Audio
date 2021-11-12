@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Tests
 {
-
     [TestFixture]
     public class StreamEnumerableTest
     {
