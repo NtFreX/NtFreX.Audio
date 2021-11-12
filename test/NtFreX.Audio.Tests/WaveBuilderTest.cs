@@ -23,28 +23,29 @@ namespace NtFreX.Audio.Tests
             Assert.AreEqual(format.SampleRate * format.BytesPerSample * format.Channels * lengthInSeconds, data.Length);
         }
 
-        public static IntermediateAudioContainer EternalSilenceContainer()
-        {
-            var format = new AudioFormat(WellKnownSampleRate.Hz44100, 8, 1, AudioFormatType.Pcm);
-            return IntermediateAudioContainerBuilder.Build(
-                format, 
-                EternalSilence(format, isLittleEndian: true)
-                    .ToAsyncEnumerable()
-                    .ToNonSeekable(), 
-                realByteLength: null);
-        }
+        // TODO: create demo with this code
+        //public static IntermediateAudioContainer EternalSilenceContainer()
+        //{
+        //    var format = new AudioFormat(WellKnownSampleRate.Hz44100, 8, 1, AudioFormatType.Pcm);
+        //    return IntermediateAudioContainerBuilder.Build(
+        //        format, 
+        //        EternalSilence(format, isLittleEndian: true)
+        //            .ToAsyncEnumerable()
+        //            .ToNonSeekable(), 
+        //        realByteLength: null);
+        //}
 
-        public static IEnumerable<Memory<byte>> EternalSilence(IAudioFormat format, bool isLittleEndian)
-        {
-            if(format == null)
-            {
-                throw new ArgumentNullException(nameof(format));
-            }
+        //public static IEnumerable<Memory<byte>> EternalSilence(IAudioFormat format, bool isLittleEndian)
+        //{
+        //    if(format == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(format));
+        //    }
 
-            while (true)
-            {
-                yield return new Sample(0, new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian)).AsByteArray();
-            }    
-        }
+        //    while (true)
+        //    {
+        //        yield return new Sample(0, new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian)).AsByteArray();
+        //    }    
+        //}
     }
 }
