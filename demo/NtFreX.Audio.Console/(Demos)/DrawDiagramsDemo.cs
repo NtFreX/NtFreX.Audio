@@ -155,7 +155,8 @@ namespace NtFreX.Audio.Console
         private static async Task<string> DrawSectogramAsync(IntermediateEnumerableAudioContainer waveAudioContainer)
         {
             var stepSize = 200;
-            
+
+            //TODO: the source audio container in not seeked to pos 0 here and has been allready enumerated, this will cause monoData to be empty
             using var monoAudio = await AudioEnvironment.Sampler
                 .ChannelAudioSampler(1)
                 .SampleAsync(waveAudioContainer)

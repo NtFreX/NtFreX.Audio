@@ -43,10 +43,20 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
                     .ToSeekable(enumerator, values.DisposeAsync, values?.GetDataLength() ?? throw new ArgumentNullException(nameof(values)));
         }
 
-        public static Task<T[]> ToArrayAsync<T>(this ISeekableAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
-            => values?.GetAsyncEnumerator(cancellationToken).ToArrayAsync(cancellationToken) ?? throw new ArgumentNullException(nameof(values));
+        public static async Task<T[]> ToArrayAsync<T>(this ISeekableAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
+        {
+            _ = values ?? throw new ArgumentNullException(nameof(values));
 
-        public static Task<List<T>> ToListAsync<T>(this ISeekableAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
-            => values?.GetAsyncEnumerator(cancellationToken).ToListAsync(cancellationToken) ?? throw new ArgumentNullException(nameof(values));
+            await using var enumerator = values.GetAsyncEnumerator(cancellationToken);
+            return await enumerator.ToArrayAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        public static async Task<List<T>> ToListAsync<T>(this ISeekableAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
+        {
+            _ = values ?? throw new ArgumentNullException(nameof(values));
+
+            await using var enumerator = values.GetAsyncEnumerator(cancellationToken);
+            return await enumerator.ToListAsync(cancellationToken).ConfigureAwait(false);
+        }
     }
 }

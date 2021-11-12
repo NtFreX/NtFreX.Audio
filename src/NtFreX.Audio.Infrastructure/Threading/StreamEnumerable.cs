@@ -34,7 +34,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
         {
             if (!stream.TryAquire(out var readLockContext) || readLockContext == null)
             {
-                throw new NotSupportedException("The stream is allready in use");
+                throw new NotSupportedException("This enumerable is of type StreamEnumerable. When iterating though the data the underling stream is read. This stream is allready in use and can't be read in parallel.");
             }
 
             return new StreamEnumerator(readLockContext, startIndex, endIndex, cancellationToken);
