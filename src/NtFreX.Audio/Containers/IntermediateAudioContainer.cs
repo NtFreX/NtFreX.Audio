@@ -21,11 +21,22 @@ namespace NtFreX.Audio.Containers
             this.isLittleEndian = isLittleEndian;
         }
 
-        public long GetByteLength()
-            => GetDataLength() * GetFormat().BytesPerSample;
-        public abstract long GetDataLength();
-        public abstract TimeSpan GetLength();
-        
+        public ulong GetByteLength()
+        {
+            var dataLength = GetDataLength();
+            return dataLength * GetFormat().BytesPerSample;
+        }
+        public abstract ulong GetDataLength();
+        public abstract bool CanGetDataLength();
+        public TimeSpan GetLength()
+        {
+            var dataLength = GetDataLength();
+            var format = GetFormat();
+            return TimeSpan.FromSeconds(1.0f * dataLength / format.Channels / format.SampleRate);
+        }
+        public bool CanGetLength() 
+            => CanGetDataLength();
+
         public abstract ValueTask DisposeAsync();
 #pragma warning disable CA1063 // Implement IDisposable Correctly => no implentation is provided
         public abstract void Dispose();

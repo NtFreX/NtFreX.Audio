@@ -48,8 +48,10 @@ namespace NtFreX.Audio.Containers
 
         public ValueTask DisposeAsync()
             => data.DisposeAsync();
-        public long GetDataLength()
+        public ulong GetDataLength()
             => data.GetDataLength();
+        public bool CanGetLength()
+            => data.CanGetLength();
 
         public ISeekableAsyncEnumerator<Memory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => data.GetAsyncEnumerator(cancellationToken);

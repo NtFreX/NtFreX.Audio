@@ -21,7 +21,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
         {
             ushort sourceChannels = (ushort)srcChannel;
             ushort targetChannels = (ushort)trgChannel;
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -36,7 +36,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
         {
             ushort sourceChannels = (ushort)srcChannel;
             ushort targetChannels = (ushort)trgChannel;
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
             var factor = targetChannels / (double) sourceChannels;
 
@@ -58,7 +58,7 @@ namespace NtFreX.Audio.Tests.SampleChannelMappingTests
             ushort sourceChannels = (ushort) srcChannel;
             ushort targetChannels = (ushort) trgChannel;
 
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, sourceChannels, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new ChannelAudioSampler(targetChannels);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

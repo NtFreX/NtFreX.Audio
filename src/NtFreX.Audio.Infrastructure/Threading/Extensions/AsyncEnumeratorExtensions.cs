@@ -103,7 +103,7 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
             return list;
         }
 
-        internal static ISeekableAsyncEnumerator<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerator<TOut> data, ISeekableAsyncEnumerator<TIn> source, long newLength)
+        internal static ISeekableAsyncEnumerator<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerator<TOut> data, ISeekableAsyncEnumerator<TIn> source, ulong? newLength)
             => new SeekableAsyncEnumeratorWrapper<TIn, TOut>(source, data, newLength);
     }
 }

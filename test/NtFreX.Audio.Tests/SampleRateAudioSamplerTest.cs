@@ -15,7 +15,7 @@ namespace NtFreX.Audio.Tests
         // TODO: or thow exception on multiple enumeration but that would be the poor mans choise as it should work
         public static async Task CanEnumerateSampledContainerMultipleTimes()
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(WellKnownSampleRate.Hz22050, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(WellKnownSampleRate.Hz22050, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler(WellKnownSampleRate.Hz44100);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -38,7 +38,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz32000, WellKnownSampleRate.Hz8000)]
         public async Task ShouldSampleCorrectByteAmount(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -61,7 +61,7 @@ namespace NtFreX.Audio.Tests
         [TestCase(WellKnownSampleRate.Hz48000, WellKnownSampleRate.Hz44100)]
         public async Task ShouldBeSameLengthAfterSampling(uint fromSampleRate, uint toSampleRate)
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(fromSampleRate, 32, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new SampleRateAudioSampler(toSampleRate);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

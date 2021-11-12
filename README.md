@@ -100,6 +100,15 @@ await using var context = await device.CaptureAsync(format, sink);
 await Task.Delay(time);
 ```
 
+**Create a new audio file containing a sin wave**
+
+uint sampleRate = 44100;
+var format = new AudioFormat(sampleRate, bitsPerSample: 8, channels: 1, AudioFormatType.Pcm);
+var data = WaveBuilder.Sin(sampleRate, 1000, 10);
+await using var audio = await WaveAudioContainerBuilder
+    .Build(data, format, isDataLittleEndian: true)
+    .ToFileAsync(@".\audio.wav", FileMode.CreateNew);
+
 ## Installation
 
 You need to install the `NtFreX.Audio` nuget package and then addtional nuget packages depending on the platforms you want to use.

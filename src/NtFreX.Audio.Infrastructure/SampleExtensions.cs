@@ -24,14 +24,14 @@ namespace NtFreX.Audio.Infrastructure
             return new Sample((double)(sum / data.Length), data[0].Definition);
         }
 
-        public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, long realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, ulong? realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
         {
             _ = data ?? throw new ArgumentNullException(nameof(data));
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
             return data.SelectManyAsync(
                 x => BytesToSamples(x, format, isLittleEndian),
-                realByteLength / format.BytesPerSample, 
+                realByteLength == null ? null : realByteLength / format.BytesPerSample, 
                 cancellationToken);
         }
 

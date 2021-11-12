@@ -32,8 +32,10 @@ namespace NtFreX.Audio.Samplers
                 return Task.FromResult(audio);
             }
 
+            var newSize = audio.CanGetLength() ? (ulong?) (audio.GetDataLength() * (ulong)targetChannels) : null;
+
             return Task.FromResult(audio.WithData(
-                data: audio.SelectManyAsync(FromMono, audio.GetDataLength() * targetChannels, cancellationToken),
+                data: audio.SelectManyAsync(FromMono, newSize, cancellationToken),
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, (ushort) targetChannels, format.Type)));
         }
 

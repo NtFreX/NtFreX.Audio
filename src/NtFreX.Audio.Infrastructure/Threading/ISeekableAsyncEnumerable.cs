@@ -6,7 +6,8 @@ namespace NtFreX.Audio.Infrastructure.Threading
     // TODO: delete inheritance of IAsyncDisposable?
     public interface ISeekableAsyncEnumerable<T> : IAsyncDisposable
     {
-        long GetDataLength();
+        ulong GetDataLength();
+        bool CanGetLength();
 
         ISeekableAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default);
     }

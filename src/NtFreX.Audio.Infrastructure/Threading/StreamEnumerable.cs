@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Infrastructure.Helpers;
+using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.IO;
 using System.Threading;
@@ -10,25 +11,42 @@ namespace NtFreX.Audio.Infrastructure.Threading
     {
         private readonly ReadLock<Stream> stream;
         private readonly long startIndex;
-        private readonly long endIndex;
+        private readonly long? endIndex;
 
-        public StreamEnumerable(Stream stream, long startIndex, long endIndex)
+        public StreamEnumerable(Stream stream, long? startIndex, long? endIndex)
         {
-            this.stream = new ReadLock<Stream>(stream, data => SeekTo(data, startIndex));
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            this.startIndex = startIndex ?? 0;
+            this.stream = new ReadLock<Stream>(stream, data => SeekTo(data, this.startIndex));
+            this.endIndex = endIndex ?? (stream.TryGetLength(out var length) ? length - startIndex : null);
         }
 
-        public static long GetDataLength(long startIndex, long endIndex)
+        public static ulong GetDataLength(long startIndex, long? endIndex)
         {
-            var inBytes = endIndex - startIndex;
+            if(endIndex == null)
+            {
+                throw new NotSupportedException();
+            }
+
+            if(startIndex > endIndex)
+            {
+                throw new ArgumentException("The startindex cannot be bigger then the endindex");
+            }
+
+            var inBytes = endIndex.Value - startIndex;
             var bufferSize = StreamFactory.GetBufferSize();
             var rest = inBytes % bufferSize;
-            return (inBytes / bufferSize) + (rest > 0 ? 1 : 0);
+            return (ulong) ((inBytes / bufferSize) + (rest > 0 ? 1 : 0));
         }
 
-        public long GetDataLength()
-            => GetDataLength(startIndex, endIndex);
+        public ulong GetDataLength()
+            => GetDataLength();
+        public bool CanGetLength()
+            => endIndex != null;
 
         public ISeekableAsyncEnumerator<Memory<byte>> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {

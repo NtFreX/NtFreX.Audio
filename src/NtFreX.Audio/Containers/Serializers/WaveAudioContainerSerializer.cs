@@ -61,6 +61,7 @@ namespace NtFreX.Audio.Containers.Serializers
             FmtSubChunk? fmt = null;
             RiffSubChunk? riff = null;
             var subChunks = new List<UnknownSubChunk>();
+            // TODO: make this code wait for new data in stream? to support non seekable stream?
             while (stream.Position < stream.Length)
             {
                 var chunckId = await stream.ReadStringAsync(length: 4, isLittleEndian: true /* Doc says it is big endian? */, cancellationToken).ConfigureAwait(false);

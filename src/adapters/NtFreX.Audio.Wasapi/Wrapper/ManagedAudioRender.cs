@@ -130,7 +130,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             var positionInBytes = position.TotalSeconds * format.SampleRate * format.Channels * format.BytesPerSample;
             var factor = positionInBytes / totalInBytes;
             var lengthInBuffer = enumerator.GetDataLength();
-            var positionInBuffer = (long) (lengthInBuffer * factor);
+            var positionInBuffer = (ulong) (lengthInBuffer * factor);
 
             if(positionInBuffer > lengthInBuffer)
             {

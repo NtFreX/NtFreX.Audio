@@ -17,16 +17,13 @@ namespace NtFreX.Audio.Containers
             this.samples = samples;
         }
 
-        public override long GetDataLength()
-            => samples.Length;
-        public override TimeSpan GetLength()
-        {
-            var format = GetFormat();
-            return TimeSpan.FromSeconds(GetDataLength() / format.SampleRate / format.Channels);
-        }
-
+        public override ulong GetDataLength()
+            => (ulong) samples.Length;
+        public override bool CanGetDataLength()
+            => true;
         public override ValueTask DisposeAsync()
             => new ValueTask(Task.CompletedTask);
+
         public override void Dispose() { }
 
         public override ISeekableAsyncEnumerator<Sample> GetAsyncEnumerator(CancellationToken cancellationToken = default)

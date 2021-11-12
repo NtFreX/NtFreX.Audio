@@ -11,12 +11,12 @@ namespace NtFreX.Audio.Infrastructure.Threading
         private readonly byte[] buffer = new byte[StreamFactory.GetBufferSize()];
         private readonly ReadLockContext<Stream> readLockContext;
         private readonly long startIndex;
-        private readonly long endIndex;
+        private readonly long? endIndex;
         private readonly CancellationToken cancellationToken;
 
         public Memory<byte> Current { get; private set; }
 
-        public StreamEnumerator(ReadLockContext<Stream> readLockContext, long startIndex, long endIndex, CancellationToken cancellationToken)
+        public StreamEnumerator(ReadLockContext<Stream> readLockContext, long startIndex, long? endIndex, CancellationToken cancellationToken)
         {
             Current = default!;
 
@@ -42,7 +42,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
             }
 
             var bufferSize = StreamFactory.GetBufferSize();
-            var realBufferSize = readLockContext.Data.Position + bufferSize > endIndex
+            var realBufferSize = endIndex != null && readLockContext.Data.Position + bufferSize > endIndex
                 ? endIndex - readLockContext.Data.Position
                 : bufferSize;
             var memory = buffer.AsMemory(0, (int) realBufferSize);
@@ -54,13 +54,16 @@ namespace NtFreX.Audio.Infrastructure.Threading
                 return false;
             }
 
-            Current = memory;
+            Current = memory.Slice(0, size);
             return true;
         }
 
         // TODO: delete this or in stream enumerable
-        public long GetDataLength()
+        public ulong GetDataLength()
             => StreamEnumerable.GetDataLength(startIndex, endIndex);
+
+        public bool CanGetLength()
+            => endIndex != null;
 
         public bool CanSeek()
             => readLockContext.Data?.CanSeek ?? false;

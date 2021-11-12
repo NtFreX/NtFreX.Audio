@@ -8,7 +8,13 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
     public static class AsyncEnumerableExtensions
     {
         // TODO: remove all calls to this
-        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, long? length = null)
+        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data)
+            => ToNonSeekable(data, null);
+
+        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, ulong length)
+            => ToNonSeekable(data, (ulong?) length);
+
+        public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, ulong? length)
             => new NonSeekableAsyncEnumerable<T>(data, length);
 
         public static IAsyncEnumerable<T[]> GroupByLengthAsync<T>(this IAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
@@ -54,7 +60,7 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
          *       }
          *   }
          */
-        public static ISeekableAsyncEnumerable<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerable<TOut> data, ISeekableAsyncEnumerator<TIn> source, Func<ValueTask> disposeAction, long newLength)
+        public static ISeekableAsyncEnumerable<TOut> ToSeekable<TIn, TOut>(this IAsyncEnumerable<TOut> data, ISeekableAsyncEnumerator<TIn> source, Func<ValueTask> disposeAction, ulong? newLength)
             => new SeekableAsyncEnumerableWrapper<TIn, TOut>(source, disposeAction, data, newLength);
     }
 }

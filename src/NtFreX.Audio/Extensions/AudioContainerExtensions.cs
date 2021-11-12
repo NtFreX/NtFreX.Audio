@@ -11,7 +11,7 @@ namespace NtFreX.Audio.Extensions
 {
     public static class AudioContainerExtensions
     {
-        public static Task<TTarget> ConvertAsync<TTarget>(this Task<IAudioContainer> container, CancellationToken cancellationToken)
+        public static Task<TTarget> ConvertAsync<TTarget>(this Task<IAudioContainer> container, CancellationToken cancellationToken = default)
             where TTarget : IAudioContainer
             => ConvertAsync<IAudioContainer, TTarget>(container, cancellationToken);
 
@@ -24,7 +24,7 @@ namespace NtFreX.Audio.Extensions
             return await ConvertAsync<TTarget>(await container.ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
         }
 
-        public static Task<T> ConvertAsync<T>(this IAudioContainer container, CancellationToken cancellationToken)
+        public static Task<T> ConvertAsync<T>(this IAudioContainer container, CancellationToken cancellationToken = default)
             where T : IAudioContainer
         {
             _ = container ?? throw new ArgumentNullException(nameof(container));
@@ -32,7 +32,7 @@ namespace NtFreX.Audio.Extensions
             return AudioEnvironment.Converter.ConvertAsync<T>(container, cancellationToken);
         }
 
-        public static async Task<T> ToFileAsync<T>(this Task<T> container, string path, FileMode fileMode, CancellationToken cancellationToken)
+        public static async Task<T> ToFileAsync<T>(this Task<T> container, string path, FileMode fileMode, CancellationToken cancellationToken = default)
             where T : IAudioContainer
         {
             _ = container ?? throw new ArgumentNullException(nameof(container));
@@ -40,7 +40,7 @@ namespace NtFreX.Audio.Extensions
             return await (await container.ConfigureAwait(false)).ToFileAsync(path, fileMode, cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<T> ToFileAsync<T>(this T container, string path, FileMode fileMode, CancellationToken cancellationToken)
+        public static async Task<T> ToFileAsync<T>(this T container, string path, FileMode fileMode, CancellationToken cancellationToken = default)
             where T : IAudioContainer
         {
             using var stream = new FileStream(path, fileMode);

@@ -10,10 +10,10 @@ namespace NtFreX.Audio.Infrastructure.Threading
         private readonly ISeekableAsyncEnumerator<TSource> source;
         private readonly Func<ValueTask> disposeAction;
         private readonly IAsyncEnumerable<TValue> data;
-        private readonly long dataLength;
+        private readonly ulong? dataLength;
 
         // TODO: was this the poor mans choise? still nessesary to work with enumerator in samplers so multiple enumeration does work without reset?
-        public SeekableAsyncEnumerableWrapper(ISeekableAsyncEnumerator<TSource> source, Func<ValueTask> disposeAction, IAsyncEnumerable<TValue> data, long dataLength)
+        public SeekableAsyncEnumerableWrapper(ISeekableAsyncEnumerator<TSource> source, Func<ValueTask> disposeAction, IAsyncEnumerable<TValue> data, ulong? dataLength)
         {
             this.source = source;
             this.disposeAction = disposeAction;
@@ -21,8 +21,11 @@ namespace NtFreX.Audio.Infrastructure.Threading
             this.dataLength = dataLength;
         }
 
-        public long GetDataLength()
-            => dataLength;
+        public ulong GetDataLength()
+            => dataLength ?? throw new NotSupportedException();
+
+        public bool CanGetLength()
+            => dataLength != null;
 
         public ValueTask DisposeAsync()
             => disposeAction();
