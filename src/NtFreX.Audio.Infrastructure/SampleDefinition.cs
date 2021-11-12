@@ -31,7 +31,7 @@ namespace NtFreX.Audio.Infrastructure
 
         public override int GetHashCode() => HashCode.Combine(Type, Bits, IsLittleEndian);
 
-        public static bool operator ==(SampleDefinition left, SampleDefinition right) => (left == null && right == null) || left.Equals(right);
+        public static bool operator ==(SampleDefinition left, SampleDefinition right) => left.Equals(right);
         public static bool operator !=(SampleDefinition left, SampleDefinition right) => !(left == right);
     }
 }
