@@ -8,5 +8,6 @@
         AudioFormatType Type { get; }
 
         ushort BytesPerSample => (ushort) (BitsPerSample / 8);
+        ushort BlockAlign => (ushort)(Channels * BytesPerSample);
     }
 }

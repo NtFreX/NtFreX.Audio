@@ -33,7 +33,7 @@ namespace NtFreX.Audio.Containers.Wave
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
             var riffChunk = new RiffSubChunk(isDataLittleEndian ? RiffSubChunk.ChunkIdentifierRIFF : RiffSubChunk.ChunkIdentifierRIFX, /* size of file minus 8: 36 + data in default case */ (uint)WaveAudioContainer.DefaultHeaderSize, RiffSubChunk.WAVE);
-            var fmtChunk = new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BitsPerSample);
+            var fmtChunk = new FmtSubChunk(FmtSubChunk.ChunkIdentifier, FmtSubChunk.FmtChunkSize, format.Type, format.Channels, format.SampleRate, format.BytesPerSample, format.BlockAlign, format.BitsPerSample);
 #pragma warning disable CA2000 // Dispose objects before losing scope => object is wrapped by disposeable which cleans this up
             var dataChunk = new DataSubChunk(DataSubChunk.ChunkIdentifer, data, size);
 #pragma warning restore CA2000 // Dispose objects before losing scope

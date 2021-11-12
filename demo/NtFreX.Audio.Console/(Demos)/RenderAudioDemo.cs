@@ -35,10 +35,14 @@ namespace NtFreX.Audio.Console
             System.Console.WriteLine($"Playing on {device.GetId()}...");
             await using var context = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);
 
+            System.Console.WriteLine($"  Length = {context.GetLength()}");
             var format = context.GetFormat();
             AudioFactory.PrintAudioFormat(format);
 
-            var totalLength = audio.GetLength().TotalSeconds;
+            //TODO: the given audio will be converted to a format compatible with the used device, this causes the length to be different. Is this expected?
+            // audio.GetLength().TotalSeconds != context.GetLength().TotalSeconds
+            // this could be because a direct conversion from 44100 bps to 48000 bps leads to presicion loss
+            var totalLength = context.GetLength().TotalSeconds;
             context.PositionChanged.Subscribe((sender, args) => ConsoleProgressBar.LogProgress(args.Value / totalLength));
             context.RenderExceptionOccured.Subscribe((sender, args) => System.Console.WriteLine($"  Error: {args.Value.Message}"));
 
@@ -58,7 +62,7 @@ namespace NtFreX.Audio.Console
                 await messageLoopTask.IgnoreCancelationError().ConfigureAwait(false);
 
                 System.Console.WriteLine();
-                System.Console.WriteLine("  The end of the audio was reached or a render exception occurred or render was canceled");
+                System.Console.WriteLine("  The audio playback ended");
             }
         }
 

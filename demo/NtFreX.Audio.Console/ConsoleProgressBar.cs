@@ -16,8 +16,10 @@ namespace NtFreX.Audio.Console
         public static void LogProgress(double progress)
         {
             var diff = System.Math.Abs(progress - lastProgress);
-            if (diff > 0.01 || progress == 0 || progress == 1)
+            if (diff > 0.01 || progress <= 0 || progress >= 1)
             {
+                progress = System.Math.Clamp(progress, 0, 1);
+
                 // clear
                 System.Console.CursorLeft = StartAtFromLeft;
                 System.Console.Write(string.Join(string.Empty, Enumerable.Repeat(" ", MaxLength + 2)));

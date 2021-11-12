@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Infrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 
 namespace NtFreX.Audio.AdapterInfrastructure
@@ -18,6 +19,8 @@ namespace NtFreX.Audio.AdapterInfrastructure
         void Start();
 
         IAudioFormat GetFormat();
+
+        TimeSpan GetLength();
         TimeSpan GetPosition();
         void SetPosition(TimeSpan position);
     }

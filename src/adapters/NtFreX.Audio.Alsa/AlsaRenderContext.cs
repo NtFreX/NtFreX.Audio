@@ -40,5 +40,10 @@ namespace NtFreX.Audio.Alsa
         {
             throw new NotImplementedException();
         }
+
+        public TimeSpan GetLength()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

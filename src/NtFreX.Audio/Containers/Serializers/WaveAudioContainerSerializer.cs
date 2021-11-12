@@ -80,7 +80,7 @@ namespace NtFreX.Audio.Containers.Serializers
                     }
                     else
                     {
-                        // if the stream is non seekable we break here to ensure we do not read the whole stream
+                        // if the stream is non seekable we stop here to ensure we do not read the whole stream so it can be read later
                         // TODO: if any chunks follow after the data chunk they will be ignored
                         break;
                     }
@@ -94,9 +94,9 @@ namespace NtFreX.Audio.Containers.Serializers
                        audioFormat: (AudioFormatType) await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        channels: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
                        sampleRate: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
-                       /*, byteRate: data.TakeUInt(28),
-                       blockAlign: data.TakeUShort(32)*/
-                       bitsPerSample: await (await stream.SkipAsync(6, cancellationToken).ConfigureAwait(false)).ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false));
+                       byteRate: await stream.ReadUInt32Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                       blockAlign: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false),
+                       bitsPerSample: await stream.ReadUInt16Async(isLittleEndian: true, cancellationToken).ConfigureAwait(false));
                 }
                 else if(chunckId == RiffSubChunk.ChunkIdentifierRIFF || chunckId == RiffSubChunk.ChunkIdentifierRIFX)
                 {
