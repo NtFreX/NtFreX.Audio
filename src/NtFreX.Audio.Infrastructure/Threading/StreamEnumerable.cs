@@ -44,7 +44,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
         }
 
         public ulong GetDataLength()
-            => GetDataLength();
+            => GetDataLength(startIndex, endIndex);
         public bool CanGetLength()
             => endIndex != null;
 
