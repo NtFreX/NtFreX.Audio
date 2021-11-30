@@ -37,14 +37,14 @@ namespace NtFreX.Audio.Devices
                 throw new Exception("The audio platform could not be loaded");
             }
 
-            var audioDevice = Activator.CreateInstance(type) as IAudioPlatform;
-            if (audioDevice == null)
+            var platform = type.GetProperty("Instance")?.GetValue(null) as IAudioPlatform;
+            if (platform == null)
             {
                 throw new Exception("The audio platform could not be instantiated");
             }
 
-            InitializedAdapters.Add(key, audioDevice);
-            return audioDevice;
+            InitializedAdapters.Add(key, platform);
+            return platform;
         }
 
         private static bool TryLoadTypeFrom(Assembly? assembly, string name, out Type? type)

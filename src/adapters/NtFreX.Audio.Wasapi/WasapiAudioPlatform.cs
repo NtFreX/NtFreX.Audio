@@ -4,8 +4,8 @@ namespace NtFreX.Audio.Wasapi
 {
     public sealed class WasapiAudioPlatform : IAudioPlatform
     {
-        public IAudioDeviceFactory AudioDeviceFactory { get; } = new MultiMediaDeviceFactory();
+        public static WasapiAudioPlatform Instance { get; } = new WasapiAudioPlatform();
 
-        public IAudioClientFactory AudioClientFactory { get; } = new WasapiAudioClientFactory();
+        public IAudioDeviceFactory AudioDeviceFactory { get; } = new MultiMediaDeviceFactory();
     }
 }

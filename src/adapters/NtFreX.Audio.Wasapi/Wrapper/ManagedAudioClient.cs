@@ -1,4 +1,5 @@
-﻿using NtFreX.Audio.Infrastructure.Container;
+﻿using NtFreX.Audio.AdapterInfrastructure;
+using NtFreX.Audio.Infrastructure.Container;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -9,11 +10,11 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 {
     internal class ManagedAudioClient : IDisposable
     {
-        private readonly IAudioClient audioClient;
+        private readonly Interop.IAudioClient audioClient;
         
         public ManagedWaveFormat? InitializedFormat { get; private set; }
 
-        internal ManagedAudioClient(IAudioClient audioClient)
+        internal ManagedAudioClient(Interop.IAudioClient audioClient)
         {
             this.audioClient = audioClient;
         }
@@ -24,7 +25,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             return new ManagedWaveFormat(formatPtr);
         }
 
-        public ManagedAudioCapture GetAudioCapture(AdapterInfrastructure.IAudioSink sink, CancellationToken cancellationToken)
+        public ManagedAudioCapture GetAudioCapture(IAudioSink sink, CancellationToken cancellationToken)
         {
             var error = "Could not get the audio capturer client";
             audioClient.GetService(new Guid(ClsId.IAudioCaptureClient), out object audioCaptureClientObj).ThrowIfNotSucceded(error);

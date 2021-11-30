@@ -3,6 +3,5 @@
     public interface IAudioPlatform
     {
         IAudioDeviceFactory AudioDeviceFactory { get; }
-        IAudioClientFactory AudioClientFactory { get; }
     }
 }
