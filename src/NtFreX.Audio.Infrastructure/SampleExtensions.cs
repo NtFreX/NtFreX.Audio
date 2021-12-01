@@ -12,7 +12,7 @@ namespace NtFreX.Audio.Infrastructure
         public static Sample Average(this IEnumerable<Sample> samples)
         {
             var data = samples.ToArray();
-            var average = data.Average(sample => sample.Value);
+            var average = data.Average(sample => sample.AsNumber());
             return new Sample(average, data[0].Definition);
         }
 

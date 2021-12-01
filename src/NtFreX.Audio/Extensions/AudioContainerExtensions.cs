@@ -57,6 +57,23 @@ namespace NtFreX.Audio.Extensions
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = targetFormat ?? throw new ArgumentNullException(nameof(targetFormat));
 
+            if(source is IIntermediateAudioContainer intermediate)
+            {
+                return await ToFormatAsync(intermediate, targetFormat, cancellationToken).ConfigureAwait(false);
+            }    
+
+            var converted = await AudioEnvironment.Converter
+                .ConvertAsync<IntermediateEnumerableAudioContainer>(source, cancellationToken)
+                .ConfigureAwait(false);
+
+            return await ToFormatAsync(converted, targetFormat, cancellationToken).ConfigureAwait(false);
+        }
+
+        public static async Task<IntermediateEnumerableAudioContainer> ToFormatAsync(this IIntermediateAudioContainer source, IAudioFormat targetFormat, CancellationToken cancellationToken = default)
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            _ = targetFormat ?? throw new ArgumentNullException(nameof(targetFormat));
+
             var pipe = new AudioSamplerPipe()
                     .Add(x => x.BitsPerSampleAudioSampler(targetFormat.BitsPerSample))
                     .Add(x => x.SampleRateAudioSampler(targetFormat.SampleRate))
@@ -70,15 +87,11 @@ namespace NtFreX.Audio.Extensions
                 pipe.Add(factory => GetFormatTypeSampler(format.Type, targetFormat.Type, factory));
             }
 
-            var intermediate = await AudioEnvironment.Converter
-                .ConvertAsync<IntermediateEnumerableAudioContainer>(source, cancellationToken)
-                .ConfigureAwait(false);
-
             return await pipe
-                .RunAsync(intermediate, cancellationToken)
+                .RunAsync(source, cancellationToken)
                 .ConfigureAwait(false);
         }
-        
+
         private static AudioSampler GetFormatTypeSampler(AudioFormatType sourceType, AudioFormatType targetType, AudioSamplerFactory audioSamplerFactory)
         {
             return (sourceType, targetType) switch

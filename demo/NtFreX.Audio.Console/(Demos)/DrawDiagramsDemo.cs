@@ -106,7 +106,7 @@ namespace NtFreX.Audio.Console
         private static string DrawSvg(Sample[][] data, string[] colors, float[] opacities, IAudioFormat format)
         {
             var width = data[0].Length;
-            var maxValue = data.SelectMany(x => x).Max(x => x.Value);
+            var maxValue = data.SelectMany(x => x).Max(x => x.AsNumber());
             var modifier = SvgHeight / (maxValue * 2f);
 
             var image = new StringBuilder();
@@ -149,7 +149,7 @@ namespace NtFreX.Audio.Console
             writer.WriteLine($"<path stroke=\"{color}\" stroke-width=\"1\" stroke-opacity=\"{opacity}\" fill-opacity=\"0\" d=\"M0 {SvgMiddle}");
             for (int i = 0; i < data.Length; i++)
             {
-                var value = data[i].Value * modifier;
+                var value = data[i].AsNumber() * modifier;
                 writer.WriteLine($"L{i} {SvgMiddle + value} ");
             }
             writer.WriteLine("\" />");
@@ -167,7 +167,7 @@ namespace NtFreX.Audio.Console
                 .ToInMemoryContainerAsync()
                 .ConfigureAwait(false);
 
-            var monoData = await monoAudio.SelectAsync(x => new Complex(x.Value, 0)).ToArrayAsync().ConfigureAwait(false);
+            var monoData = await monoAudio.SelectAsync(x => new Complex(x.AsNumber(), 0)).ToArrayAsync().ConfigureAwait(false);
             var steps = monoData.Length / stepSize;
             var data = new double[steps][];
             for (var col = 0; col < steps; col++)

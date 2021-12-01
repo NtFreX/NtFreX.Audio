@@ -32,6 +32,6 @@ namespace NtFreX.Audio.Samplers
         }
 
         private static Sample FloatToPcm(Sample sample, double max, SampleDefinition definition)
-            => new Sample(sample.Value * max, definition);
+            => new Sample(sample.AsNumber() * max, definition);
     }
 }
