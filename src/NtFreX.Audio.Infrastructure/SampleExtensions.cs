@@ -11,17 +11,9 @@ namespace NtFreX.Audio.Infrastructure
     {
         public static Sample Average(this IEnumerable<Sample> samples)
         {
-            decimal sum = 0;
             var data = samples.ToArray();
-            foreach (var sample in data)
-            {
-                if (data[0].Definition != sample.Definition)
-                {
-                    throw new Exception("The given samples are not of the same type");
-                }
-                sum += (decimal)sample.Value;
-            }
-            return new Sample((double)(sum / data.Length), data[0].Definition);
+            var average = data.Average(sample => sample.Value);
+            return new Sample(average, data[0].Definition);
         }
 
         public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, ulong? realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
