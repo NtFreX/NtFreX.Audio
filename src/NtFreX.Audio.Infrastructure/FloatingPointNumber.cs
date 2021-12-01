@@ -24,9 +24,9 @@ namespace NtFreX.Audio.Infrastructure
             // https://markheath.net/post/convert-16-bit-pcm-to-ieee-float
             return bits switch
             {
-                16 => ((short)(value * (short.MaxValue + 1f))).ToByteArray(isLittleEndian),
-                32 => ((float)value).ToByteArray(isLittleEndian),
-                64 => value.ToByteArray(isLittleEndian),
+                16 => ((short)(value * (short.MaxValue + 1f))).ToMemory(isLittleEndian),
+                32 => ((float)value).ToMemory(isLittleEndian),
+                64 => value.ToMemory(isLittleEndian),
                 _ => throw new ArgumentException($"Floating point numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }

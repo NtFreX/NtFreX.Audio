@@ -24,9 +24,9 @@ namespace NtFreX.Audio.Infrastructure
             return bits switch
             {
                 8 => new[] { (byte)value },
-                16 => ((short)value).ToByteArray(isLittleEndian),
-                32 => ((int)value).ToByteArray(isLittleEndian),
-                64 => value.ToByteArray(isLittleEndian),
+                16 => ((short)value).ToMemory(isLittleEndian),
+                32 => ((int)value).ToMemory(isLittleEndian),
+                64 => value.ToMemory(isLittleEndian),
                 _ => throw new ArgumentException($"Numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }

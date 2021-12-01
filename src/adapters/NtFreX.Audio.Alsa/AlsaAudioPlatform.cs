@@ -4,8 +4,8 @@ namespace NtFreX.Audio.Alsa
 {
     public sealed class AlsaAudioPlatform : IAudioPlatform
     {
-        public IAudioDeviceFactory AudioDeviceFactory { get; } = new AlsaDeviceFactory();
+        public static AlsaAudioPlatform Instance { get; } = new AlsaAudioPlatform();
 
-        public IAudioClientFactory AudioClientFactory { get; } = new AlsaAudioClientFactory();
+        public IAudioDeviceFactory AudioDeviceFactory { get; } = new AlsaDeviceFactory();
     }
 }

@@ -38,7 +38,7 @@ namespace NtFreX.Audio.Samplers
                 data: audio
                     .GroupByLengthAsync(format.Channels, cancellationToken)
                     .SelectAsync(x => converter.Invoke(x), cancellationToken)
-                    .SelectManyAsync(x => x, (long)(factor * audio.GetDataLength()), cancellationToken),
+                    .SelectManyAsync(x => x, audio.CanGetDataLength() ? (ulong?)(factor * audio.GetDataLength()) : null, cancellationToken),
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, targetChannels, format.Type)));
         }
     }

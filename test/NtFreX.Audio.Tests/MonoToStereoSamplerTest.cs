@@ -14,7 +14,7 @@ namespace NtFreX.Audio.Tests
         [Test]
         public async Task ShouldHaveTwoChannels()
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new FromMonoAudioSampler(2);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -24,7 +24,7 @@ namespace NtFreX.Audio.Tests
         [Test]
         public async Task ShouldHaveDoubleAmountOfData()
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new FromMonoAudioSampler(2);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);
@@ -37,7 +37,7 @@ namespace NtFreX.Audio.Tests
         [Test]
         public async Task ShouldHaveSameLengthAfterSampling()
         {
-            var audio = IntermediateAudioContainerBuilder.Build(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
+            var audio = IntermediateAudioContainerBuilder.BuildSilence(new AudioFormat(44100, 16, 1, AudioFormatType.Pcm), lengthInSeconds: 10);
             var sampler = new FromMonoAudioSampler(2);
 
             var newAudio = await sampler.SampleAsync(audio).ConfigureAwait(false);

@@ -19,10 +19,15 @@ namespace NtFreX.Audio.Infrastructure.Threading
             this.cancellationToken = cancellationToken;
         }
 
-        public long GetDataLength()
-            => data.Length;
+        public ulong GetDataLength()
+            => (ulong) data.Length;
+
+        public bool CanGetLength()
+            => true;
+
         public bool CanSeek()
             => true;
+
         public void SeekTo(long position)
             => this.position = position;
         public long GetPosition()
@@ -35,7 +40,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
                 throw new OperationCanceledException();
             }
 
-            if (++position >= GetDataLength())
+            if ((ulong)(++position) >= GetDataLength())
             {
                 Current = default!;
                 return new ValueTask<bool>(Task.FromResult(false));

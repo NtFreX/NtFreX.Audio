@@ -28,10 +28,9 @@ namespace NtFreX.Audio.Console
             System.Console.Write("Enter the amount of seconds you want to record: ");
             var time = int.Parse(System.Console.ReadLine() ?? string.Empty, NumberFormatInfo.InvariantInfo) * 1000;
 
-            var audioPlatform = AudioEnvironment.Platform.Get();
-            using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
+            using var device = AudioDevice.GetDefaultCaptureDevice();
 
-            var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
+            var format = device.GetDefaultFormat();
             AudioFactory.PrintAudioFormat(format);
 
             await using var sink = await FileWaveAudioSink.CreateAsync(file, format).ConfigureAwait(false);

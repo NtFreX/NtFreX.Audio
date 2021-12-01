@@ -29,8 +29,7 @@ namespace NtFreX.Audio.Console
 
             await using var audio = await AudioFactory.GetSampleAudioAsync(file, cancellationToken).ConfigureAwait(false);
 
-            var audioPlatform = AudioEnvironment.Platform.Get();
-            using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
+            using var device = AudioDevice.GetDefaultRenderDevice();
 
             System.Console.WriteLine($"Playing on {device.GetId()}...");
             await using var context = await device.RenderAsync(audio, cancellationToken).ConfigureAwait(false);

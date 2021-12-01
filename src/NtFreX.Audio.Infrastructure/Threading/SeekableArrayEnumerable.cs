@@ -12,8 +12,10 @@ namespace NtFreX.Audio.Infrastructure.Threading
             this.data = data;
         }
 
-        public long GetDataLength()
-            => data.Length;
+        public ulong GetDataLength()
+            => (ulong) data.Length;
+        public bool CanGetLength()
+            => true;
 
         public ISeekableAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
             => new SeekableArrayEnumerator<T>(data, cancellationToken);

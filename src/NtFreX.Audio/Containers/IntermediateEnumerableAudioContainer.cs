@@ -16,15 +16,14 @@ namespace NtFreX.Audio.Containers
             this.data = data;
         }
 
-        public override TimeSpan GetLength()
-        {
-            var format = GetFormat();
-            return TimeSpan.FromSeconds(1.0f * GetDataLength() / format.Channels / format.SampleRate);
-        }
-        public override long GetDataLength()
+        public override ulong GetDataLength()
             => data.GetDataLength();
+        public override bool CanGetDataLength()
+            => data.CanGetLength();
+
         public override ValueTask DisposeAsync()
             => data.DisposeAsync();
+
         public override void Dispose() { }
 
         public IntermediateEnumerableAudioContainer WithData(ISeekableAsyncEnumerable<Sample> data, IAudioFormat? format = null, bool? isDataLittleEndian = null)

@@ -13,10 +13,10 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 
             var enumerator = values.GetAsyncEnumerator(cancellationToken);
             return new AsyncEnumerable<T[]>(c => enumerator.GroupByLengthAsync(length, c).ToAsyncEnumerator())
-                    .ToSeekable(enumerator, values.DisposeAsync, values.GetDataLength() / length);
+                    .ToSeekable(enumerator, values.DisposeAsync, values.CanGetLength() ? values.GetDataLength() / (ulong?) length : null);
         }
 
-        public static ISeekableAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this ISeekableAsyncEnumerable<TIn> values, Func<TIn, IEnumerable<TOut>> selector, long newSize, CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this ISeekableAsyncEnumerable<TIn> values, Func<TIn, IEnumerable<TOut>> selector, ulong? newSize, CancellationToken cancellationToken = default)
         {
             _ = values ?? throw new ArgumentNullException(nameof(values));
 

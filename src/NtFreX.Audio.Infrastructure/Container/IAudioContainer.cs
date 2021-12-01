@@ -9,7 +9,8 @@ namespace NtFreX.Audio.Infrastructure.Container
     {
         IAudioFormat GetFormat();
         TimeSpan GetLength();
-        long GetByteLength();
+        ulong GetByteLength();
+        bool CanGetLength();
         bool IsDataLittleEndian();
 
         ISeekableAsyncEnumerable<Memory<byte>> GetAsyncAudioEnumerable(CancellationToken cancellationToken = default);

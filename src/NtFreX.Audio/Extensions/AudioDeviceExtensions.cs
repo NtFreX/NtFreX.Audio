@@ -12,15 +12,14 @@ namespace NtFreX.Audio.Extensions
         public static async Task<IRenderContext> RenderAsync(this IAudioDevice device, IAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
-
-            var audioPlatform = AudioEnvironment.Platform.Get();
+            _ = device ?? throw new ArgumentNullException(nameof(device));
 
 #pragma warning disable CA2000 // Dispose objects before losing scope => IRenderContext wraps the client and disposes it
-            if (!audioPlatform.AudioClientFactory.TryInitialize(audio.GetFormat(), device, out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
+            if (!device.TryInitialize(audio.GetFormat(), out IAudioClient? audioClient, out var supportedFormat) || audioClient == null)
             {
                 audio = await audio.ToFormatAsync(supportedFormat, cancellationToken).ConfigureAwait(false);
 
-                if (!audioPlatform.AudioClientFactory.TryInitialize(audio.GetFormat(), device, out audioClient, out _) || audioClient == null)
+                if (!device.TryInitialize(audio.GetFormat(), out audioClient, out _) || audioClient == null)
                 {
                     throw new Exception("The given audio is not supported");
                 }
@@ -32,9 +31,10 @@ namespace NtFreX.Audio.Extensions
 
         public static async Task<ICaptureContext> CaptureAsync(this IAudioDevice device, AudioFormat format, IAudioSink sink, CancellationToken cancellationToken = default)
         {
-            var audioPlatform = AudioEnvironment.Platform.Get();
+            _ = device ?? throw new ArgumentNullException(nameof(device));
+
 #pragma warning disable CA2000 // Dispose objects before losing scope => ICaptureContext wraps the client and disposes it
-            if (!audioPlatform.AudioClientFactory.TryInitialize(format, device, out var audioClient, out _) || audioClient == null)
+            if (!device.TryInitialize(format, out var audioClient, out _) || audioClient == null)
             {
                 throw new Exception("The given format is not supported");
             }

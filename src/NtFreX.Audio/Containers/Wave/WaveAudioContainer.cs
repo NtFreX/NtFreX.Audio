@@ -30,8 +30,10 @@ namespace NtFreX.Audio.Containers.Wave
             => FmtSubChunk;
         public TimeSpan GetLength()
             => TimeSpan.FromSeconds(DataSubChunk.ChunkSize / (FmtSubChunk.ByteRate * 1.0f));
-        public long GetByteLength()
+        public ulong GetByteLength()
             => DataSubChunk.ChunkSize;
+        public bool CanGetLength()
+            => true;
         public void Dispose() { }
         public ValueTask DisposeAsync()
             => DataSubChunk.DisposeAsync();

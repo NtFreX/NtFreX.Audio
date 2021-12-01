@@ -3,6 +3,8 @@ using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Math;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NtFreX.Audio.Tests

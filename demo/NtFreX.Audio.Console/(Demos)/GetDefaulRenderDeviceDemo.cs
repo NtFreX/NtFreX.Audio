@@ -10,8 +10,7 @@ namespace NtFreX.Audio.Console
 
         public Task RunAsync(CancellationToken cancellationToken)
         {
-            var audioPlatform = AudioEnvironment.Platform.Get();
-            using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
+            using var device = AudioDevice.GetDefaultRenderDevice();
 
             System.Console.WriteLine(device.GetId());
 

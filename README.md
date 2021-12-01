@@ -26,8 +26,7 @@ For a demo look into the demo/NtFrex.Audio.Console project.
 **Read/Write an audio file**
 
 ```
-var filePath = "myAudio.wav";
-await using IAudioContainer audio = await AudioEnvironment.Serializer.FromFileAsync(filePath);
+await using IAudioContainer audio = await AudioContainer.FromFileAsync("myAudio.wav")
 ```
 
 Other methods which resolve/write an `IAudioContainer` are:
@@ -74,12 +73,12 @@ Other samplers are:
 **Audio render**
 
 ```
-var audioPlatform = AudioEnvironment.Platform.Get();
-using var device = audioPlatform.AudioDeviceFactory.GetDefaultRenderDevice();
+await using IAudioContainer audio = await AudioContainer.FromFileAsync("myAudio.wav");
+using var device = AudioDevice.GetDefaultRenderDevice();
 
 await using var context = await device.RenderAsync(audio);
 
-var totalLength = audio.GetLength().TotalSeconds;
+var totalLength = context.GetLength().TotalSeconds;
 context.PositionChanged.Subscribe((sender, args) => LogProgress(args.Value / totalLength));
 
 await context.EndOfPositionReached.NextEvent();
@@ -88,17 +87,23 @@ await context.EndOfPositionReached.NextEvent();
 **Audio capture**
 
 ```
-var audioPlatform = AudioEnvironment.Platform.Get();
-using var device = audioPlatform.AudioDeviceFactory.GetDefaultCaptureDevice();
+using var device = AudioDevice.GetDefaultCaptureDevice();
 
-var format = audioPlatform.AudioClientFactory.GetDefaultFormat(device);
-
-await using var sink = await FileAudioSink.CreateAsync(file, format);
+var format = device.GetDefaultFormat();
+await using var sink = await FileWaveAudioSink.CreateAsync("myAudio.wav", format);
 
 await using var context = await device.CaptureAsync(format, sink);
-
 await Task.Delay(time);
 ```
+
+**Create a new audio file containing a sin wave**
+
+uint sampleRate = 44100;
+var format = new AudioFormat(sampleRate, bitsPerSample: 8, channels: 1, AudioFormatType.Pcm);
+var data = WaveBuilder.Sin(sampleRate, 1000, 10);
+await using var audio = await WaveAudioContainerBuilder
+    .Build(data, format, isDataLittleEndian: true)
+    .ToFileAsync(@".\audio.wav", FileMode.CreateNew);
 
 ## Installation
 

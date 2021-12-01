@@ -4,6 +4,7 @@ using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -15,12 +16,14 @@ namespace NtFreX.Audio.Samplers
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
+            var size = audio.CanGetLength() ? (ulong?) audio.GetByteLength() : null;
+            var newSize = audio.CanGetDataLength() ? (ulong?) (audio.GetDataLength() * factor) : null;
             var enumerator = audio.GetAsyncEnumerator(cancellationToken);
-            var enumerable = StretchInnerAsync(enumerator, audio.GetFormat(), audio.IsDataLittleEndian(), audio.GetByteLength(), factor, cancellationToken);
-            return enumerable.ToSeekable(enumerator, audio.DisposeAsync, (long)(audio.GetDataLength() * factor));
+            var enumerable = StretchInnerAsync(enumerator, audio.GetFormat(), audio.IsDataLittleEndian(), size, factor, cancellationToken);
+            return enumerable.ToSeekable(enumerator, audio.DisposeAsync, newSize);
         }
 
-        private static async IAsyncEnumerable<Sample> StretchInnerAsync(ISeekableAsyncEnumerator<Sample> audio, IAudioFormat format, bool isLittleEndian, long sizeInBytes, double factor, [EnumeratorCancellation] CancellationToken cancellationToken)
+        private static async IAsyncEnumerable<Sample> StretchInnerAsync(ISeekableAsyncEnumerator<Sample> audio, IAudioFormat format, bool isLittleEndian, ulong? sizeInBytes, double factor, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));
 
@@ -29,8 +32,14 @@ namespace NtFreX.Audio.Samplers
                 throw new ArgumentException("Factor out of range", nameof(factor));
             }
 
-            var newDataSize = System.Math.Round(factor * sizeInBytes, 0);
-            var sizeOfParts = sizeInBytes / (double)System.Math.Abs(sizeInBytes - newDataSize);
+            if(sizeInBytes == null)
+            {
+                //TODO: make this work with unknwon sizes
+                throw new NotSupportedException();
+            }
+
+            var newDataSize = System.Math.Round(factor * sizeInBytes.Value, 0);
+            var sizeOfParts = sizeInBytes.Value / (double)System.Math.Abs(sizeInBytes.Value - newDataSize);
             var previous = Sample.Zero(new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
             var counter = 1d;
             var total = 0L;
@@ -79,5 +88,33 @@ namespace NtFreX.Audio.Samplers
                 yield return previous / 2;
             }
         }
+
+        // TODO: implement
+        //private static async IAsyncEnumerable<Sample> StretchInnerAsyncA(ISeekableAsyncEnumerator<Sample> audio, IAudioFormat format, bool isLittleEndian, double factor, [EnumeratorCancellation] CancellationToken cancellationToken)
+        //{
+        //    var stepSize = factor / 2f;
+        //    var currentId = stepSize;
+        //    var currentRelatedId = 0.5f;
+        //    var nextRelatedId = currentRelatedId + 1f;
+        //    var cache = new Stack<(double Id, Sample Value)>();
+        //    while (await audio.MoveNextAsync().ConfigureAwait(false))
+        //    {
+        //        if (cancellationToken.IsCancellationRequested)
+        //        {
+        //            throw new OperationCanceledException();
+        //        }
+
+        //        if (System.Math.Abs(currentRelatedId - currentId) > System.Math.Abs(nextRelatedId - currentId))
+        //        {
+        //            nextRelatedId += 1f;
+        //            currentRelatedId += 1f;
+        //        }
+        //        else
+        //        {
+        //            cache.Push((currentId, audio.Current));
+        //            currentId += stepSize;
+        //        }
+        //    }
+        //}
     }
 }

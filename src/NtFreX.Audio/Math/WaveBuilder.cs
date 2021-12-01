@@ -21,7 +21,7 @@ namespace NtFreX.Audio.Math
                 .Repeat(valueToRepeat, (int)(format.SampleRate * format.Channels * lengthInSeconds))
                 .SelectMany(x => x.ToArray())
                 .ToAsyncEnumerable()
-                .ToNonSeekable(lengthInSeconds * format.SampleRate * format.BytesPerSample * format.Channels);
+                .ToNonSeekable((ulong)(lengthInSeconds * format.SampleRate * format.BytesPerSample * format.Channels));
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace NtFreX.Audio.Math
                 .Select(x => BitConverter.GetBytes(x))
                 .SelectMany(x => x)
                 .ToAsyncEnumerable()
-                .ToNonSeekable(8 /* bytesPerSample */ * 1 /* channels */ * sampleRate * lengthInSeconds);
+                .ToNonSeekable((ulong)(8 /* bytesPerSample */ * 1 /* channels */ * sampleRate * lengthInSeconds));
         }
 
         private static IEnumerable<double> SinIeeFloat64(uint sampleRate, int frequency, int lengthInSeconds)
