@@ -37,7 +37,9 @@ namespace NtFreX.Audio.Infrastructure
                     throw new Exception("The enumeration cannot be empty");
                 }
 
-                return new Sample(average, definition!.Value);
+                var sample = new Sample(average, definition!.Value);
+                definition = null;
+                return sample;
             }
         }
 
