@@ -2,6 +2,6 @@
 {
     internal static class StreamFactory
     {
-        public static int GetBufferSize() => 1024 * 8;
+        public static int GetBufferSize() => 1024 * 2;
     }
 }

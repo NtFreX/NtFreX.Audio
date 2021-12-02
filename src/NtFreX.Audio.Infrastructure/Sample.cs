@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace NtFreX.Audio.Infrastructure
     {
         public SampleDefinition Definition { get; }
 
+        private IMemoryOwner<byte>? memoryOwner;
         private Memory<byte>? memory;
         private double? number;
 
@@ -18,6 +20,7 @@ namespace NtFreX.Audio.Infrastructure
 
             this.memory = value;
             this.number = null;
+            this.memoryOwner = null;
         }
 
         public Sample(double value, SampleDefinition definition)
@@ -26,6 +29,7 @@ namespace NtFreX.Audio.Infrastructure
 
             this.number = value;
             this.memory = null;
+            this.memoryOwner = null;
         }
 
         public static Sample Zero(SampleDefinition definition) => new Sample(0d, definition);
@@ -66,8 +70,13 @@ namespace NtFreX.Audio.Infrastructure
         {
             if (memory == null)
             {
-                Debug.Assert(number != null, "If memory is not provided the number must be");
-                memory = NumberFactory.DeconstructNumber(Definition, number!.Value);
+                if (memoryOwner == null)
+                {
+                    Debug.Assert(number != null, "If memory is not provided the number must be");
+                    memoryOwner = MemoryPool<byte>.Shared.Rent(Definition.Bytes);
+                    NumberFactory.DeconstructNumber(Definition, number!.Value, memoryOwner.Memory.Slice(0, Definition.Bytes).Span);
+                }
+                return memoryOwner.Memory.Slice(0, Definition.Bytes);
             }
 
             return memory.Value;

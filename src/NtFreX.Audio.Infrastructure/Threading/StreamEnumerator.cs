@@ -8,7 +8,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
 {
     public sealed class StreamEnumerator : ISeekableAsyncEnumerator<Memory<byte>>
     {
-        private readonly byte[] buffer = new byte[StreamFactory.GetBufferSize()];
+        private readonly Memory<byte> buffer = new byte[StreamFactory.GetBufferSize()];
         private readonly ReadLockContext<Stream> readLockContext;
         private readonly long startIndex;
         private readonly long? endIndex;
@@ -45,7 +45,7 @@ namespace NtFreX.Audio.Infrastructure.Threading
             var realBufferSize = endIndex != null && readLockContext.Data.Position + bufferSize > endIndex
                 ? endIndex - readLockContext.Data.Position
                 : bufferSize;
-            var memory = buffer.AsMemory(0, (int) realBufferSize);
+            var memory = buffer.Slice(0, (int) realBufferSize);
 
             var size = await readLockContext.Data.ReadAsync(memory).ConfigureAwait(false);
             if(size == 0)

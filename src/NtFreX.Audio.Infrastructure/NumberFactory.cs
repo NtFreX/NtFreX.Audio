@@ -11,6 +11,22 @@ namespace NtFreX.Audio.Infrastructure
                    throw new NotImplementedException("The given audio format type is not supported");
         }
 
+        public static void DeconstructNumber(SampleDefinition definition, double value, Span<byte> buffer)
+        {
+            if (definition.Type == AudioFormatType.Pcm)
+            {
+                Number.ToRequiredBits(definition.Bits, buffer, (long)value, definition.IsLittleEndian);
+            }
+            else if (definition.Type == AudioFormatType.IeeFloat)
+            {
+                FloatingPointNumber.ToRequiredBits(definition.Bits, buffer, value, definition.IsLittleEndian);
+            }
+            else
+            {
+                throw new NotImplementedException("The given audio format type is not supported");
+            }
+        }
+
         public static double ConstructNumber(AudioFormatType type, bool isLittleEndian, Memory<byte> value)
         {
             return type == AudioFormatType.Pcm ? Number.FromGivenBits(value, isLittleEndian) :

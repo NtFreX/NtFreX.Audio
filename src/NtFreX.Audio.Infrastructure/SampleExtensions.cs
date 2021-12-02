@@ -9,11 +9,36 @@ namespace NtFreX.Audio.Infrastructure
 {
     public static class SampleExtensions
     {
+        private static readonly object LockObj = new object();
+        private static SampleDefinition? definition;
+        private static double ToValue(Sample sample)
+        {
+            // TODO: Make this tread safe and keep it allocation free.
+            // The catch is we do not want to/cannot enumerate multiple times and the method should not allocate the whole array.
+            // currently there is no need for thread safty but it is very likely that it will become nessesary to support.
+            if (definition == null)
+            {
+                definition = sample.Definition;
+            }
+            Debug.Assert(definition == sample.Definition, "Only samples with the same definition can be averaged");
+
+            return sample.AsNumber();
+        }
+        private static Func<Sample, double> ToValueFunc { get; } = ToValue;
+
         public static Sample Average(this IEnumerable<Sample> samples)
         {
-            var data = samples.ToArray();
-            var average = data.Average(sample => sample.AsNumber());
-            return new Sample(average, data[0].Definition);
+            lock (LockObj)
+            {
+                var average = samples.Average(ToValueFunc);
+
+                if (definition == null)
+                {
+                    throw new Exception("The enumeration cannot be empty");
+                }
+
+                return new Sample(average, definition!.Value);
+            }
         }
 
         public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, ulong? realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)

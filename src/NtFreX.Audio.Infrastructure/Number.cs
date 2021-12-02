@@ -30,5 +30,26 @@ namespace NtFreX.Audio.Infrastructure
                 _ => throw new ArgumentException($"Numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }
+
+        public static void ToRequiredBits(uint bits, Span<byte> buffer, long value = 0, bool isLittleEndian = true)
+        {
+            switch (bits)
+            {
+                case 8:
+                    buffer[0] = (byte)value;
+                    break;
+                case 16:
+                    ((short)value).ToMemory(buffer, isLittleEndian);
+                    break;
+                case 32: 
+                    ((int)value).ToMemory(buffer, isLittleEndian);
+                    break;
+                case 64:
+                    value.ToMemory(buffer, isLittleEndian);
+                    break;
+                default:
+                    throw new ArgumentException($"Numbers with {bits} bits are not supported.", nameof(bits));
+            }
+        }
     }
 }
