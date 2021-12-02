@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Linq;
 using System.Text;
 
@@ -6,6 +7,62 @@ namespace NtFreX.Audio.Infrastructure
 {
     public static class EndianAwareBitConverter
     {
+        public static void ToMemory(this float value, Span<byte> destination, bool isLittleEndian = true)
+        {
+            if (isLittleEndian)
+            {
+                BinaryPrimitives.WriteSingleLittleEndian(destination, value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteSingleBigEndian(destination, value);
+            }
+        }
+        public static void ToMemory(this double value, Span<byte> destination, bool isLittleEndian = true)
+        {
+            if (isLittleEndian)
+            {
+                BinaryPrimitives.WriteDoubleLittleEndian(destination, value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteDoubleBigEndian(destination, value);
+            }
+        }
+        public static void ToMemory(this short value, Span<byte> destination, bool isLittleEndian = true)
+        {
+            if (isLittleEndian)
+            {
+                BinaryPrimitives.WriteInt16LittleEndian(destination, value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteInt16BigEndian(destination, value);
+            }
+        }
+        public static void ToMemory(this long value, Span<byte> destination, bool isLittleEndian = true)
+        {
+            if (isLittleEndian)
+            {
+                BinaryPrimitives.WriteInt64LittleEndian(destination, value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteInt64BigEndian(destination, value);
+            }
+        }
+        public static void ToMemory(this int value, Span<byte> destination, bool isLittleEndian = true)
+        {
+            if (isLittleEndian)
+            {
+                BinaryPrimitives.WriteInt32LittleEndian(destination, value);
+            }
+            else
+            {
+                BinaryPrimitives.WriteInt32BigEndian(destination, value);
+            }
+        }
+
         public static Memory<byte> ToMemory(this float value, bool isLittleEndian = true)
         {
             var mem = BitConverter.GetBytes(value);

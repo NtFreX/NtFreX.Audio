@@ -47,8 +47,8 @@ namespace NtFreX.Audio.Samplers
             return new Sample(
                 format.Type switch
                 {
-                    AudioFormatType.Pcm => isNewBigger ? sample.Value * factor : sample.Value / factor,
-                    AudioFormatType.IeeFloat => sample.Value,
+                    AudioFormatType.Pcm => isNewBigger ? sample.AsNumber() * factor : sample.AsNumber() / factor,
+                    AudioFormatType.IeeFloat => sample.AsNumber(),
                     _ => throw new Exception()
                 }, definition);
         }

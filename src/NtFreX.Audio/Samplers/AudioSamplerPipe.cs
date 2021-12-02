@@ -1,4 +1,5 @@
 ﻿using NtFreX.Audio.Containers;
+using NtFreX.Audio.Infrastructure.Container;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -17,6 +18,21 @@ namespace NtFreX.Audio.Samplers
             samplers.Add(sampler(AudioSamplerFactory.Instance));
             return this;
         }
+        public Task<IntermediateEnumerableAudioContainer> RunAsync(IIntermediateAudioContainer audio, CancellationToken cancellationToken = default)
+        {
+            _ = audio ?? throw new ArgumentNullException(nameof(audio));
+
+            if (audio is IntermediateEnumerableAudioContainer enumerable)
+            {
+                return RunAsync(enumerable, cancellationToken);
+            }
+            else if (audio is IntermediateListAudioContainer list)
+            {
+                return RunAsync(list, cancellationToken);
+            }
+            throw new Exception("Unknown intermediate container type was given");
+        }
+
         public Task<IntermediateEnumerableAudioContainer> RunAsync(IntermediateListAudioContainer audio, CancellationToken cancellationToken = default)
         {
             _ = audio ?? throw new ArgumentNullException(nameof(audio));

@@ -12,11 +12,36 @@ namespace NtFreX.Audio
 {
     public static class AudioEnvironment
     {
+        private static IAudioPlatform? platform;
+        private static IAudioDeviceFactory? deviceFactory;
+
         public static AudioSamplerFactory Sampler { [return:NotNull] get; } = AudioSamplerFactory.Instance;
         public static AudioContainerSerializerFactory Serializer { [return:NotNull] get; } = AudioContainerSerializerFactory.Instance;
         public static AudioConverterFactory Converter { [return: NotNull] get; } = AudioConverterFactory.Instance;
-        public static IAudioPlatform Platform { [return:NotNull] get; } = AudioPlatformAdapterFactory.Instance.Get();
-        public static IAudioDeviceFactory DeviceFactory { [return: NotNull] get; } = Platform.AudioDeviceFactory;
+        public static IAudioPlatform Platform 
+        { 
+            // only initialize platform once it has been requested for the first time
+            get
+            {
+                if(platform == null)
+                {
+                    platform = AudioPlatformAdapterFactory.Instance.Get();
+                }
+                return platform;
+            }
+        }
+        public static IAudioDeviceFactory DeviceFactory
+        {
+            // only initialize platform once deviceFactory has been requested for the first time
+            get
+            {
+                if(deviceFactory == null)
+                {
+                    deviceFactory = Platform.AudioDeviceFactory;
+                }
+                return deviceFactory;
+            }
+        }
     }
 
     public static class AudioContainer

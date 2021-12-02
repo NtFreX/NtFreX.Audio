@@ -4,7 +4,6 @@ using NtFreX.Audio.Infrastructure.Threading;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using NtFreX.Audio.Wasapi.Interop;
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,8 +28,10 @@ namespace NtFreX.Audio.Wasapi.Wrapper
         private readonly IAudioContainer audio;
         private readonly ISeekableAsyncEnumerator<Memory<byte>> enumerator;
         private readonly uint bufferFrameCount;
+        private readonly uint bufferSize;
         private readonly ConcurrentExclusiveSchedulerPair taskSchedulerPair;
-        private readonly List<byte> realBuffer;
+        private readonly Memory<byte> realBuffer;
+        private int realBufferPosition;
 
         private Task? audioPump;
         private Task? eventPump;
@@ -45,15 +46,21 @@ namespace NtFreX.Audio.Wasapi.Wrapper
 
         internal ManagedAudioRender(ManagedAudioClient managedAudioClient, ManagedAudioClock managedAudioClock, IAudioRenderClient audioRenderClient, IAudioContainer audio, CancellationToken cancellationToken)
         {
+            if (managedAudioClient?.InitializedFormat == null)
+            {
+                throw new Exception("The audio client has no intialized format");
+            }
+
             this.enumerator = audio.GetAsyncAudioEnumerable(cancellationToken).GetAsyncEnumerator(cancellationToken);
             this.bufferFrameCount = managedAudioClient.GetBufferSize();
+            this.bufferSize = bufferFrameCount * managedAudioClient.InitializedFormat.Unmanaged.Format.BlockAlign;
             this.managedAudioClient = managedAudioClient;
             this.managedAudioClock = managedAudioClock;
             this.audioRenderClient = audioRenderClient;
             this.cancellationToken = cancellationToken;
             this.audio = audio;
+            this.realBuffer = new byte[bufferSize * 2];
             this.isStopped = false;
-            this.realBuffer = new List<byte>();
 
             taskSchedulerPair = new ConcurrentExclusiveSchedulerPair();
             StartEventPump();
@@ -138,7 +145,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             }
 
             enumerator.SeekTo((long) positionInBuffer);
-            realBuffer.Clear();
+            realBufferPosition = 0;
 
             if (audioPump?.Status == TaskStatus.RanToCompletion)
             {
@@ -188,18 +195,19 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                         throw new OperationCanceledException();
                     }
 
-                    if (!isStopped)
+                    if (!isStopped && realBufferPosition <= bufferSize)
                     {
                         hasAudio = await enumerator.MoveNextAsync().ConfigureAwait(false);
-                        realBuffer.AddRange(enumerator.Current.ToArray());
+                        enumerator.Current.CopyTo(realBuffer.Slice(realBufferPosition));
+                        realBufferPosition += enumerator.Current.Length;
                     }
 
-                    while (!isDisposed && realBuffer.Count >= bufferFrameCount * format.Format.BlockAlign)
+                    while (!isDisposed && realBufferPosition >= bufferSize)
                     {
                         if (!hasStarted)
                         {
                             // Fill first buffer before audio client has started
-                            RenderFrames(realBuffer, bufferFrameCount);
+                            RenderFrames(bufferFrameCount);
                             managedAudioClient.Start();
                             hasStarted = true;
                         }
@@ -211,12 +219,12 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                             // See how much buffer space is available.
                             var numFramesPadding = managedAudioClient.GetCurrentPadding();
                             var numFramesAvailable = bufferFrameCount - numFramesPadding;
-                            RenderFrames(realBuffer, numFramesAvailable);
+                            RenderFrames(numFramesAvailable);
                         }
                     }
                 }
 
-                while (!isDisposed && realBuffer.Count > 0)
+                while (!isDisposed && realBufferPosition > 0)
                 {
                     // Fill buffer when audio client request new data
                     await Task.Delay((int)(hnsActualDuration / RefTimesPerMilisec / 2), cancellationToken).ConfigureAwait(false);
@@ -224,7 +232,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                     // See how much buffer space is available.
                     var numFramesPadding = managedAudioClient.GetCurrentPadding();
                     var numFramesAvailable = bufferFrameCount - numFramesPadding;
-                    RenderFrames(realBuffer, numFramesAvailable);
+                    RenderFrames(numFramesAvailable);
                 }
 
                 // Wait for last data in buffer to play before stopping.
@@ -254,7 +262,7 @@ namespace NtFreX.Audio.Wasapi.Wrapper
             audioPump = Task.Factory.StartNew(PumpAudioAsync, cancellationToken, TaskCreationOptions.DenyChildAttach, taskSchedulerPair.ConcurrentScheduler).Unwrap();
         }
 
-        private void RenderFrames(List<byte> realBuffer, uint numFramesAvailable)
+        private unsafe void RenderFrames(uint numFramesAvailable)
         {
             if (managedAudioClient.InitializedFormat == null)
             {
@@ -272,9 +280,10 @@ namespace NtFreX.Audio.Wasapi.Wrapper
                 return;
             }
 
-            var realSize = Math.Min(numFramesAvailable * managedAudioClient.InitializedFormat.Unmanaged.Format.BlockAlign, realBuffer.Count);
-            Marshal.Copy(realBuffer.ToArray(), 0, dataBufferPointer, (int)realSize);
-            realBuffer.RemoveRange(0, (int)realSize);
+            var realSize = (int) Math.Min(numFramesAvailable * managedAudioClient.InitializedFormat.Unmanaged.Format.BlockAlign, realBufferPosition);
+            var data = realBuffer.Slice(realBufferPosition - realSize, realSize).Pin();
+            Buffer.MemoryCopy(data.Pointer, dataBufferPointer.ToPointer(), realSize, realSize);
+            realBufferPosition -= realSize;
 
             audioRenderClient
                 .ReleaseBuffer(numFramesAvailable, AudioClientBufferFlags.None)

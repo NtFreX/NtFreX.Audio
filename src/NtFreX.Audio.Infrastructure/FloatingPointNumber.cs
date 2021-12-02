@@ -30,5 +30,23 @@ namespace NtFreX.Audio.Infrastructure
                 _ => throw new ArgumentException($"Floating point numbers with {bits} bits are not supported.", nameof(bits)),
             };
         }
+
+        public static void ToRequiredBits(uint bits, Span<byte> buffer, double value = 0, bool isLittleEndian = true)
+        {
+            switch (bits)
+            {
+                case 16:
+                    ((short)(value * (short.MaxValue + 1f))).ToMemory(buffer, isLittleEndian);
+                    break;
+                case 32:
+                    ((float)value).ToMemory(buffer, isLittleEndian);
+                    break;
+                case 64:
+                    value.ToMemory(buffer, isLittleEndian);
+                    break;
+                default:
+                    throw new ArgumentException($"Floating point numbers with {bits} bits are not supported.", nameof(bits));
+            }
+        }
     }
 }
