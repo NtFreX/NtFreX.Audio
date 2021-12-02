@@ -7,13 +7,22 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 {
     public static class SeekableAsyncEnumerableExtensions
     {
-        public static ISeekableAsyncEnumerable<T[]> GroupByLengthAsync<T>(this ISeekableAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerable<Memory<T>> GroupByLengthAsync<T>(this ISeekableAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
         {
             _ = values ?? throw new ArgumentNullException(nameof(values));
 
             var enumerator = values.GetAsyncEnumerator(cancellationToken);
-            return new AsyncEnumerable<T[]>(c => enumerator.GroupByLengthAsync(length, c).ToAsyncEnumerator())
+            return new AsyncEnumerable<Memory<T>>(c => enumerator.GroupByLengthAsync(length, c).ToAsyncEnumerator())
                     .ToSeekable(enumerator, values.DisposeAsync, values.CanGetLength() ? values.GetDataLength() / (ulong?) length : null);
+        }
+
+        public static ISeekableAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this ISeekableAsyncEnumerable<TIn> values, Func<TIn, Memory<TOut>> selector, ulong? newSize, CancellationToken cancellationToken = default)
+        {
+            _ = values ?? throw new ArgumentNullException(nameof(values));
+
+            var enumerator = values.GetAsyncEnumerator(cancellationToken);
+            return new AsyncEnumerable<TOut>(c => enumerator.ToAsyncEnumerator().SelectManyAsync(selector, c))
+                    .ToSeekable(enumerator, values.DisposeAsync, newSize);
         }
 
         public static ISeekableAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this ISeekableAsyncEnumerable<TIn> values, Func<TIn, IEnumerable<TOut>> selector, ulong? newSize, CancellationToken cancellationToken = default)
@@ -31,6 +40,15 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 
             var enumerator = values.GetAsyncEnumerator(cancellationToken);
             return new AsyncEnumerable<TOut>(c => enumerator.ToAsyncEnumerator().SelectAsync(selector, c))
+                    .ToSeekable(enumerator, values.DisposeAsync, values?.GetDataLength() ?? throw new ArgumentNullException(nameof(values)));
+        }
+
+        public static ISeekableAsyncEnumerable<T> ForEachAsync<T>(this ISeekableAsyncEnumerable<T> values, Func<int, T, Task> visitor, CancellationToken cancellationToken = default)
+        {
+            _ = values ?? throw new ArgumentNullException(nameof(values));
+
+            var enumerator = values.GetAsyncEnumerator(cancellationToken);
+            return new AsyncEnumerable<T>(c => enumerator.ToAsyncEnumerator().ForEachAsync(visitor, c))
                     .ToSeekable(enumerator, values.DisposeAsync, values?.GetDataLength() ?? throw new ArgumentNullException(nameof(values)));
         }
 

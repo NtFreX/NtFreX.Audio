@@ -2,7 +2,7 @@
 using NtFreX.Audio.Infrastructure;
 using NtFreX.Audio.Infrastructure.Threading.Extensions;
 using System;
-using System.Collections.Generic;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,12 +39,14 @@ namespace NtFreX.Audio.Samplers
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, (ushort) targetChannels, format.Type)));
         }
 
-        private IEnumerable<Sample> FromMono(Sample sample)
+        private Memory<Sample> FromMono(Sample sample)
         {
+            var owner = MemoryPool<Sample>.Shared.Rent(targetChannels);
             for (var i = 0; i < targetChannels; i++)
             {
-                yield return sample;
+                owner.Memory.Span[i] = sample;
             }
+            return owner.Memory.Slice(0, targetChannels);
         }
     }
 }

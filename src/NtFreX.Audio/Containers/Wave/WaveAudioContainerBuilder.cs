@@ -24,17 +24,13 @@ namespace NtFreX.Audio.Containers.Wave
             _ = data ?? throw new ArgumentNullException(nameof(data));
             _ = format ?? throw new ArgumentNullException(nameof(format));
 
-            var enumerable = data
-                .GroupByLengthAsync(format.BytesPerSample)
-                .SelectAsync(x => x.AsMemory());
-
             if(!data.CanGetLength())
             {
                 throw new NotSupportedException("Cannot build a wave container with a enumerable which cannot return it's length");
             }
 
             return Build(
-                enumerable,
+                data.GroupByLengthAsync(format.BytesPerSample),
                 data.GetDataLength(),
                 format,
                 isDataLittleEndian);

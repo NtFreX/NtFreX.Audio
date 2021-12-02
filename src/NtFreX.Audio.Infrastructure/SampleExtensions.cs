@@ -9,38 +9,67 @@ namespace NtFreX.Audio.Infrastructure
 {
     public static class SampleExtensions
     {
-        private static readonly object LockObj = new object();
-        private static SampleDefinition? definition;
-        private static double ToValue(Sample sample)
+        public static Sample Average(this Memory<Sample> samples)
         {
-            // TODO: Make this tread safe and keep it allocation free.
-            // The catch is we do not want to/cannot enumerate multiple times and the method should not allocate the whole array.
-            // currently there is no need for thread safty but it is very likely that it will become nessesary to support.
+            double sum = 0;
+            long count = 0;
+            SampleDefinition? definition = null;
+            checked
+            {
+                for (var index = 0; index < samples.Length; index++)
+                {
+                    var item = samples.Span[index];
+                    sum += item.AsNumber();
+                    count++;
+
+                    if (definition == null)
+                    {
+                        definition = item.Definition;
+                    }
+                    Debug.Assert(definition == item.Definition, "Only samples with the same definition can be averaged");
+                }
+            }
+
             if (definition == null)
             {
-                definition = sample.Definition;
+                throw new Exception("The enumeration cannot be empty");
             }
-            Debug.Assert(definition == sample.Definition, "Only samples with the same definition can be averaged");
 
-            return sample.AsNumber();
+            var average = (double)sum / count;
+            var sample = new Sample(average, definition!.Value);
+            return sample;
         }
-        private static Func<Sample, double> ToValueFunc { get; } = ToValue;
 
         public static Sample Average(this IEnumerable<Sample> samples)
         {
-            lock (LockObj)
+            _ = samples ?? throw new ArgumentNullException(nameof(samples));
+
+            double sum = 0;
+            long count = 0;
+            SampleDefinition? definition = null;
+            checked
             {
-                var average = samples.Average(ToValueFunc);
-
-                if (definition == null)
+                foreach (var item in samples)
                 {
-                    throw new Exception("The enumeration cannot be empty");
-                }
+                    sum += item.AsNumber();
+                    count++;
 
-                var sample = new Sample(average, definition!.Value);
-                definition = null;
-                return sample;
+                    if (definition == null)
+                    {
+                        definition = item.Definition;
+                    }
+                    Debug.Assert(definition == item.Definition, "Only samples with the same definition can be averaged");
+                }
             }
+
+            if (definition == null)
+            {
+                throw new Exception("The enumeration cannot be empty");
+            }
+
+            var average = (double)sum / count;
+            var sample = new Sample(average, definition!.Value);
+            return sample;
         }
 
         public static ISeekableAsyncEnumerable<Sample> ToSamplesAsync(this ISeekableAsyncEnumerable<Memory<byte>> data, ulong? realByteLength, IAudioFormat format, bool isLittleEndian, CancellationToken cancellationToken = default)
