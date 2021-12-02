@@ -34,8 +34,8 @@ namespace NtFreX.Audio.Containers
 
             return Build(
                 format,
-                data.GroupByLengthAsync(format.BytesPerSample).SelectAsync(x => x.AsMemory()),
-                data.CanGetLength() ? (ulong?)data.GetDataLength() : null,
+                data.GroupByLengthAsync(format.BytesPerSample).SelectAsync(x => x),
+                data.CanGetLength() ? data.GetDataLength() : null,
                 isLittleEndian);
         }
 

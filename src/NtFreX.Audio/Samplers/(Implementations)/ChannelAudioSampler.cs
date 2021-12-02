@@ -37,7 +37,8 @@ namespace NtFreX.Audio.Samplers
             return Task.FromResult(audio.WithData(
                 data: audio
                     .GroupByLengthAsync(format.Channels, cancellationToken)
-                    .SelectAsync(x => converter.Invoke(x), cancellationToken)
+                    // TODO: remove ToArray and make infra support Memory<Sample>
+                    .SelectAsync(x => converter.Invoke(x.ToArray()), cancellationToken)
                     .SelectManyAsync(x => x, audio.CanGetDataLength() ? (ulong?)(factor * audio.GetDataLength()) : null, cancellationToken),
                 format: new AudioFormat(format.SampleRate, format.BitsPerSample, targetChannels, format.Type)));
         }

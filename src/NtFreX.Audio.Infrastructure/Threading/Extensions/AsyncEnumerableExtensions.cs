@@ -17,8 +17,8 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
         public static ISeekableAsyncEnumerable<T> ToNonSeekable<T>(this IAsyncEnumerable<T> data, ulong? length)
             => new NonSeekableAsyncEnumerable<T>(data, length);
 
-        public static IAsyncEnumerable<T[]> GroupByLengthAsync<T>(this IAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
-            => new AsyncEnumerable<T[]>(c => values.GetAsyncEnumerator(c).GroupByLengthAsync(length, cancellationToken));
+        public static IAsyncEnumerable<Memory<T>> GroupByLengthAsync<T>(this IAsyncEnumerable<T> values, int length, CancellationToken cancellationToken = default)
+            => new AsyncEnumerable<Memory<T>>(c => values.GetAsyncEnumerator(c).GroupByLengthAsync(length, cancellationToken));
 
         public static Task<T[]> ToArrayAsync<T>(this IAsyncEnumerable<T> values, CancellationToken cancellationToken = default)
             => values?.GetAsyncEnumerator(cancellationToken).ToArrayAsync(cancellationToken) ?? throw new ArgumentNullException(nameof(values));

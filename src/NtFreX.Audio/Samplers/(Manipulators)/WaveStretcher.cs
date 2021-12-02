@@ -41,6 +41,7 @@ namespace NtFreX.Audio.Samplers
             var newDataSize = System.Math.Round(factor * sizeInBytes.Value, 0);
             var sizeOfParts = sizeInBytes.Value / (double)System.Math.Abs(sizeInBytes.Value - newDataSize);
             var previous = Sample.Zero(new SampleDefinition(format.Type, format.BitsPerSample, isLittleEndian));
+            var averageBuffer = new Sample[2];
             var counter = 1d;
             var total = 0L;
             while(await audio.MoveNextAsync().ConfigureAwait(false))
@@ -58,7 +59,9 @@ namespace NtFreX.Audio.Samplers
                 {
                     if (positionReached)
                     {
-                        yield return new Sample[] { sample, previous }.Average();
+                        averageBuffer[0] = sample;
+                        averageBuffer[1] = previous;
+                        yield return averageBuffer.Average();
                         counter -= sizeOfParts;
                     }
 
@@ -88,33 +91,5 @@ namespace NtFreX.Audio.Samplers
                 yield return previous / 2;
             }
         }
-
-        // TODO: implement
-        //private static async IAsyncEnumerable<Sample> StretchInnerAsyncA(ISeekableAsyncEnumerator<Sample> audio, IAudioFormat format, bool isLittleEndian, double factor, [EnumeratorCancellation] CancellationToken cancellationToken)
-        //{
-        //    var stepSize = factor / 2f;
-        //    var currentId = stepSize;
-        //    var currentRelatedId = 0.5f;
-        //    var nextRelatedId = currentRelatedId + 1f;
-        //    var cache = new Stack<(double Id, Sample Value)>();
-        //    while (await audio.MoveNextAsync().ConfigureAwait(false))
-        //    {
-        //        if (cancellationToken.IsCancellationRequested)
-        //        {
-        //            throw new OperationCanceledException();
-        //        }
-
-        //        if (System.Math.Abs(currentRelatedId - currentId) > System.Math.Abs(nextRelatedId - currentId))
-        //        {
-        //            nextRelatedId += 1f;
-        //            currentRelatedId += 1f;
-        //        }
-        //        else
-        //        {
-        //            cache.Push((currentId, audio.Current));
-        //            currentId += stepSize;
-        //        }
-        //    }
-        //}
     }
 }

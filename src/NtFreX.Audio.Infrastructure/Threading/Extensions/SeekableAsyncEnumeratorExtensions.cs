@@ -7,7 +7,7 @@ namespace NtFreX.Audio.Infrastructure.Threading.Extensions
 {
     public static class SeekableAsyncEnumeratorExtensions
     { 
-        public static ISeekableAsyncEnumerator<T[]> GroupByLengthAsync<T>(this ISeekableAsyncEnumerator<T> values, int length, CancellationToken cancellationToken = default)
+        public static ISeekableAsyncEnumerator<Memory<T>> GroupByLengthAsync<T>(this ISeekableAsyncEnumerator<T> values, int length, CancellationToken cancellationToken = default)
         {
             _ = values ?? throw new ArgumentNullException(nameof(values));
 
